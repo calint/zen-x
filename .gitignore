@@ -1,0 +1,8 @@
+# generated vivado dirs
+*.cache/
+*.gen/
+*.hw/
+*.ioplanning/
+*.ip_user_files/
+*.runs/
+*.sim/
