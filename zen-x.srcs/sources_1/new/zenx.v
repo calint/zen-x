@@ -115,37 +115,34 @@ always @(negedge clk) begin
     if (rst) begin
         stp <= 1;
         pc <= 0;
-        rom_en <= 1;
+        rom_en <= 1; // start reading first instruction
         ram_en <= 0;
         ram_we <= 0;
         regs_we <= 0;
     end else begin
         if (stp[0]) begin
-            // wait for rom to complete
+            // got instruction from rom
             regs_we <= 0;
             ram_en <= 0;
             ram_we <= 0;
-            stp <= stp << 2;
-        end else if(stp[1]) begin
-            // wait for rom
             stp <= stp << 1;
-        end else if(stp[2]) begin
+        end else if(stp[1]) begin
             // execute instruction
-            is_ldi = op == OP_LDI;
-            if (is_ldi) begin
+            is_ldi <= op == OP_LDI;
+            if (op == OP_LDI) begin
                 ldi_reg <= regb;
                 stp <= stp << 3;
             end
             pc <= pc + 1;
+        end else if(stp[2]) begin
+            stp <= 1;
         end else if(stp[3]) begin
             stp <= 1;
         end else if(stp[4]) begin
-            stp <= 1;
-        end else if(stp[5]) begin
-            // ldi (wait for rom)
+            // ldi: wait for rom
             stp = stp << 1;
-        end else if(stp[6]) begin
-            // ldi (store in register)
+        end else if(stp[5]) begin
+            // ldi: store in register, start reading next instruction
             regs_we <= 1;
             regs_wd <= instr;
             regs_ra2 <= ldi_reg;
