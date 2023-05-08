@@ -27,35 +27,38 @@ initial begin
     #clk_tk
     rst = 0;
     
-    // rom read
-    #clk_tk;
-    #clk_tk;
-    if (zx.ctrl.rom_dat==16'h105b) $display("case 1 passed");
-    else $display("case 1 failed. expected 0x1056, got %h", zx.ctrl.rom_dat); 
+    #clk_tk // read rom[0]
+    #clk_tk // 1090: ldi r1
     
-    // ram write
-    #clk_tk;
-    #clk_tk;
+    #clk_tk // read rom[1]
+    #clk_tk // 0x1234
     
-    // rom read
-    #clk_tk;
-    #clk_tk;
-    if (zx.ctrl.rom_dat==16'h1234) $display("case 2 passed");
-    else $display("case 2 failed. expected 0x1234, got %h", zx.ctrl.rom_dat); 
+    #clk_tk // regs[1]=0x1234
+    if (zx.regs.mem[1]==16'h1234) $display("case 1 passed");
+    else $display("case 1 failed. expected 0x1234, got %h", zx.regs.mem[1]); 
     
-    // ram write
-    #clk_tk;
-    #clk_tk;
+    #clk_tk // read rom[2] 
+    #clk_tk // 2090: ldi r2
 
-    // rom read
-    #clk_tk;
-    #clk_tk;
-    if (zx.ctrl.rom_dat==16'habcd) $display("case 3 passed");
-    else $display("case 3 failed. expected 0xabcd, got %h", zx.ctrl.rom_dat); 
-    
-    // ram write
-    #clk_tk;
-    #clk_tk;
+    #clk_tk // read rom[3]
+    #clk_tk // 0xabcd
+
+    #clk_tk // regs[2]=0xabcd
+    if (zx.regs.mem[2]==16'habcd) $display("case 2 passed");
+    else $display("case 2 failed. expected 0xabcd, got %h", zx.regs.mem[2]); 
+
+    #clk_tk // read rom[4] 
+    #clk_tk // 2090: ldi r3
+
+    #clk_tk // read rom[4]
+    #clk_tk // 0xffff
+
+    #clk_tk // regs[4]=0xffff
+    if (zx.regs.mem[3]==16'hffff) $display("case 3 passed");
+    else $display("case 3 failed. expected 0xffff, got %h", zx.regs.mem[3]); 
+
+    #clk_tk // read rom[4] 
+    #clk_tk // 
 
     $finish;
 end
