@@ -3,7 +3,9 @@ experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga
 
 under construction, second try at fpga using verilog in xilinx vivado
 
-rom and ram implemented in block ram
+rom and ram implemented using ip block ram
+
+pre pipeline
 
 ? cycles / instruction
 

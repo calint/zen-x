@@ -13,8 +13,8 @@ reg rst;
 wire [15:0] debug;
 
 zenx zx(
-    .reset(rst),
-    .clk_in(clk),
+    .rst(rst),
+    .clk(clk),
     .led(led),
     .debug(debug)
 );
@@ -35,6 +35,14 @@ initial begin
     #clk_tk;
     #clk_tk;
     
+    // rom read
+    #clk_tk;
+    #clk_tk;
+    
+    // ram write
+    #clk_tk;
+    #clk_tk;
+
     // rom read
     #clk_tk;
     #clk_tk;

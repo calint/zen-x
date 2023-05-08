@@ -15,13 +15,14 @@ module Control(
     output reg ram_we,
     output reg [15:0] ram_addr,
     output reg [15:0] ram_dat_in,
-    output reg [2:0] alu_op
+    output reg [2:0] alu_op,
+    output reg [15:0] debug
 );
 
 reg [2:0] stp;
 reg [14:0] addr;
 
-always @(negedge clk) begin
+always @(posedge clk) begin
     if (rst) begin
         stp <= 0;
         addr <= 0;
@@ -47,6 +48,9 @@ always @(negedge clk) begin
         end
         3'd3: begin
             stp <= 0;
+            addr <= addr + 1;
+            addr <= addr + 1;
+            debug <= rom_dat;
         end        
         endcase
     end

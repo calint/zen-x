@@ -2,8 +2,8 @@
 `default_nettype none
 
 module zenx(
-    input wire reset,
-    input wire clk_in,
+    input wire rst,
+    input wire clk,
     output wire [3:0] led,
     output wire [15:0] debug
 );
@@ -13,16 +13,6 @@ localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
 localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
 localparam REGISTERS_WIDTH = 16; // 16 bit
-    
-wire clk_locked;
-wire clk = clk_in;
-
-//Clocking clkg(
-//    .reset(reset),
-//    .locked(clk_locked),
-//    .clk_in(clk_in),
-//    .clk_out(clk)
-//);
 
 wire [15:0] rom_dat;
 wire [15:0] ram_dat;
@@ -67,7 +57,7 @@ BlockRAM bram( // 64K x 16b
 
 Control ctrl(
  //   .rst(!clk_locked),
-    .rst(reset),
+    .rst(rst),
     .clk(clk),
     .rom_dat(rom_dat),
     .ram_dat(ram_dat),
@@ -80,7 +70,8 @@ Control ctrl(
     .ram_we(ram_we),
     .ram_addr(ram_addr),
     .ram_dat_in(ram_dat_in),
-    .alu_op(alu_op)
+    .alu_op(alu_op),
+    .debug(debug)
 );
 
 assign led[0] = rom_dat[0];
