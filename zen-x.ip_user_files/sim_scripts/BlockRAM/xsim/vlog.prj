@@ -1,0 +1,6 @@
+verilog xil_defaultlib  \
+"../../../../zen-x.gen/sources_1/ip/BlockRAM/sim/BlockRAM.v" \
+
+verilog xil_defaultlib "glbl.v"
+
+nosort

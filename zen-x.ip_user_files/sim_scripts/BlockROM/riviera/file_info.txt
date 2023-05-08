@@ -1,0 +1,6 @@
+xpm_cdc.sv,systemverilog,xpm,../../../../../../xilinix/Vivado/2022.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv,
+xpm_memory.sv,systemverilog,xpm,../../../../../../xilinix/Vivado/2022.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv,
+xpm_VCOMP.vhd,vhdl,xpm,../../../../../../xilinix/Vivado/2022.2/data/ip/xpm/xpm_VCOMP.vhd,
+blk_mem_gen_v8_4.v,verilog,blk_mem_gen_v8_4_5,../../../ipstatic/simulation/blk_mem_gen_v8_4.v,
+BlockROM.v,verilog,xil_defaultlib,../../../../zen-x.gen/sources_1/ip/BlockROM/sim/BlockROM.v,
+glbl.v,Verilog,xil_defaultlib,glbl.v

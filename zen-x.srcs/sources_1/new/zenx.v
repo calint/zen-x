@@ -28,6 +28,22 @@ BlockROM brom( // 32K x 16b
     .douta(brom_douta)
 );
 
+reg [15:0] alu_a = 0;
+reg [15:0] alu_b = 0;
+reg [2:0] alu_op = 0;
+wire [15:0] alu_result;
+wire alu_zf;
+wire alu_nf;
+
+ALU #(16) alu(
+  .op(alu_op),
+  .a(alu_a),
+  .b(alu_b),
+  .result(alu_result),
+  .zf(alu_zf),
+  .nf(alu_nf)
+);
+
 reg bram_ena = 0;
 reg bram_wea = 0;
 reg [15:0] bram_addra = 0;
@@ -46,6 +62,7 @@ BlockRAM bram( // 64K x 16b
 assign led[0] = brom_douta[0];
 assign led[1] = bram_douta[0];
 assign led[2] = clk;
+assign led[3] = alu_zf;
 
 endmodule
 
