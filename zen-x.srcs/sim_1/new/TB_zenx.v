@@ -30,6 +30,8 @@ initial begin
     // rom read
     #clk_tk;
     #clk_tk;
+    if (zx.ctrl.rom_dat==16'h105b) $display("case 1 passed");
+    else $display("case 1 failed. expected 0x1056, got %h", zx.ctrl.rom_dat); 
     
     // ram write
     #clk_tk;
@@ -38,6 +40,8 @@ initial begin
     // rom read
     #clk_tk;
     #clk_tk;
+    if (zx.ctrl.rom_dat==16'h1234) $display("case 2 passed");
+    else $display("case 2 failed. expected 0x1234, got %h", zx.ctrl.rom_dat); 
     
     // ram write
     #clk_tk;
@@ -46,6 +50,8 @@ initial begin
     // rom read
     #clk_tk;
     #clk_tk;
+    if (zx.ctrl.rom_dat==16'habcd) $display("case 3 passed");
+    else $display("case 3 failed. expected 0xabcd, got %h", zx.ctrl.rom_dat); 
     
     // ram write
     #clk_tk;

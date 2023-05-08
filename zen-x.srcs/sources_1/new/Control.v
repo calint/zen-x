@@ -19,40 +19,33 @@ module Control(
     output reg [15:0] debug
 );
 
-reg [2:0] stp;
+reg [3:0] stp;
 reg [14:0] addr;
 
-always @(posedge clk) begin
+always @(negedge clk) begin
     if (rst) begin
-        stp <= 0;
+        stp <= 1;
         addr <= 0;
     end else begin
-        case(stp)
-        3'd0: begin
+        if (stp[0]) begin
             ram_en <= 0;
             ram_we <= 0;
             rom_en <= 1;
             rom_addr <= addr;
-            stp <= 1;
-        end
-        3'd1: begin
-            stp <= 2;
-        end
-        3'd2: begin
+            stp <= stp << 1;
+        end else if(stp[1]) begin
+            stp <= stp << 1;
+        end else if(stp[2]) begin
             rom_en <= 0;
             ram_en <= 1;
             ram_we <= 1;
             ram_addr <= addr;
             ram_dat_in <= rom_dat;
-            stp <= 3;
-        end
-        3'd3: begin
-            stp <= 0;
+            stp <= stp << 1;
+        end else if(stp[3]) begin
             addr <= addr + 1;
-            addr <= addr + 1;
-            debug <= rom_dat;
+            stp <= 1;
         end        
-        endcase
     end
 end
 
