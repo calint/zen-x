@@ -2,12 +2,12 @@
 `default_nettype none
 
 module ALU #(parameter WIDTH = 16) (
-  input wire [2:0] op, // operation
-  input wire signed [WIDTH-1:0] a, // first operand
-  input wire signed [WIDTH-1:0] b, // second operand
-  output reg [WIDTH-1:0] result, // result of a op b
-  output reg zf, // enabled if result is zero
-  output reg nf // enabled if result is negative
+    input wire [2:0] op, // operation
+    input wire signed [WIDTH-1:0] a, // first operand
+    input wire signed [WIDTH-1:0] b, // second operand
+    output reg [WIDTH-1:0] result, // result of a op b
+    output reg zf, // enabled if result is zero
+    output reg nf // enabled if result is negative
 );
 
 always @(*) begin
@@ -17,7 +17,7 @@ always @(*) begin
     `endif
 
     case(op)
-    3'b000: result = b ^ a;
+    3'b000: result = b + a;
     3'b001: result = b - a;
     3'b010: result = b | a;
     3'b011: result = b ^ a;

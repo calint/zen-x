@@ -1,10 +1,9 @@
 -- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2022.2 (lin64) Build 3671981 Fri Oct 14 04:59:54 MDT 2022
--- Date        : Mon May  8 02:17:14 2023
+-- Date        : Mon May  8 03:25:53 2023
 -- Host        : c running 64-bit Ubuntu 23.04
--- Command     : write_vhdl -force -mode synth_stub -rename_top BlockRAM -prefix
---               BlockRAM_ BlockRAM_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub /home/c/w/zen-x/zen-x.gen/sources_1/ip/BlockRAM/BlockRAM_stub.vhdl
 -- Design      : BlockRAM
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7s25csga225-1

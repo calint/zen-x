@@ -5,7 +5,7 @@ module zenx(
     input wire reset,
     input wire clk_in,
     output wire [3:0] led
-    );
+);
     
 wire clk_locked;
 wire clk;
@@ -36,12 +36,12 @@ wire alu_zf;
 wire alu_nf;
 
 ALU #(16) alu(
-  .op(alu_op),
-  .a(alu_a),
-  .b(alu_b),
-  .result(alu_result),
-  .zf(alu_zf),
-  .nf(alu_nf)
+    .op(alu_op),
+    .a(alu_a),
+    .b(alu_b),
+    .result(alu_result),
+    .zf(alu_zf),
+    .nf(alu_nf)
 );
 
 reg bram_ena = 0;
@@ -62,7 +62,7 @@ BlockRAM bram( // 64K x 16b
 assign led[0] = brom_douta[0];
 assign led[1] = bram_douta[0];
 assign led[2] = clk;
-assign led[3] = alu_zf;
+assign led[3] = alu_result[0];
 
 endmodule
 
