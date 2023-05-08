@@ -16,15 +16,15 @@ localparam REGISTERS_WIDTH = 16; // 16 bit
 
 localparam OP_ADDI = 4'b0001;
 localparam OP_LDI  = 4'b1001;
+localparam OP_ST   = 4'b1101;
+localparam OP_LD   = 4'b0101;
 
 reg rom_en;
 wire [15:0] rom_dat;
 
 reg ram_en;
 reg ram_we;
-reg [15:0] ram_addr;
-wire [15:0] ram_dat;
-reg [15:0] ram_dat_in;
+wire [15:0] ram_dat_out;
 
 reg [2:0] alu_op;
 reg [15:0] alu_a = 0;
@@ -32,13 +32,6 @@ reg [15:0] alu_b = 0;
 wire [15:0] alu_result;
 wire alu_zf;
 wire alu_nf;
-
-reg [3:0] regs_ra1;
-reg [3:0] regs_ra2;
-reg regs_we;
-reg [15:0] regs_wd;
-wire [15:0] regs_rd1;
-wire [15:0] regs_rd2;
 
 // Zn wires to CallStack and ALU
 wire cs_zf;
@@ -55,7 +48,7 @@ wire cs_zf_out;
 wire cs_nf_out;
 
 assign led[0] = rom_dat[0];
-assign led[1] = ram_dat_in[0];
+assign led[1] = ram_dat_out[0];
 assign led[2] = clk;
 assign led[3] = alu_result[0];
 
@@ -79,7 +72,7 @@ wire instr_c = instr[4]; // if enabled 'call'
 // note. instr_r && instr_c is illegal and instead enables another page of operations that can't 'return' during same operation
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
-wire [3:0] regb = instr[15:12]; // address of 'regb'
+wire [3:0] regb = is_ldi ? ldi_reg : instr[15:12]; // address of 'regb'
 wire [10:0] imm12 = instr[15:4];
 
 // Zn related wiring (part 1)
@@ -95,6 +88,16 @@ wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
 wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'next' and loop not finished
 wire [14:0] cs_pc_out; // address to 'pc' if 'return'
 
+
+reg regs_we; // registers write enabled
+reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr
+wire [15:0] regs_rd1; // regs[a]
+wire [15:0] regs_rd2; // regs[b]
+wire [15:0] regs_wd =
+    regs_wd_sel == 0 ? alu_result :
+    regs_wd_sel == 1 ? ram_dat_out :
+    instr;
+
 // ALU related wiring
 wire is_alu_op = !is_ldi && !is_cr && !cs_push && (op[4] || op == OP_ADDI);
 wire [2:0] alu_op = 
@@ -109,7 +112,7 @@ wire zn_we = is_do_op && (is_alu_op || cs_pop || cs_push); // update flags if al
 wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from CallStack otherwise ALU 
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
-
+    
 reg [7:0] stp;
 always @(negedge clk) begin
     if (rst) begin
@@ -123,20 +126,43 @@ always @(negedge clk) begin
         if (stp[0]) begin
             // got instruction from rom
             regs_we <= 0;
-            ram_en <= 0;
-            ram_we <= 0;
+            is_ldi <= 0;
             stp <= stp << 1;
         end else if(stp[1]) begin
             // execute instruction
-            is_ldi <= op == OP_LDI;
-            if (op == OP_LDI) begin
+            case(op)
+            OP_LDI: begin
+                is_ldi <= 1;
                 ldi_reg <= regb;
+                regs_we <= 0;
+                ram_en <= 0;
+                ram_we <= 0;
+                regs_wd_sel <= 2;
+                pc <= pc + 1;
                 stp <= stp << 3;
             end
-            pc <= pc + 1;
+            OP_ST: begin
+                regs_we <= 0;
+                ram_en <= 1;
+                ram_we <= 1;
+                stp = stp << 1;
+            end
+            OP_LD: begin
+                regs_we <= 1;
+                ram_en <= 1;
+                ram_we <= 0;
+                regs_wd_sel <= 1;
+                stp = stp << 1;
+            end
+            default: $display("!!! unknown instruction");
+            endcase
         end else if(stp[2]) begin
-            stp <= 1;
+            // ram op, one more cycle before write is finished
+            pc <= pc + 1; // start fetching next instruction
+            stp = stp << 1;
         end else if(stp[3]) begin
+            ram_we <= 0;
+            ram_en <= 0;
             stp <= 1;
         end else if(stp[4]) begin
             // ldi: wait for rom
@@ -144,8 +170,6 @@ always @(negedge clk) begin
         end else if(stp[5]) begin
             // ldi: store in register, start reading next instruction
             regs_we <= 1;
-            regs_wd <= instr;
-            regs_ra2 <= ldi_reg;
             pc <= pc + 1;
             stp <= 1;
         end        
@@ -174,8 +198,8 @@ Calls cs(
 
 Registers regs( // 16 x 16b
     .clk(clk),
-    .ra1(regs_ra1), // register address 1
-    .ra2(regs_ra2), // register address 2
+    .ra1(rega), // register address 1
+    .ra2(regb), // register address 2
     .we(regs_we), // write 'wd' to address 'ra2'
     .wd(regs_wd), // data to write to register 'ra2' when 'we' is enabled
     .rd1(regs_rd1), // register data 1
@@ -209,30 +233,11 @@ BlockRAM bram( // 64K x 16b
     .clka(clk),
     .ena(ram_en),
     .wea(ram_we),
-    .addra(ram_addr),
-    .dina(ram_dat_in),
-    .douta(ram_dat)
+    .addra(regs_rd1),
+    .dina(regs_rd2),
+    .douta(ram_dat_out)
 );
-/*
-Control ctrl(
- //   .rst(!clk_locked),
-    .rst(rst),
-    .clk(clk),
-    .rom_dat(rom_dat),
-    .ram_dat(ram_dat),
-    .alu_result(alu_result),
-    .alu_zf(alu_zf),
-    .alu_nf(alu_nf),
-    .rom_en(rom_en),
-    .rom_addr(rom_addr),
-    .ram_en(ram_en),
-    .ram_we(ram_we),
-    .ram_addr(ram_addr),
-    .ram_dat_in(ram_dat_in),
-    .alu_op(alu_op),
-    .debug(debug)
-);
-*/
+
 endmodule
 
 `default_nettype wire
