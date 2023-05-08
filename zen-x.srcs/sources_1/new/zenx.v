@@ -115,14 +115,17 @@ always @(negedge clk) begin
     if (rst) begin
         stp <= 1;
         pc <= 0;
+        rom_en <= 1;
+        ram_en <= 0;
+        ram_we <= 0;
+        regs_we <= 0;
     end else begin
         if (stp[0]) begin
-            // read next instruction from rom
+            // wait for rom to complete
+            regs_we <= 0;
             ram_en <= 0;
             ram_we <= 0;
-            regs_we <= 0;
-            rom_en <= 1;
-            stp <= stp << 1;
+            stp <= stp << 2;
         end else if(stp[1]) begin
             // wait for rom
             stp <= stp << 1;
