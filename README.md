@@ -65,5 +65,5 @@ rom and ram implemented in block ram
    1110 :       : 
    1111 :       : 
 
-   cr = 11 => jmp imm12
+   cr = 11 => jmp (pc + imm12)
 ```

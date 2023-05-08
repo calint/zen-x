@@ -6,6 +6,13 @@ module zenx(
     input wire clk_in,
     output wire [3:0] led
 );
+
+localparam ROM_ADDR_WIDTH = 14; // 2**14 instructions
+localparam RAM_ADDR_WIDTH = 14; // 2**14 data addresses
+localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
+localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
+localparam REGISTERS_WIDTH = 16; // 16 bit
+localparam INSTRUCTION_WIDTH = 16; // 16 bit
     
 wire clk_locked;
 wire clk;
