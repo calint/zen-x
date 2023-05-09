@@ -9,7 +9,7 @@ module zenx(
     output wire [15:0] debug
 );
 
-localparam ROM_ADDR_WIDTH = 16; // 2**15 instructions
+localparam ROM_ADDR_WIDTH = 15; // 2**15 instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
 localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
@@ -19,6 +19,7 @@ localparam OP_ADDI = 4'b0001;
 localparam OP_LDI  = 4'b1001;
 localparam OP_ST   = 4'b1101;
 localparam OP_LD   = 4'b0101;
+localparam OP_SHF  = 4'b1110;
 
 localparam ALU_ADD = 3'b000;
 localparam ALU_SUB = 3'b001;
@@ -78,6 +79,7 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [15:0] alu_operand_a = 
+    op == OP_SHF ? {{(12){rega[3]}}, rega} :
     op == OP_ADDI ? {{(12){rega[3]}}, rega} : // 'addi' is add with signed immediate value 'rega'
     regs_rd1; // otherwise regs[rega]
 
