@@ -1,2 +1,0 @@
-BlockROM.v,verilog,xil_defaultlib,../../../../zen-x.gen/sources_1/ip/BlockROM/sim/BlockROM.v,
-glbl.v,Verilog,xil_defaultlib,glbl.v
