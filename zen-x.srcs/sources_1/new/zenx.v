@@ -111,7 +111,7 @@ wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has pr
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
     
 reg [8:0] stp;
-always @(posedge clk) begin
+always @(posedge clk or posedge rst) begin
     if (rst) begin
         stp <= 1;
         pc <= 0;
@@ -169,11 +169,13 @@ always @(posedge clk) begin
             regs_wd_sel <= 2; // select register to write from instruction
             pc <= pc + 1; // start reading next instruction
             stp <= stp << 1;
-        end else if(stp[5]) begin // ldi: wait for next instruction
+        end else if(stp[5]) begin // ldi: wait for rom to get next instruction
             regs_we <= 0;
             is_ldi <= 0;
-            stp <= stp << 1;
-        end else if(stp[6]) begin // ldi: wait for next instruction
+//            stp <= 1;  // ? in the simulation rom out data is updated after 100ps in the cycle
+//                              zenx does not have the new instruction at posedge 
+            stp <= stp << 1; // thus a cycle delay
+        end else if(stp[6]) begin // ldi: wait for rom
             stp <= 1;
         end      
     end

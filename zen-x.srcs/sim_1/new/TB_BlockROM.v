@@ -24,15 +24,15 @@ initial begin
     brom_addra = 0;
     #clk_tk
     #clk_tk    
-    if (brom_douta == 16'h105b) $display("case 1 passed");
-    else $display("case 1 failed - expected 1, got %d", brom_douta);
+    if (brom_douta == 16'h1090) $display("case 1 passed");
+    else $display("case 1 failed - expected 1090, got %d", brom_douta);
 
     brom_ena = 1;
     brom_addra = 1;
     #clk_tk
     #clk_tk    
     if (brom_douta == 16'h1234) $display("case 2 passed");
-    else $display("case 2 failed - expected 2, got %d", brom_douta);
+    else $display("case 2 failed - expected 1234, got %d", brom_douta);
 
     $finish;
 end

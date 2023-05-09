@@ -12,14 +12,14 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="440.001 ns"></ZoomEndTime>
-      <Cursor1Time time="265.000 ns"></Cursor1Time>
+      <ZoomEndTime time="235.001 ns"></ZoomEndTime>
+      <Cursor1Time time="213.816 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="247"></NameColumnWidth>
+      <NameColumnWidth column_width="239"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="17" />
+   <WVObjectSize size="16" />
    <wvobject type="logic" fp_name="/TB_zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -35,14 +35,16 @@
    <wvobject type="array" fp_name="/TB_zenx/zx/pc">
       <obj_property name="ElementShortName">pc[14:0]</obj_property>
       <obj_property name="ObjectShortName">pc[14:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_zenx/zx/stp">
+      <obj_property name="ElementShortName">stp[8:0]</obj_property>
+      <obj_property name="ObjectShortName">stp[8:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/instr">
       <obj_property name="ElementShortName">instr[15:0]</obj_property>
       <obj_property name="ObjectShortName">instr[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/rom_dat">
-      <obj_property name="ElementShortName">rom_dat[15:0]</obj_property>
-      <obj_property name="ObjectShortName">rom_dat[15:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/regs_wd">
       <obj_property name="ElementShortName">regs_wd[15:0]</obj_property>
@@ -83,9 +85,5 @@
    <wvobject type="array" fp_name="/TB_zenx/zx/regs_wd_sel">
       <obj_property name="ElementShortName">regs_wd_sel[1:0]</obj_property>
       <obj_property name="ObjectShortName">regs_wd_sel[1:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/stp">
-      <obj_property name="ElementShortName">stp[8:0]</obj_property>
-      <obj_property name="ObjectShortName">stp[8:0]</obj_property>
    </wvobject>
 </wave_config>

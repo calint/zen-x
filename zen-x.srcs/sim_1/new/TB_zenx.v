@@ -24,11 +24,11 @@ initial begin
     #100
     rst = 0;
     
-    #clk_tk // 1090: ldi r1
-    #clk_tk // get rom[1]
-    #clk_tk // got 0x1234
+    #clk_tk // 1090: ldi r1; get rom[1]
+    #clk_tk // wait for rom[1]
+    #clk_tk // rom: 0x1234
     #clk_tk // regs[1]=0x1234, get rom[2]
-    #clk_tk // got 0x2090
+    #clk_tk // rom: 0x2090
     if (zx.regs.mem[1]==16'h1234) $display("case 1 passed");
     else $display("case 1 failed. expected 0x1234, got %h", zx.regs.mem[1]); 
     
