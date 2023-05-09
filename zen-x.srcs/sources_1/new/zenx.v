@@ -16,9 +16,9 @@ localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
 localparam OP_ADDI = 4'b0001;
-localparam OP_LDI  = 4'b1001;
-localparam OP_ST   = 4'b1101;
+localparam OP_LDI  = 4'b0011;
 localparam OP_LD   = 4'b0101;
+localparam OP_ST   = 4'b0111;
 localparam OP_SHF  = 4'b1110;
 
 localparam ALU_ADD = 3'b000;
@@ -65,7 +65,7 @@ wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf==instr_z && zn_nf==in
 
 // Calls related wiring (part 1)
 wire is_cr = instr_c && instr_r; // enabled if illegal c && r op => enables 8 other instructions that can't piggy back 'return'
-wire is_cs_op = is_do_op && !is_cr && (instr_c ^ instr_r); // enabled if instruction operates on CallStack
+wire is_cs_op = is_do_op && !is_cr && (instr_c ^ instr_r); // enabled if instruction operates on Calls
 wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
 
 // Registers related wiring (part 1)
@@ -99,9 +99,9 @@ wire [15:0] regs_wd =
 
 // Zn related wiring (part 2)
 wire zn_we = is_do_op && (is_alu_op || cs_pop || cs_push); // update flags if alu op, 'call' or 'return'
-wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from CallStack otherwise ALU 
+wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls otherwise ALU 
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
-wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
+wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
 assign led = pc[3:0];
 assign debug = instr;
@@ -181,14 +181,14 @@ always @(posedge clk) begin
     end
 end
 
-BlockROM rom( // 64K x 16b
+BlockROM rom( // 32K x 16b
     .clka(clk),
     .ena(rom_en),
     .addra(pc),
     .douta(instr)
 );
 
-Calls cs(
+Calls #(4, ROM_ADDR_WIDTH) cs(
     .rst(rst),
     .clk(clk),
     .pc_in(pc), // current program counter
@@ -227,7 +227,7 @@ Zn zn(
     .cs_nf(cs_nf),
     .alu_zf(alu_zf),
     .alu_nf(alu_nf),
-    .we(zn_we), // depending on 'sel' copy 'CallStack' or 'ALU' zn flags
+    .we(zn_we), // depending on 'sel' copy 'Calls' or 'ALU' zn flags
     .sel(zn_sel), // selector when 'we', enabled cs_*, disabled alu_* 
     .clr(zn_clr), // selector when 'we', clears the flags, has precedence over 'sel'
     .zf(zn_zf),
