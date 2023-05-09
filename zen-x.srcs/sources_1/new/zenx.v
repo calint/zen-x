@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+`define DBG
 
 module zenx(
     input wire rst,
@@ -20,7 +21,6 @@ localparam OP_ST   = 4'b1101;
 localparam OP_LD   = 4'b0101;
 
 reg rom_en;
-wire [15:0] rom_dat;
 
 reg ram_en;
 reg ram_we;
@@ -47,10 +47,7 @@ wire [14:0] cs_pc_out;
 wire cs_zf_out;
 wire cs_nf_out;
 
-assign led[0] = rom_dat[0];
-assign led[1] = ram_dat_out[0];
-assign led[2] = clk;
-assign led[3] = alu_result[0];
+assign led[0] = instr[7:4];
 
 reg [14:0] pc;
 
@@ -60,7 +57,7 @@ reg do_ldi; // enabled if 'loadi' was set during a 'is_do_op' operation, if disa
 reg [3:0] ldi_reg; // register to write when doing 'loadi'
 
 // ROM related wiring
-wire [15:0] instr = rom_dat; // current instruction from ROM
+wire [15:0] instr; // current instruction from ROM
 
 // instruction break down
 wire instr_z = instr[0]; // if enabled execute instruction if z-flag matches 'zn_zf' (also considering instr_n)
@@ -113,66 +110,72 @@ wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from CallStac
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
     
-reg [7:0] stp;
-always @(negedge clk) begin
+reg [8:0] stp;
+always @(posedge clk) begin
     if (rst) begin
         stp <= 1;
         pc <= 0;
-        rom_en <= 1; // start reading first instruction
-        ram_en <= 0;
-        ram_we <= 0;
+        regs_wd_sel = 0;
+        is_ldi <= 0;
         regs_we <= 0;
+        ram_we <= 0;
+        ram_en <= 0;
+        rom_en <= 1; // start reading first instruction
     end else begin
-        if (stp[0]) begin
+        `ifdef DBG
+            $display("  clk: zenx: %d:%h stp:%0d, doop:%0d", pc, instr, stp, is_do_op);
+        `endif
+        if(stp[0]) begin
             // got instruction from rom
-            regs_we <= 0;
-            is_ldi <= 0;
-            stp <= stp << 1;
-        end else if(stp[1]) begin
-            // execute instruction
+            // execute
             case(op)
             OP_LDI: begin
                 is_ldi <= 1;
-                ldi_reg <= regb;
                 regs_we <= 0;
-                ram_en <= 0;
                 ram_we <= 0;
-                regs_wd_sel <= 2;
+                ram_en <= 0;
+                ldi_reg <= regb;
                 pc <= pc + 1;
                 stp <= stp << 3;
             end
             OP_ST: begin
+                is_ldi <= 0;
                 regs_we <= 0;
                 ram_en <= 1;
                 ram_we <= 1;
-                stp = stp << 1;
+                pc <= pc + 1; // start fetching next instruction
+                stp <= stp << 1;
             end
             OP_LD: begin
                 regs_we <= 1;
                 ram_en <= 1;
                 ram_we <= 0;
                 regs_wd_sel <= 1;
-                stp = stp << 1;
+                pc <= pc + 1; // start fetching next instruction
+                stp <= stp << 1;
             end
             default: $display("!!! unknown instruction");
             endcase
+        end else if(stp[1]) begin // st: one more cycle before write is finished
+            stp = stp << 1;
         end else if(stp[2]) begin
-            // ram op, one more cycle before write is finished
-            pc <= pc + 1; // start fetching next instruction
-            stp = stp << 1;
-        end else if(stp[3]) begin
             ram_we <= 0;
-            ram_en <= 0;
+            regs_we <= 0;
             stp <= 1;
-        end else if(stp[4]) begin
-            // ldi: wait for rom
+        end else if(stp[3]) begin // ldi: wait for rom
             stp = stp << 1;
-        end else if(stp[5]) begin
-            // ldi: store in register, start reading next instruction
-            regs_we <= 1;
-            pc <= pc + 1;
+        end else if(stp[4]) begin // ldi: load register
+            regs_we <= 1; // write instruction to register
+            regs_wd_sel <= 2; // select register to write from instruction
+            pc <= pc + 1; // start reading next instruction
+            stp <= stp << 1;
+        end else if(stp[5]) begin // ldi: wait for next instruction
+            regs_we <= 0;
+            is_ldi <= 0;
+            stp <= stp << 1;
+        end else if(stp[6]) begin // ldi: wait for next instruction
             stp <= 1;
-        end        
+        end      
     end
 end
 
@@ -180,7 +183,7 @@ BlockROM brom( // 32K x 16b
     .clka(clk),
     .ena(rom_en),
     .addra(pc),
-    .douta(rom_dat)
+    .douta(instr)
 );
 
 Calls cs(
