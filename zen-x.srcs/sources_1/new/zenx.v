@@ -99,7 +99,7 @@ wire [15:0] regs_wd =
 wire is_alu_op = !is_ldi && !is_cr && !cs_push && (op[4] || op == OP_ADDI);
 wire [2:0] alu_op = 
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
-    op[7:5]; // same as op
+    op[7:5]; // same as upper 3 bits of op
 wire [15:0] alu_operand_a = 
     op == OP_ADDI ? {{(12){rega[3]}}, rega} : // 'addi' is add with signed immediate value 'rega'
     regs_rd1; // otherwise regs[rega]
@@ -109,9 +109,6 @@ wire zn_we = is_do_op && (is_alu_op || cs_pop || cs_push); // update flags if al
 wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from CallStack otherwise ALU 
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
-
-// RAM related
-reg [15:0] ram_dat_to_write;
 
 reg [8:0] stp;
 always @(posedge clk or posedge rst) begin
@@ -237,7 +234,6 @@ BlockRAM bram( // 64K x 16b
     .ena(ram_en),
     .wea(ram_we),
     .addra(regs_rd1),
-//    .dina(ram_dat_to_write), // regs_rd2
     .dina(regs_rd2),
     .douta(ram_dat_out)
 );

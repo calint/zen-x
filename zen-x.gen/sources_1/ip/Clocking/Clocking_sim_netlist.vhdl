@@ -1,9 +1,10 @@
 -- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2022.2 (lin64) Build 3671981 Fri Oct 14 04:59:54 MDT 2022
--- Date        : Mon May  8 12:21:42 2023
+-- Date        : Mon May  8 12:13:11 2023
 -- Host        : c running 64-bit Ubuntu 23.04
--- Command     : write_vhdl -force -mode funcsim /home/c/w/zen-x/zen-x.gen/sources_1/ip/Clocking/Clocking_sim_netlist.vhdl
+-- Command     : write_vhdl -force -mode funcsim -rename_top Clocking -prefix
+--               Clocking_ Clocking_sim_netlist.vhdl
 -- Design      : Clocking
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -13,16 +14,16 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VCOMPONENTS.ALL;
-entity Clocking_clk_wiz is
+entity Clocking_Clocking_clk_wiz is
   port (
     clk_out : out STD_LOGIC;
     reset : in STD_LOGIC;
     locked : out STD_LOGIC;
     clk_in : in STD_LOGIC
   );
-end Clocking_clk_wiz;
+end Clocking_Clocking_clk_wiz;
 
-architecture STRUCTURE of Clocking_clk_wiz is
+architecture STRUCTURE of Clocking_Clocking_clk_wiz is
   signal clk_in_Clocking : STD_LOGIC;
   signal clk_out_Clocking : STD_LOGIC;
   signal clkfbout_Clocking : STD_LOGIC;
@@ -82,7 +83,7 @@ mmcm_adv_inst: unisim.vcomponents.MMCME2_ADV
       CLKFBOUT_USE_FINE_PS => false,
       CLKIN1_PERIOD => 83.333000,
       CLKIN2_PERIOD => 0.000000,
-      CLKOUT0_DIVIDE_F => 15.000000,
+      CLKOUT0_DIVIDE_F => 7.500000,
       CLKOUT0_DUTY_CYCLE => 0.500000,
       CLKOUT0_PHASE => 0.000000,
       CLKOUT0_USE_FINE_PS => false,
@@ -178,7 +179,7 @@ end Clocking;
 
 architecture STRUCTURE of Clocking is
 begin
-inst: entity work.Clocking_clk_wiz
+inst: entity work.Clocking_Clocking_clk_wiz
      port map (
       clk_in => clk_in,
       clk_out => clk_out,

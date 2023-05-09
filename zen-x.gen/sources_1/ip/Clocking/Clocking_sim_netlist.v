@@ -1,9 +1,10 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2022.2 (lin64) Build 3671981 Fri Oct 14 04:59:54 MDT 2022
-// Date        : Mon May  8 12:21:42 2023
+// Date        : Mon May  8 12:13:11 2023
 // Host        : c running 64-bit Ubuntu 23.04
-// Command     : write_verilog -force -mode funcsim /home/c/w/zen-x/zen-x.gen/sources_1/ip/Clocking/Clocking_sim_netlist.v
+// Command     : write_verilog -force -mode funcsim -rename_top Clocking -prefix
+//               Clocking_ Clocking_sim_netlist.v
 // Design      : Clocking
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -27,14 +28,14 @@ module Clocking
   wire locked;
   (* RTL_KEEP = "yes" *) wire reset;
 
-  Clocking_clk_wiz inst
+  Clocking_Clocking_clk_wiz inst
        (.clk_in(clk_in),
         .clk_out(clk_out),
         .locked(locked),
         .reset(reset));
 endmodule
 
-module Clocking_clk_wiz
+module Clocking_Clocking_clk_wiz
    (clk_out,
     reset,
     locked,
@@ -95,7 +96,7 @@ module Clocking_clk_wiz
     .CLKFBOUT_USE_FINE_PS("FALSE"),
     .CLKIN1_PERIOD(83.333000),
     .CLKIN2_PERIOD(0.000000),
-    .CLKOUT0_DIVIDE_F(15.000000),
+    .CLKOUT0_DIVIDE_F(7.500000),
     .CLKOUT0_DUTY_CYCLE(0.500000),
     .CLKOUT0_PHASE(0.000000),
     .CLKOUT0_USE_FINE_PS("FALSE"),
