@@ -109,7 +109,10 @@ wire zn_we = is_do_op && (is_alu_op || cs_pop || cs_push); // update flags if al
 wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from CallStack otherwise ALU 
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
-    
+
+// RAM related
+reg [15:0] ram_dat_to_write;
+
 reg [8:0] stp;
 always @(posedge clk or posedge rst) begin
     if (rst) begin
@@ -125,6 +128,7 @@ always @(posedge clk or posedge rst) begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp:%0d, doop:%0d", pc, instr, stp, is_do_op);
         `endif
+        
         if(stp[0]) begin
             // got instruction from rom
             // execute
@@ -143,6 +147,7 @@ always @(posedge clk or posedge rst) begin
                 regs_we <= 0;
                 ram_en <= 1;
                 ram_we <= 1;
+ //               ram_dat_to_write <= regs_rd2;
                 pc <= pc + 1; // start fetching next instruction
                 stp <= stp << 1;
             end
@@ -156,11 +161,12 @@ always @(posedge clk or posedge rst) begin
             end
             default: $display("!!! unknown instruction");
             endcase
-        end else if(stp[1]) begin // st: one more cycle before write is finished
-            stp = stp << 1;
-        end else if(stp[2]) begin
+        end else if(stp[1]) begin // ls,st: one more cycle before write is finished
             ram_we <= 0;
             regs_we <= 0;
+            stp <= 1;
+            //stp <= stp << 1;
+        end else if(stp[2]) begin
             stp <= 1;
         end else if(stp[3]) begin // ldi: wait for rom
             stp = stp << 1;
@@ -172,9 +178,9 @@ always @(posedge clk or posedge rst) begin
         end else if(stp[5]) begin // ldi: wait for rom to get next instruction
             regs_we <= 0;
             is_ldi <= 0;
-//            stp <= 1;  // ? in the simulation rom out data is updated after 100ps in the cycle
+            stp <= 1;  // ? in the simulation rom out data is updated after 100ps in the cycle
 //                              zenx does not have the new instruction at posedge 
-            stp <= stp << 1; // thus a cycle delay
+//            stp <= stp << 1; // thus a cycle delay
         end else if(stp[6]) begin // ldi: wait for rom
             stp <= 1;
         end      
@@ -239,6 +245,7 @@ BlockRAM bram( // 64K x 16b
     .ena(ram_en),
     .wea(ram_we),
     .addra(regs_rd1),
+//    .dina(ram_dat_to_write), // regs_rd2
     .dina(regs_rd2),
     .douta(ram_dat_out)
 );
