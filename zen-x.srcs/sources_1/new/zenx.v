@@ -9,7 +9,7 @@ module zenx(
     output wire [15:0] debug
 );
 
-localparam ROM_ADDR_WIDTH = 15; // 2**15 instructions
+localparam ROM_ADDR_WIDTH = 16; // 2**15 instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
 localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
@@ -20,36 +20,21 @@ localparam OP_LDI  = 4'b1001;
 localparam OP_ST   = 4'b1101;
 localparam OP_LD   = 4'b0101;
 
-reg rom_en;
+localparam ALU_ADD = 3'b000;
+localparam ALU_SUB = 3'b001;
+localparam ALU_OR  = 3'b010;
+localparam ALU_XOR = 3'b011;
+localparam ALU_AND = 3'b100;
+localparam ALU_NOT = 3'b101;
+localparam ALU_CP  = 3'b110;
+localparam ALU_SHF = 3'b111;
 
+reg rom_en;
 reg ram_en;
 reg ram_we;
 wire [15:0] ram_dat_out;
 
-reg [2:0] alu_op;
-reg [15:0] alu_a = 0;
-reg [15:0] alu_b = 0;
-wire [15:0] alu_result;
-wire alu_zf;
-wire alu_nf;
-
-// Zn wires to CallStack and ALU
-wire cs_zf;
-wire cs_nf;
-wire zn_we;
-wire zn_sel; 
-wire zn_clr;
-
-// Calls wires
-wire cs_push;
-wire cs_pop;
-wire [14:0] cs_pc_out;
-wire cs_zf_out;
-wire cs_nf_out;
-
-assign led[0] = instr[7:4];
-
-reg [14:0] pc;
+reg [ROM_ADDR_WIDTH-1:0] pc;
 
 // OP_LDI related registers
 reg is_ldi; // enabled if data from current instruction is written to register 'loadi_reg'
@@ -78,37 +63,47 @@ wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
 // enabled if instruction will execute
 wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf==instr_z && zn_nf==instr_n));
 
-// CallStack related wiring
+// Calls related wiring (part 1)
 wire is_cr = instr_c && instr_r; // enabled if illegal c && r op => enables 8 other instructions that can't piggy back 'return'
 wire is_cs_op = is_do_op && !is_cr && (instr_c ^ instr_r); // enabled if instruction operates on CallStack
 wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
-wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'next' and loop not finished
-wire [14:0] cs_pc_out; // address to 'pc' if 'return'
 
-
-reg regs_we; // registers write enabled
-reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr
+// Registers related wiring (part 1)
 wire [15:0] regs_rd1; // regs[a]
 wire [15:0] regs_rd2; // regs[b]
+
+// ALU related wiring
+wire [15:0] alu_result;
+wire is_alu_op = !is_ldi && !is_cr && !cs_push && (op[3] || op == OP_ADDI);
+wire [2:0] alu_op = 
+    op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
+    op[3:1]; // same as upper 3 bits of op
+wire [15:0] alu_operand_a = 
+    op == OP_ADDI ? {{(12){rega[3]}}, rega} : // 'addi' is add with signed immediate value 'rega'
+    regs_rd1; // otherwise regs[rega]
+
+// Calls related wiring (part 2)
+wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'next' and loop not finished
+wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
+wire cs_zf_out;
+wire cs_nf_out;
+
+// Registers related wiring (part 2)
+reg regs_we; // registers write enabled
+reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr
 wire [15:0] regs_wd =
     regs_wd_sel == 0 ? alu_result :
     regs_wd_sel == 1 ? ram_dat_out :
     instr;
-
-// ALU related wiring
-wire is_alu_op = !is_ldi && !is_cr && !cs_push && (op[4] || op == OP_ADDI);
-wire [2:0] alu_op = 
-    op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
-    op[7:5]; // same as upper 3 bits of op
-wire [15:0] alu_operand_a = 
-    op == OP_ADDI ? {{(12){rega[3]}}, rega} : // 'addi' is add with signed immediate value 'rega'
-    regs_rd1; // otherwise regs[rega]
 
 // Zn related wiring (part 2)
 wire zn_we = is_do_op && (is_alu_op || cs_pop || cs_push); // update flags if alu op, 'call' or 'return'
 wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from CallStack otherwise ALU 
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and CallStack
+
+assign led = pc[3:0];
+assign debug = instr;
 
 reg [8:0] stp;
 always @(posedge clk or posedge rst) begin
@@ -208,8 +203,8 @@ Registers regs( // 16 x 16b
 
 ALU alu(
     .op(alu_op),
-    .a(alu_a),
-    .b(alu_b),
+    .a(alu_operand_a),
+    .b(regs_rd2),
     .result(alu_result),
     .zf(alu_zf),
     .nf(alu_nf)
