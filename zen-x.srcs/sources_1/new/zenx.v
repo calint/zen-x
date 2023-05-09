@@ -48,9 +48,8 @@ wire [15:0] instr; // current instruction from ROM
 wire instr_z = instr[0]; // if enabled execute instruction if z-flag matches 'zn_zf' (also considering instr_n)
 wire instr_n = instr[1]; // if enabled execute instruction if n-flag matches 'zn_nf' (also considering instr_z)
 // both 'instr_z' and 'instr_n' enabled means execute instruction without considering flags 
-wire instr_x = instr[2]; // if enabled steps an iteration in current loop
-wire instr_r = instr[3]; // if enabled returns from current 'call', if 'instr_x' and loop not finished then ignored
-wire instr_c = instr[4]; // if enabled 'call'
+wire instr_r = instr[2]; // if enabled returns from current 'call', if 'instr_x' and loop not finished then ignored
+wire instr_c = instr[3]; // if enabled 'call'
 // note. instr_r && instr_c is illegal and instead enables another page of operations that can't 'return' during same operation
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
@@ -74,7 +73,7 @@ wire [15:0] regs_rd2; // regs[b]
 
 // ALU related wiring
 wire [15:0] alu_result;
-wire is_alu_op = !is_ldi && !is_cr && !cs_push && (op[3] || op == OP_ADDI);
+wire is_alu_op = !is_ldi && !is_cr && !cs_push && (!op[0] || op == OP_ADDI);
 wire [2:0] alu_op = 
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
@@ -124,6 +123,11 @@ always @(posedge clk) begin
         if(stp[0]) begin
             // got instruction from rom, execute
             if (is_alu_op) begin
+                regs_we <= 1;
+                ram_en <= 0;
+                ram_we <= 0;
+                regs_wd_sel <= 0; // select alu result for write to 'regb'
+                pc <= pc + 1; // start fetching next instruction
                 stp <= 1<<5;
             end else
             case(op)
@@ -137,7 +141,6 @@ always @(posedge clk) begin
                 stp <= stp << 2;
             end
             OP_ST: begin
-                is_ldi <= 0;
                 regs_we <= 0;
                 ram_en <= 1;
                 ram_we <= 1;
@@ -170,6 +173,7 @@ always @(posedge clk) begin
             is_ldi <= 0;
             stp <= 1;
         end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction
+            regs_we <= 0;
             stp <= 1;
         end      
     end
