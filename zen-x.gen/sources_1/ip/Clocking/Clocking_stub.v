@@ -1,10 +1,9 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2022.2 (lin64) Build 3671981 Fri Oct 14 04:59:54 MDT 2022
-// Date        : Mon May  8 12:13:11 2023
+// Date        : Tue May  9 22:21:17 2023
 // Host        : c running 64-bit Ubuntu 23.04
-// Command     : write_verilog -force -mode synth_stub -rename_top Clocking -prefix
-//               Clocking_ Clocking_stub.v
+// Command     : write_verilog -force -mode synth_stub /home/c/w/zen-x/zen-x.gen/sources_1/ip/Clocking/Clocking_stub.v
 // Design      : Clocking
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7s25csga225-1

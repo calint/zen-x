@@ -1,3 +1,0 @@
-Clocking_clk_wiz.v,verilog,xil_defaultlib,../../../../zen-x.gen/sources_1/ip/Clocking/Clocking_clk_wiz.v,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-Clocking.v,verilog,xil_defaultlib,../../../../zen-x.gen/sources_1/ip/Clocking/Clocking.v,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-glbl.v,Verilog,xil_defaultlib,glbl.v

@@ -106,7 +106,7 @@ assign led = pc[3:0];
 assign debug = instr;
 
 reg [8:0] stp;
-always @(posedge clk or posedge rst) begin
+always @(posedge clk) begin
     if (rst) begin
         stp <= 1;
         pc <= 0;
@@ -122,8 +122,10 @@ always @(posedge clk or posedge rst) begin
         `endif
         
         if(stp[0]) begin
-            // got instruction from rom
-            // execute
+            // got instruction from rom, execute
+            if (is_alu_op) begin
+                stp <= 1<<5;
+            end else
             case(op)
             OP_LDI: begin
                 is_ldi <= 1;
@@ -167,11 +169,13 @@ always @(posedge clk or posedge rst) begin
             regs_we <= 0;
             is_ldi <= 0;
             stp <= 1;
+        end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction
+            stp <= 1;
         end      
     end
 end
 
-BlockROM brom( // 32K x 16b
+BlockROM rom( // 64K x 16b
     .clka(clk),
     .ena(rom_en),
     .addra(pc),
@@ -224,7 +228,7 @@ Zn zn(
     .nf(zn_nf)
 );
 
-BlockRAM bram( // 64K x 16b
+BlockRAM ram( // 64K x 16b
     .clka(clk),
     .ena(ram_en),
     .wea(ram_we),

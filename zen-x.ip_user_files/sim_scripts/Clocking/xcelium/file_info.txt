@@ -1,6 +1,0 @@
-xpm_cdc.sv,systemverilog,xpm,c/xilinix/Vivado/2022.2/data/ip/xpm/xpm_cdc/hdl/xpm_cdc.sv,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-xpm_memory.sv,systemverilog,xpm,c/xilinix/Vivado/2022.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-xpm_VCOMP.vhd,vhdl,xpm,c/xilinix/Vivado/2022.2/data/ip/xpm/xpm_VCOMP.vhd,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-Clocking_clk_wiz.v,verilog,xil_defaultlib,../../../../zen-x.gen/sources_1/ip/Clocking/Clocking_clk_wiz.v,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-Clocking.v,verilog,xil_defaultlib,../../../../zen-x.gen/sources_1/ip/Clocking/Clocking.v,incdir="$ref_dir/../../../ipstatic"incdir="../../../ipstatic"
-glbl.v,Verilog,xil_defaultlib,glbl.v
