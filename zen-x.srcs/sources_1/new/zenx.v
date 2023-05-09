@@ -139,15 +139,14 @@ always @(posedge clk or posedge rst) begin
                 ram_we <= 0;
                 ram_en <= 0;
                 ldi_reg <= regb;
-                pc <= pc + 1;
-                stp <= stp << 3;
+                pc <= pc + 1; // start fetching next instruction
+                stp <= stp << 2;
             end
             OP_ST: begin
                 is_ldi <= 0;
                 regs_we <= 0;
                 ram_en <= 1;
                 ram_we <= 1;
- //               ram_dat_to_write <= regs_rd2;
                 pc <= pc + 1; // start fetching next instruction
                 stp <= stp << 1;
             end
@@ -155,33 +154,26 @@ always @(posedge clk or posedge rst) begin
                 regs_we <= 1;
                 ram_en <= 1;
                 ram_we <= 0;
-                regs_wd_sel <= 1;
+                regs_wd_sel <= 1; // select ram output for write to 'regb'
                 pc <= pc + 1; // start fetching next instruction
                 stp <= stp << 1;
             end
             default: $display("!!! unknown instruction");
             endcase
-        end else if(stp[1]) begin // ls,st: one more cycle before write is finished
+        end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
             ram_we <= 0;
             regs_we <= 0;
             stp <= 1;
-            //stp <= stp << 1;
-        end else if(stp[2]) begin
-            stp <= 1;
-        end else if(stp[3]) begin // ldi: wait for rom
+        end else if(stp[2]) begin // ldi: wait for rom
             stp = stp << 1;
-        end else if(stp[4]) begin // ldi: load register
-            regs_we <= 1; // write instruction to register
-            regs_wd_sel <= 2; // select register to write from instruction
-            pc <= pc + 1; // start reading next instruction
+        end else if(stp[3]) begin // ldi: load register
+            regs_we <= 1; // write rom output to register
+            regs_wd_sel <= 2; // select register to write from rom output
+            pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
-        end else if(stp[5]) begin // ldi: wait for rom to get next instruction
+        end else if(stp[4]) begin // ldi: wait for rom to get next instruction
             regs_we <= 0;
             is_ldi <= 0;
-            stp <= 1;  // ? in the simulation rom out data is updated after 100ps in the cycle
-//                              zenx does not have the new instruction at posedge 
-//            stp <= stp << 1; // thus a cycle delay
-        end else if(stp[6]) begin // ldi: wait for rom
             stp <= 1;
         end      
     end

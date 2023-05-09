@@ -48,7 +48,6 @@ initial begin
 
     #clk_tk // 31d0: st r1 r3
     #clk_tk // ram[r1]=regs[3] => ram[0x1234]=0xffff, get rom[7]
-    
     #clk_tk // got 4150: ld r1 r4
     #clk_tk // regs[4]=ram[r1] => regs[4]=ram[0x1234]=0xffff, get rom[9]
     if (zx.regs.mem[4]==16'hffff) $display("case 4 passed");
