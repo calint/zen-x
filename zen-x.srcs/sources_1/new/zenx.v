@@ -124,41 +124,39 @@ always @(posedge clk) begin
         
         if(stp[0]) begin
             // got instruction from rom, execute
+            pc <= pc + 1; // start fetching next instruction
             if (is_alu_op) begin
-                regs_we <= 1;
+                regs_we <= is_do_op ? 1 : 0;
                 ram_en <= 0;
                 ram_we <= 0;
                 regs_wd_sel <= 0; // select alu result for write to 'regb'
-                pc <= pc + 1; // start fetching next instruction
                 stp <= 1<<5;
-            end else
-            case(op)
-            OP_LDI: begin
-                is_ldi <= 1;
-                regs_we <= 0;
-                ram_we <= 0;
-                ram_en <= 0;
-                ldi_reg <= regb;
-                pc <= pc + 1; // start fetching next instruction
-                stp <= stp << 2;
-            end
-            OP_ST: begin
-                regs_we <= 0;
-                ram_en <= 1;
-                ram_we <= 1;
-                pc <= pc + 1; // start fetching next instruction
-                stp <= stp << 1;
-            end
-            OP_LD: begin
-                regs_we <= 1;
-                ram_en <= 1;
-                ram_we <= 0;
-                regs_wd_sel <= 1; // select ram output for write to 'regb'
-                pc <= pc + 1; // start fetching next instruction
-                stp <= stp << 1;
-            end
-            default: $display("!!! unknown instruction");
-            endcase
+            end else begin
+                case(op)
+                OP_LDI: begin
+                    is_ldi <= is_do_op ? 1 : 0;
+                    regs_we <= 0;
+                    ram_we <= 0;
+                    ram_en <= 0;
+                    ldi_reg <= regb;
+                    stp <= stp << 2;
+                end
+                OP_ST: begin
+                    regs_we <= 0;
+                    ram_en <= 1;
+                    ram_we <= is_do_op ? 1 : 0;
+                    stp <= stp << 1;
+                end
+                OP_LD: begin
+                    regs_we <= is_do_op ? 1 : 0;
+                    ram_en <= 1;
+                    ram_we <= 0;
+                    regs_wd_sel <= 1; // select ram output for write to 'regb'
+                    stp <= stp << 1;
+                end
+                default: $display("!!! unknown instruction");
+                endcase
+            end // is_alu_op
         end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
             ram_we <= 0;
             regs_we <= 0;
@@ -166,8 +164,10 @@ always @(posedge clk) begin
         end else if(stp[2]) begin // ldi: wait for rom
             stp = stp << 1;
         end else if(stp[3]) begin // ldi: load register
-            regs_we <= 1; // write rom output to register
-            regs_wd_sel <= 2; // select register to write from rom output
+            if (is_ldi) begin // enabled if it was a 'is_do_op'
+                regs_we <= 1; // write rom output to register
+                regs_wd_sel <= 2; // select register to write from rom output
+            end
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
         end else if(stp[4]) begin // ldi: wait for rom to get next instruction

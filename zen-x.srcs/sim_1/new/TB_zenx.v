@@ -25,25 +25,25 @@ initial begin
     #rst_dur
     rst = 0;
     
-    // 1033 1234 2033 abcd 3033 ffff 3173 4150 1373 5353 4113 4f13 4303 4323 6443 6663 6483 64a3 61c3 61e3 6fe3
-    
-    #clk_tk // 1033: ldi r1; get rom[1]
-    #clk_tk // wait for rom[1]
+    // 1033 1234 2033 abcd 3033 ffff 3173 4150 1373 5353 4113 4f13 4303 4323 6443 6663 6483 64a3 61c3 61e3 6fe3 7031 0001 4013 7032 0001
+ 
+    #clk_tk // 1033: ldi r1
+    #clk_tk // wait for rom
     #clk_tk // rom: 0x1234
     #clk_tk // regs[1]=0x1234, get rom[2]
     if (zx.regs.mem[1]==16'h1234) $display("case 1 passed");
     else $display("case 1 FAILED. expected 0x1234, got %h", zx.regs.mem[1]); 
     
     #clk_tk // 2033: ldi r2
-    #clk_tk // get rom[3] 
-    #clk_tk // got 0xabcd
+    #clk_tk // wait for rom 
+    #clk_tk // rom: 0xabcd
     #clk_tk // regs[2]=0xabcd, get rom[4]
     if (zx.regs.mem[2]==16'habcd) $display("case 2 passed");
     else $display("case 2 FAILED. expected 0xabcd, got %h", zx.regs.mem[2]); 
     
     #clk_tk // 3033: ldi r3
-    #clk_tk // get rom[5] 
-    #clk_tk // got 0xffff
+    #clk_tk // wait for rom 
+    #clk_tk // rom: 0xffff
     #clk_tk // regs[3]=0xffff, get rom[6]
     if (zx.regs.mem[3]==16'hffff) $display("case 3 passed");
     else $display("case 3 FAILED. expected 0xffff, got %h", zx.regs.mem[3]); 
@@ -115,6 +115,7 @@ initial begin
     //  4: 0xffff
     //  5: 0x1234
     //  6: 0x0000
+    //  7: 0x0000
     
     #clk_tk // 64a3: not r4 r6 ; = ~0xffff = 0
     #clk_tk
@@ -136,6 +137,24 @@ initial begin
     if (zx.regs.mem[6]==16'h1234) $display("case 15 passed");
     else $display("case 15 FAILED. expected 0x1234, got %h", zx.regs.mem[6]);
     
+    // flags zn=00
+    #clk_tk // 7031: ifz ldi r7; will not execute
+    #clk_tk // wait for next instruction
+    #clk_tk // rom: 0x0001
+    #clk_tk // regs[7]=0x0000
+    if (zx.regs.mem[7]==0) $display("case 16 passed");
+    else $display("case 16 FAILED. expected 0, got %h", zx.regs.mem[7]); 
+
+    #clk_tk // 4013: addi 0 r4 ; sets zn-flags for r4
+    #clk_tk
+
+    // flags zn=01
+    #clk_tk // 7032: ifn ldi r7; will execute
+    #clk_tk // wait for next instruction
+    #clk_tk // rom: 0x0001
+    #clk_tk // regs[7]=0x0001
+    if (zx.regs.mem[7]==1) $display("case 17 passed");
+    else $display("case 17 FAILED. expected 1, got %h", zx.regs.mem[7]); 
 
     $finish;
 end
