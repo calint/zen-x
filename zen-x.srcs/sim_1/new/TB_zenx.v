@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+`define DBG
 
 module TB_zenx;
 
@@ -149,7 +150,6 @@ initial begin
     #clk_tk // 4013: addi 0 r4 ; sets zn-flags for r4
     #clk_tk
 
-    // flags zn=01
     #clk_tk // 7032: ifn ldi r7; will execute
     #clk_tk // wait for next instruction
     #clk_tk // rom: 0x0001
@@ -169,13 +169,45 @@ initial begin
     if (zx.pc==27+3) $display("case 19 passed");
     else $display("case 19 FAILED. expected 30, got %0d", zx.pc);
     
-    // pc=30
-    #clk_tk // 0008: call 0
+    // pc=30 zn=01
+    // regs
+    //  0: 0x0000
+    //  1: 0x1234
+    //  2: 0xabcd
+    //  3: 0xffff
+    //  4: 0xffff
+    //  5: 0x1234
+    //  6: 0x1234
+    //  7: 0x0000
+    //  8: 0x0000
+    
+    #clk_tk // 0038: call 0x0020
     #clk_tk
 
-    // call location
-    #clk_tk
-    #clk_tk
+    // pc=32
+    // flags zn=00
+    if (zx.pc==32) $display("case 20 passed");
+    else $display("case 20 FAILED. expected 32, got %0d", zx.pc);
+    if (!zx.zn_zf && !zx.zn_nf) $display("case 21 passed");
+    else $display("case 21 FAILED. expected 0, 0 got %0d, %0d", zx.zn_zf, zx.zn_nf);
+    
+    #clk_tk // 8117: addi 1 r8 ret
+    #clk_tk //
+
+    // pc=32
+    // flags zn=01
+    if (zx.pc==31) $display("case 23 passed");
+    else $display("case 23 FAILED. expected 31, got %0d", zx.pc);
+    if (!zx.zn_zf && zx.zn_nf) $display("case 24 passed");
+    else $display("case 24 FAILED. expected 0, 1 got %0d, %0d", zx.zn_zf, zx.zn_nf);
+    if (zx.regs.mem[8]==1) $display("case 25 passed");
+    else $display("case 25 FAILED. expected 1, got %0d", zx.regs.mem[8]); 
+    
+    #clk_tk // 002f: skp 2
+    #clk_tk //
+    if (zx.pc==33) $display("case 26 passed");
+    else $display("case 26 FAILED. expected 33, got %0d", zx.pc);
+    
         
     $finish;
 end

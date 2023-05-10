@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
-`define DBG
+//`define DBG
 
 module zenx(
     input wire rst,
@@ -83,6 +83,7 @@ wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'nex
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
 wire cs_zf_out;
 wire cs_nf_out;
+reg cs_en = 0; // used to coordinate push/pop and Zn
 
 // RAM and ROM related wiring and registers 
 reg rom_en;
@@ -99,7 +100,7 @@ wire [15:0] regs_wd =
     instr;
 
 // Zn related wiring (part 2)
-wire zn_we = is_do_op && (is_alu_op || cs_pop || cs_push); // update flags if alu op, 'call' or 'return'
+wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'
 wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls otherwise ALU 
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
@@ -116,6 +117,15 @@ always @* begin
     end
 end
 
+always @(negedge clk) begin
+//    `ifdef DBG
+//        $display(" ~clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
+//    `endif
+    if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
+        cs_en <= ~cs_en;
+    end
+end
+
 always @(posedge clk) begin
     if (rst) begin
         stp <= 1;
@@ -128,12 +138,11 @@ always @(posedge clk) begin
         rom_en <= 1; // start reading first instruction
     end else begin
         `ifdef DBG
-            $display("  clk: zenx: %d:%h stp:%0d, doop:%0d", pc, instr, stp, is_do_op);
+            $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
         `endif
         if(stp[0]) begin
             // got instruction from rom, execute
             if (cs_push) begin
-                $display("*** call");
                 regs_we <= 0;
                 ram_en <= 0;
                 ram_we <= 0;
@@ -146,7 +155,11 @@ always @(posedge clk) begin
                 pc <= pc + (is_jmp ? {{(3){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
             end else begin
-                pc <= pc + 1; // start fetching next instruction
+                if (cs_pop) begin
+                    pc <= cs_pc_out + 1;
+                end else begin
+                    pc <= pc + 1; // start fetching next instruction
+                end
                 if (is_alu_op) begin
                     regs_we <= is_do_op ? 1 : 0;
                     ram_en <= 0;
@@ -217,6 +230,7 @@ Calls #(4, ROM_ADDR_WIDTH) cs(
     .pc_in(pc), // current program counter
     .zf_in(zn_zf), // current zero flag
     .nf_in(zn_nf), // current negative flag
+    .en(cs_en),
     .push(cs_push),
     .pop(cs_pop),
     .pc_out(cs_pc_out), // top of stack program counter

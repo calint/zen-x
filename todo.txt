@@ -1,7 +1,10 @@
-[ ] call
-[ ] ret
+[ ] uart
+[ ]   send "hello world"
+[ ]   echo
 [ ] interrupts and i/o
 ------------------------------------------------------------------------------
+[x] call
+[x] ret
 [x] jmp
 [x] zn
 [x] is_do_op

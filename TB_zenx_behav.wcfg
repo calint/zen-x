@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,222.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,315.601 ns"></ZoomEndTime>
-      <Cursor1Time time="1,300.000 ns"></Cursor1Time>
+      <ZoomStartTime time="611.147 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,485.771 ns"></ZoomEndTime>
+      <Cursor1Time time="1,340.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="195"></NameColumnWidth>
+      <NameColumnWidth column_width="187"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="29" />
+   <WVObjectSize size="30" />
    <wvobject type="logic" fp_name="/TB_zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -117,6 +117,8 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/zn_we">
       <obj_property name="ElementShortName">zn_we</obj_property>
       <obj_property name="ObjectShortName">zn_we</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/is_do_op">
       <obj_property name="ElementShortName">is_do_op</obj_property>
@@ -127,6 +129,10 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/is_alu_op">
       <obj_property name="ElementShortName">is_alu_op</obj_property>
       <obj_property name="ObjectShortName">is_alu_op</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_zenx/zx/cs_en">
+      <obj_property name="ElementShortName">cs_en</obj_property>
+      <obj_property name="ObjectShortName">cs_en</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/cs_push">
       <obj_property name="ElementShortName">cs_push</obj_property>
