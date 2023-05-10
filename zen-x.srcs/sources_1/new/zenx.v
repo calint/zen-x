@@ -105,8 +105,9 @@ wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
+reg [25:0] counter;
 // outputs
-assign led = instr[7:4];
+assign led[2:0] = {counter[25],counter[23],counter[21]};
 assign debug = pc;
 
 reg [8:0] stp; // state of instruction execution
@@ -123,7 +124,9 @@ always @(negedge clk) begin
 //    `endif
     if (rst) begin
         cs_en <= 0;
+        counter <= 0;
     end else begin
+        counter <= counter + 1;
         if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
             cs_en <= ~cs_en;
         end

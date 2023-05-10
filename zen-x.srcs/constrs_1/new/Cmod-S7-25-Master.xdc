@@ -10,9 +10,18 @@ set_property -dict {PACKAGE_PIN K1 IOSTANDARD LVCMOS33} [get_ports {led[1]}]
 set_property -dict {PACKAGE_PIN J1 IOSTANDARD LVCMOS33} [get_ports {led[2]}]
 set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [get_ports {led[3]}]
 
+## Push Buttons
+# btn[0] is reset button
+#set_property -dict { PACKAGE_PIN D2    IOSTANDARD LVCMOS33 } [get_ports { btn[0] }]; #IO_L6P_T0_34 Sch=btn[0]
+set_property -dict { PACKAGE_PIN D1    IOSTANDARD LVCMOS33 } [get_ports { btn[1] }]; #IO_L6N_T0_VREF_34 Sch=btn[1]
+
 #####################################################################################
 ## to avoid warnings in implementation
 set_output_delay 0.000 [get_ports {{led[0]} {led[1]} {led[2]} {led[3]}}]
+
+
+
+
 
 #####################################################################################
 # below downloaded from https://github.com/Digilent/digilent-xdc/blob/master/Cmod-S7-25-Master.xdc

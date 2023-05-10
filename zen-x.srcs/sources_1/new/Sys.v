@@ -3,9 +3,12 @@
 
 module Sys(
     input wire reset,
+    input wire [1:0] btn,
     input wire clk_in,
     output wire [3:0] led
 );
+
+assign led[3] = btn[1];
     
 wire clk_locked;
 wire clk;

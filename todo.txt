@@ -1,4 +1,5 @@
 [ ] Calls: consolidate push, pop, en to en, sel
+[ ] reduce instruction length where possible since rom has 1 cycle latency
 [ ] uart
 [ ]   send "hello world"
 [ ]   echo
