@@ -136,8 +136,8 @@ always @(posedge clk) begin
                 OP_LDI: begin
                     is_ldi <= is_do_op ? 1 : 0;
                     regs_we <= 0;
-                    ram_we <= 0;
                     ram_en <= 0;
+                    ram_we <= 0;
                     ldi_reg <= regb;
                     stp <= stp << 2;
                 end
