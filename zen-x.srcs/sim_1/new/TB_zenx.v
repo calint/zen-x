@@ -25,7 +25,8 @@ initial begin
     #rst_dur
     rst = 0;
     
-    // 1033 1234 2033 abcd 3033 ffff 3173 4150 1373 5353 4113 4f13 4303 4323 6443 6663 6483 64a3 61c3 61e3 6fe3 7031 0001 4013 7032 0001
+    // rom content:
+    // 1033 1234 2033 abcd 3033 ffff 3173 4150 1373 5353 4113 4f13 4303 4323 6443 6663 6483 64a3 61c3 61e3 6fe3 7031 0001 4013 7032 0001 003c 003f
  
     #clk_tk // 1033: ldi r1
     #clk_tk // wait for rom
@@ -156,6 +157,18 @@ initial begin
     if (zx.regs.mem[7]==1) $display("case 17 passed");
     else $display("case 17 FAILED. expected 1, got %h", zx.regs.mem[7]); 
 
+    // pc=26
+    // zn=01
+    #clk_tk // 003c: skp 3 ; not executed because zn!=00
+    #clk_tk // wait for next instruction
+    if (zx.pc==27) $display("case 18 passed");
+    else $display("case 18 FAILED. expected 27, got %0d", zx.pc);
+
+    #clk_tk // 003f: ifzn skp 3
+    #clk_tk // wait for next instruction
+    if (zx.pc==27+3) $display("case 19 passed");
+    else $display("case 19 FAILED. expected 30, got %0d", zx.pc);
+        
     $finish;
 end
 

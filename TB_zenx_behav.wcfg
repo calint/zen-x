@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="929.333 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,182.134 ns"></ZoomEndTime>
-      <Cursor1Time time="1,013.733 ns"></Cursor1Time>
+      <ZoomStartTime time="682.031 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,099.594 ns"></ZoomEndTime>
+      <Cursor1Time time="1,030.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="215"></NameColumnWidth>
+      <NameColumnWidth column_width="207"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="27" />
+   <WVObjectSize size="28" />
    <wvobject type="logic" fp_name="/TB_zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -117,7 +117,7 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/is_do_op">
       <obj_property name="ElementShortName">is_do_op</obj_property>
       <obj_property name="ObjectShortName">is_do_op</obj_property>
-      <obj_property name="CustomSignalColor">#FF0000</obj_property>
+      <obj_property name="CustomSignalColor">#A52A2A</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/is_alu_op">
@@ -131,5 +131,9 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/cs_pop">
       <obj_property name="ElementShortName">cs_pop</obj_property>
       <obj_property name="ObjectShortName">cs_pop</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_zenx/zx/is_jmp">
+      <obj_property name="ElementShortName">is_jmp</obj_property>
+      <obj_property name="ObjectShortName">is_jmp</obj_property>
    </wvobject>
 </wave_config>

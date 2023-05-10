@@ -30,17 +30,11 @@ localparam ALU_NOT = 3'b101;
 localparam ALU_CP  = 3'b110;
 localparam ALU_SHF = 3'b111;
 
-reg rom_en;
-reg ram_en;
-reg ram_we;
-wire [15:0] ram_dat_out;
-
 reg [ROM_ADDR_WIDTH-1:0] pc;
 
 // OP_LDI related registers
-reg is_ldi; // enabled if data from current instruction is written to register 'loadi_reg'
-reg do_ldi; // enabled if 'loadi' was set during a 'is_do_op' operation, if disabled ignore the instruction
-reg [3:0] ldi_reg; // register to write when doing 'loadi'
+reg is_ldi; // enabled if data from current instruction is written to register 'ldi_reg'
+reg [3:0] ldi_reg; // register to write when doing 'ldi'
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
@@ -55,7 +49,7 @@ wire instr_c = instr[3]; // if enabled 'call'
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
 wire [3:0] regb = is_ldi ? ldi_reg : instr[15:12]; // address of 'regb'
-wire [10:0] imm12 = instr[15:4];
+wire [11:0] imm12 = instr[15:4];
 
 // Zn related wiring (part 1)
 wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
@@ -68,6 +62,8 @@ wire is_cr = instr_c && instr_r; // enabled if illegal c && r op => enables 8 ot
 wire is_cs_op = is_do_op && !is_cr && (instr_c ^ instr_r); // enabled if instruction operates on Calls
 wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
 
+wire is_jmp = is_do_op && is_cr;
+
 // Registers related wiring (part 1)
 wire [15:0] regs_rd1; // regs[a]
 wire [15:0] regs_rd2; // regs[b]
@@ -78,9 +74,8 @@ wire is_alu_op = !is_ldi && !is_cr && !cs_push && (!op[0] || op == OP_ADDI);
 wire [2:0] alu_op = 
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
-wire [15:0] alu_operand_a = 
-    op == OP_SHF ? {{(12){rega[3]}}, rega} :
-    op == OP_ADDI ? {{(12){rega[3]}}, rega} : // 'addi' is add with signed immediate value 'rega'
+wire [15:0] alu_operand_a =
+    (op == OP_SHF || op == OP_ADDI) ? {{(12){rega[3]}},rega} :  // sign extend 4 bits to 16
     regs_rd1; // otherwise regs[rega]
 
 // Calls related wiring (part 2)
@@ -88,6 +83,12 @@ wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'nex
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
 wire cs_zf_out;
 wire cs_nf_out;
+
+// RAM and ROM related wiring and registers 
+reg rom_en;
+reg ram_en;
+reg ram_we;
+wire [15:0] ram_dat_out;
 
 // Registers related wiring (part 2)
 reg regs_we; // registers write enabled
@@ -103,10 +104,18 @@ wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
-assign led = pc[3:0];
-assign debug = instr;
+// outputs
+assign led = instr[7:4];
+assign debug = pc;
 
-reg [8:0] stp;
+reg [8:0] stp; // state of instruction execution
+
+always @* begin
+    if (is_jmp) begin
+        //pc = pc + {{(4){imm12[11]}}, imm12};
+    end
+end
+
 always @(posedge clk) begin
     if (rst) begin
         stp <= 1;
@@ -121,53 +130,58 @@ always @(posedge clk) begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp:%0d, doop:%0d", pc, instr, stp, is_do_op);
         `endif
-        
         if(stp[0]) begin
             // got instruction from rom, execute
-            pc <= pc + 1; // start fetching next instruction
-            if (is_alu_op) begin
-                regs_we <= is_do_op ? 1 : 0;
+            if (is_cr) begin
+                regs_we <= 0;
                 ram_en <= 0;
                 ram_we <= 0;
-                regs_wd_sel <= 0; // select alu result for write to 'regb'
-                stp <= 1<<5;
+                pc <= pc + (is_jmp ? {{(3){imm12[11]}},imm12} : 1);
+                stp <= 1<<6;
             end else begin
-                case(op)
-                OP_LDI: begin
-                    is_ldi <= is_do_op ? 1 : 0;
-                    regs_we <= 0;
+                pc <= pc + 1; // start fetching next instruction
+                if (is_alu_op) begin
+                    regs_we <= is_do_op ? 1 : 0;
                     ram_en <= 0;
                     ram_we <= 0;
-                    ldi_reg <= regb;
-                    stp <= stp << 2;
-                end
-                OP_ST: begin
-                    regs_we <= 0;
-                    ram_en <= 1;
-                    ram_we <= is_do_op ? 1 : 0;
-                    stp <= stp << 1;
-                end
-                OP_LD: begin
-                    regs_we <= is_do_op ? 1 : 0;
-                    ram_en <= 1;
-                    ram_we <= 0;
-                    regs_wd_sel <= 1; // select ram output for write to 'regb'
-                    stp <= stp << 1;
-                end
-                default: $display("!!! unknown instruction");
-                endcase
-            end // is_alu_op
+                    regs_wd_sel <= 0; // select alu result for write to 'regb'
+                    stp <= 1<<5;
+                end else begin
+                    case(op)
+                    OP_LDI: begin
+                        regs_we <= 0;
+                        ram_en <= 0;
+                        ram_we <= 0;
+                        ldi_reg <= regb;
+                        stp <= stp << 2;
+                    end
+                    OP_ST: begin
+                        regs_we <= 0;
+                        ram_en <= 1;
+                        ram_we <= is_do_op ? 1 : 0;
+                        stp <= stp << 1;
+                    end
+                    OP_LD: begin
+                        regs_we <= is_do_op ? 1 : 0;
+                        ram_en <= 1;
+                        ram_we <= 0;
+                        regs_wd_sel <= 1; // select ram output for write to 'regb'
+                        stp <= stp << 1;
+                    end
+                    default: $display("!!! unknown instruction");
+                    endcase
+                end // is_alu_op
+            end // is_jmp
         end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
             ram_we <= 0;
             regs_we <= 0;
             stp <= 1;
         end else if(stp[2]) begin // ldi: wait for rom
             stp = stp << 1;
+            is_ldi <= is_do_op; // from previous 
+            regs_we <= is_do_op ? 1 : 0; // write rom output to register
+            regs_wd_sel <= is_do_op ? 2 : 0; // select register write from rom output
         end else if(stp[3]) begin // ldi: load register
-            if (is_ldi) begin // enabled if it was a 'is_do_op'
-                regs_we <= 1; // write rom output to register
-                regs_wd_sel <= 2; // select register to write from rom output
-            end
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
         end else if(stp[4]) begin // ldi: wait for rom to get next instruction
@@ -177,8 +191,10 @@ always @(posedge clk) begin
         end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction
             regs_we <= 0;
             stp <= 1;
-        end      
-    end
+        end else if(stp[6]) begin // jmp, wait one cycle for rom to get next instruction
+            stp <= 1;
+        end // stp[x]
+    end // else rst
 end
 
 BlockROM rom( // 32K x 16b
