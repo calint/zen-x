@@ -68,10 +68,13 @@ pre pipeline
  1110 :       :     :
  1111 :       :     :
  -----:-------:-----:--------------------------------------
+ 
+  rc  :       : cyc :
+ -----+-------+-----+--------------------------------------
+  01  : call  :  2  : pc = imm12 << 4
+  11  : skp   :  2  : pc += signed imm12
+ -----+-------+-----+--------------------------------------
 
- r,c = 0,1 : call imm12 << 4
- r,c = 1,1 : skp pc + signed imm12
-
- any other instruction where r = 1 returns from call
+ any instruction where rc=10 returns from call
 
 ```
