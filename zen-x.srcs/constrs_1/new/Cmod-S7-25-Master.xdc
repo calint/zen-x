@@ -1,5 +1,5 @@
 #####################################################################################
-# set by vivado
+## set by vivado
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
 
@@ -9,6 +9,10 @@ set_property -dict {PACKAGE_PIN E2 IOSTANDARD LVCMOS33} [get_ports {led[0]}]
 set_property -dict {PACKAGE_PIN K1 IOSTANDARD LVCMOS33} [get_ports {led[1]}]
 set_property -dict {PACKAGE_PIN J1 IOSTANDARD LVCMOS33} [get_ports {led[2]}]
 set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [get_ports {led[3]}]
+
+#####################################################################################
+## to avoid warnings in implementation
+set_output_delay 0.000 [get_ports {{led[0]} {led[1]} {led[2]} {led[3]}}]
 
 #####################################################################################
 # below downloaded from https://github.com/Digilent/digilent-xdc/blob/master/Cmod-S7-25-Master.xdc

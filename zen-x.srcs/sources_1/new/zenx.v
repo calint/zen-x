@@ -132,7 +132,14 @@ always @(posedge clk) begin
         `endif
         if(stp[0]) begin
             // got instruction from rom, execute
-            if (is_cr) begin
+            if (cs_push) begin
+                $display("*** call");
+                regs_we <= 0;
+                ram_en <= 0;
+                ram_we <= 0;
+                pc <= imm12<<4;
+                stp <= 1<<6;
+            end else if (is_cr) begin
                 regs_we <= 0;
                 ram_en <= 0;
                 ram_we <= 0;
@@ -191,7 +198,7 @@ always @(posedge clk) begin
         end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction
             regs_we <= 0;
             stp <= 1;
-        end else if(stp[6]) begin // jmp, wait one cycle for rom to get next instruction
+        end else if(stp[6]) begin // skp,call: wait one cycle for rom to get next instruction
             stp <= 1;
         end // stp[x]
     end // else rst

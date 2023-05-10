@@ -160,14 +160,22 @@ initial begin
     // pc=26
     // zn=01
     #clk_tk // 003c: skp 3 ; not executed because zn!=00
-//    #clk_tk // wait for next instruction
+    #clk_tk // wait for next instruction
     if (zx.pc==27) $display("case 18 passed");
     else $display("case 18 FAILED. expected 27, got %0d", zx.pc);
 
     #clk_tk // 003f: ifzn skp 3
-//    #clk_tk // wait for next instruction
+    #clk_tk // wait for next instruction
     if (zx.pc==27+3) $display("case 19 passed");
     else $display("case 19 FAILED. expected 30, got %0d", zx.pc);
+    
+    // pc=30
+    #clk_tk // 0008: call 0
+    #clk_tk
+
+    // call location
+    #clk_tk
+    #clk_tk
         
     $finish;
 end
