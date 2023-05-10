@@ -13,12 +13,15 @@ wire [3:0] led;
 reg rst;
 
 wire [15:0] debug;
+wire [2:0] led_bgr;
 
 zenx zx(
     .rst(rst),
     .clk(clk),
     .led(led),
-    .debug(debug)
+    .led0_b(led_bgr[2]),
+    .led0_g(led_bgr[1]),
+    .led0_r(led_bgr[0])
 );
 
 initial begin
@@ -208,6 +211,10 @@ initial begin
     if (zx.pc==33) $display("case 26 passed");
     else $display("case 26 FAILED. expected 33, got %0d", zx.pc);
     
+    #clk_tk // 001f: skp 1 ; hang
+    #clk_tk // 000f: skp 0 ; hang
+    #clk_tk //
+    #clk_tk //
         
     $finish;
 end

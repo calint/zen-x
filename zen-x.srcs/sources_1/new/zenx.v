@@ -5,8 +5,11 @@
 module zenx(
     input wire rst,
     input wire clk,
+    input wire [1:0] btn,
     output wire [3:0] led,
-    output wire [15:0] debug
+    output wire led0_b,
+    output wire led0_g,
+    output wire led0_r
 );
 
 localparam ROM_ADDR_WIDTH = 15; // 2**15 instructions
@@ -35,6 +38,7 @@ reg [ROM_ADDR_WIDTH-1:0] pc;
 // OP_LDI related registers
 reg is_ldi; // enabled if data from current instruction is written to register 'ldi_reg'
 reg [3:0] ldi_reg; // register to write when doing 'ldi'
+reg ldi_do;
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
@@ -105,10 +109,17 @@ wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
-reg [25:0] counter;
 // outputs
-assign led[2:0] = {counter[25],counter[23],counter[21]};
-assign debug = pc;
+//reg [25:0] counter;
+//assign led[2:0] = {counter[25],counter[23],counter[21]};
+//assign led[0] = btn[0];
+assign led[0] = pc[0];
+assign led[1] = pc[1];
+assign led[2] = pc[2];
+assign led[3] = pc[3];
+assign led0_b = pc[4];
+assign led0_g = pc[5];
+assign led0_r = pc[6];
 
 reg [8:0] stp; // state of instruction execution
 
@@ -124,9 +135,9 @@ always @(negedge clk) begin
 //    `endif
     if (rst) begin
         cs_en <= 0;
-        counter <= 0;
+//        counter <= 0;
     end else begin
-        counter <= counter + 1;
+//        counter <= counter + 1;
         if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
             cs_en <= ~cs_en;
         end
@@ -139,6 +150,7 @@ always @(posedge clk) begin
         pc <= 0;
         regs_wd_sel = 0;
         is_ldi <= 0;
+        ldi_do <= 0;
         regs_we <= 0;
         ram_we <= 0;
         ram_en <= 0;
@@ -180,16 +192,17 @@ always @(posedge clk) begin
                         ram_en <= 0;
                         ram_we <= 0;
                         ldi_reg <= regb;
+                        ldi_do <= is_do_op;
                         stp <= stp << 2;
                     end
                     OP_ST: begin
                         regs_we <= 0;
                         ram_en <= 1;
-                        ram_we <= is_do_op ? 1 : 0;
+                        ram_we <= is_do_op;
                         stp <= stp << 1;
                     end
                     OP_LD: begin
-                        regs_we <= is_do_op ? 1 : 0;
+                        regs_we <= is_do_op;
                         ram_en <= 1;
                         ram_we <= 0;
                         regs_wd_sel <= 1; // select ram output for write to 'regb'
@@ -204,15 +217,16 @@ always @(posedge clk) begin
             regs_we <= 0;
             stp <= 1;
         end else if(stp[2]) begin // ldi: wait for rom
-            is_ldi <= is_do_op; // from previous 
-            regs_we <= is_do_op ? 1 : 0; // write rom output to register
-            regs_wd_sel <= is_do_op ? 2 : 0; // select register write from rom output
+            is_ldi <= ldi_do; // from previous step 
+            regs_we <= ldi_do; // write rom output to register
+            regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             stp = stp << 1;
         end else if(stp[3]) begin // ldi: load register
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
         end else if(stp[4]) begin // ldi: wait for rom to get next instruction
             regs_we <= 0;
+            ldi_do <= 0;
             is_ldi <= 0;
             stp <= 1;
         end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction

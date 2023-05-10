@@ -3,13 +3,14 @@
 
 module Sys(
     input wire reset,
-    input wire [1:0] btn,
     input wire clk_in,
-    output wire [3:0] led
+    input wire [1:0] btn,
+    output wire [3:0] led,
+    output wire led0_b,
+    output wire led0_g,
+    output wire led0_r
 );
 
-assign led[3] = btn[1];
-    
 wire clk_locked;
 wire clk;
 
@@ -20,14 +21,14 @@ Clocking clkg(
     .clk_out(clk)
 );
 
-
-wire [15:0] debug;
-
 zenx zx(
     .rst(!clk_locked),
     .clk(clk),
+    .btn(btn),
     .led(led),
-    .debug(debug)
+    .led0_b(led0_b),
+    .led0_g(led0_g),
+    .led0_r(led0_r)
 );
 
 endmodule

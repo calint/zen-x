@@ -12,14 +12,14 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="519.384 ns"></ZoomEndTime>
-      <Cursor1Time time="1,240.000 ns"></Cursor1Time>
+      <ZoomEndTime time="1,420.001 ns"></ZoomEndTime>
+      <Cursor1Time time="550.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="179"></NameColumnWidth>
+      <NameColumnWidth column_width="167"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="30" />
+   <WVObjectSize size="32" />
    <wvobject type="logic" fp_name="/TB_zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -49,6 +49,10 @@
       <obj_property name="ElementShortName">is_ldi</obj_property>
       <obj_property name="ObjectShortName">is_ldi</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/TB_zenx/zx/ldi_do">
+      <obj_property name="ElementShortName">ldi_do</obj_property>
+      <obj_property name="ObjectShortName">ldi_do</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/stp">
       <obj_property name="ElementShortName">stp[8:0]</obj_property>
       <obj_property name="ObjectShortName">stp[8:0]</obj_property>
@@ -57,6 +61,8 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/regs_we">
       <obj_property name="ElementShortName">regs_we</obj_property>
       <obj_property name="ObjectShortName">regs_we</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/ram_en">
       <obj_property name="ElementShortName">ram_en</obj_property>
@@ -149,5 +155,10 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/is_jmp">
       <obj_property name="ElementShortName">is_jmp</obj_property>
       <obj_property name="ObjectShortName">is_jmp</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_zenx/zx/led">
+      <obj_property name="ElementShortName">led[3:0]</obj_property>
+      <obj_property name="ObjectShortName">led[3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
 </wave_config>
