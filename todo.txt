@@ -1,8 +1,15 @@
+[ ] Calls: consolidate push, pop, en to en, sel
 [ ] uart
 [ ]   send "hello world"
 [ ]   echo
 [ ] interrupts and i/o
 ------------------------------------------------------------------------------
+[x] check if racing between
+[x]   Calls vs Zn
+[x]   Calls vs zenx
+[x]   zenx vs Zn
+[x]   zenx: nededge clk uses comb.condition that is modified during the same time
+       => does that during the second cycle while the combo is done during first
 [x] call
 [x] ret
 [x] jmp

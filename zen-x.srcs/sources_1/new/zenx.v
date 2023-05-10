@@ -83,7 +83,7 @@ wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'nex
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
 wire cs_zf_out;
 wire cs_nf_out;
-reg cs_en = 0; // used to coordinate push/pop and Zn
+reg cs_en; // used to coordinate push/pop and Zn
 
 // RAM and ROM related wiring and registers 
 reg rom_en;
@@ -121,8 +121,12 @@ always @(negedge clk) begin
 //    `ifdef DBG
 //        $display(" ~clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
 //    `endif
-    if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
-        cs_en <= ~cs_en;
+    if (rst) begin
+        cs_en <= 0;
+    end else begin
+        if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
+            cs_en <= ~cs_en;
+        end
     end
 end
 
