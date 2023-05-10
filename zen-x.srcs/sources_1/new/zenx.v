@@ -177,10 +177,10 @@ always @(posedge clk) begin
             regs_we <= 0;
             stp <= 1;
         end else if(stp[2]) begin // ldi: wait for rom
-            stp = stp << 1;
             is_ldi <= is_do_op; // from previous 
             regs_we <= is_do_op ? 1 : 0; // write rom output to register
             regs_wd_sel <= is_do_op ? 2 : 0; // select register write from rom output
+            stp = stp << 1;
         end else if(stp[3]) begin // ldi: load register
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
