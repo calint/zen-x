@@ -17,8 +17,8 @@ wire clk;
 Clocking clkg(
     .reset(reset),
     .locked(clk_locked),
-    .clk_in(clk_in),
-    .clk_out(clk)
+    .clk_in1(clk_in),
+    .clk_out1(clk)
 );
 
 zenx zx(
