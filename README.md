@@ -3,11 +3,11 @@ experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga
 
 under construction, second try at fpga using verilog in xilinx vivado
 
-rom and ram implemented using ip block ram
+rom and ram implemented using on board block ram
 
 pre pipeline
 
-? cycles / instruction
+2 cycles / instruction
 
 ```
                           
@@ -49,16 +49,16 @@ pre pipeline
 
    op :       : cyc |
  -----:-------:-----:-----------------------------------------------
- 0000 : add   :     : reg[b] += reg[a]
- 0001 : sub   :     : reg[b] -= reg[a] 
- 0010 : or    :     : reg[b] |= reg[a] 
- 0011 : xor   :     : reg[b] ^= reg[a] 
- 0100 : and   :     : reg[b] &= reg[a] 
- 0101 : not   :     : reg[b] = ~reg[a] 
- 0110 : cp    :     : reg[b] = reg[a]
- 0111 : shf   :     : reg[b] >>= signed imm4 
+ 0000 : add   :  2  : reg[b] += reg[a]
+ 0001 : sub   :  2  : reg[b] -= reg[a] 
+ 0010 : or    :  2  : reg[b] |= reg[a] 
+ 0011 : xor   :  2  : reg[b] ^= reg[a] 
+ 0100 : and   :  2  : reg[b] &= reg[a] 
+ 0101 : not   :  2  : reg[b] = ~reg[a] 
+ 0110 : cp    :  2  : reg[b] = reg[a]
+ 0111 : shf   :  2  : reg[b] >>= signed imm4 
  -----:-------:-----:-----------------------------------------------
- 1000 : addi  :     : reg[b] += signed imm4
+ 1000 : addi  :  2  : reg[b] += signed imm4
  1001 : ldi   :  4  : reg[b] = { next instruction }
  1010 : ld    :  2  : reg[b] = ram[a]
  1011 : st    :  2  : ram[a] = reg[b]
