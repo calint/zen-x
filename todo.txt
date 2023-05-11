@@ -1,3 +1,4 @@
+[x] parameterize
 [ ] Calls: consolidate push, pop, en to en, sel
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
 [ ] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartige

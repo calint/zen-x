@@ -12,32 +12,32 @@ module zenx(
     output wire led0_b
 );
 
-localparam ROM_ADDR_WIDTH = 15; // 2**15 instructions
+localparam ROM_ADDR_WIDTH = 15; // 2**16 32K instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
 localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
-localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
+localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since instruction encodes 4 bits to address a register) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
-localparam OP_ADDI = 4'b0001;
-localparam OP_LDI  = 4'b0011;
-localparam OP_LD   = 4'b0101;
-localparam OP_ST   = 4'b0111;
-localparam OP_SHF  = 4'b1110;
+localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value
+localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
+localparam OP_LD   = 4'b0101; // load
+localparam OP_ST   = 4'b0111; // store
+localparam OP_SHF  = 4'b1110; // shift
 
-localparam ALU_ADD = 3'b000;
-localparam ALU_SUB = 3'b001;
-localparam ALU_OR  = 3'b010;
-localparam ALU_XOR = 3'b011;
-localparam ALU_AND = 3'b100;
-localparam ALU_NOT = 3'b101;
-localparam ALU_CP  = 3'b110;
-localparam ALU_SHF = 3'b111;
+localparam ALU_ADD = 3'b000; // addition
+localparam ALU_SUB = 3'b001; // substraction
+localparam ALU_OR  = 3'b010; // bitwise or
+localparam ALU_XOR = 3'b011; // bitwise xor
+localparam ALU_AND = 3'b100; // bitwise and
+localparam ALU_NOT = 3'b101; // bitwise not
+localparam ALU_CP  = 3'b110; // copy
+localparam ALU_SHF = 3'b111; // shift
 
-reg [ROM_ADDR_WIDTH-1:0] pc;
+reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 
 // OP_LDI related registers
-reg is_ldi; // enabled if data from current instruction is written to register 'ldi_reg'
-reg [3:0] ldi_reg; // register to write when doing 'ldi'
+reg is_ldi; // enabled if current instruction is data for 'ldi'
+reg [3:0] ldi_reg; // register to write when 'ldi'
 reg ldi_do;
 
 // ROM related wiring
@@ -62,15 +62,18 @@ wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
 wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf==instr_z && zn_nf==instr_n));
 
 // Calls related wiring (part 1)
-wire is_cr = instr_c && instr_r; // enabled if illegal c && r op => enables 8 other instructions that can't piggy back 'return'
-wire is_cs_op = is_do_op && !is_cr && (instr_c ^ instr_r); // enabled if instruction operates on Calls
+wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp' 
+wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on Calls
 wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
-
-wire is_skp = is_do_op && is_cr; // note. gives a spurious spike because the instruction arrives ~100us later than posedge clk
+wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'next' and loop not finished
+wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
+wire cs_zf_out; // zero-flag before the 'call'
+wire cs_nf_out; // negative-flag before the 'call'
+reg cs_en; // used to coordinate push/pop and Zn
 
 // Registers related wiring (part 1)
-wire [REGISTERS_WIDTH-1:0] regs_rd1; // regs[a]
-wire [REGISTERS_WIDTH-1:0] regs_rd2; // regs[b]
+wire [REGISTERS_WIDTH-1:0] regs_dat_a; // regs[a]
+wire [REGISTERS_WIDTH-1:0] regs_dat_b; // regs[b]
 
 // ALU related wiring
 wire [REGISTERS_WIDTH-1:0] alu_result;
@@ -79,20 +82,11 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [REGISTERS_WIDTH-1:0] alu_operand_a =
-    (op == OP_SHF || op == OP_ADDI) ? {{(12){rega[3]}},rega} :  // sign extend 4 bits to 16
-    regs_rd1; // otherwise regs[rega]
-
-// Calls related wiring (part 2)
-wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'next' and loop not finished
-wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
-wire cs_zf_out;
-wire cs_nf_out;
-reg cs_en; // used to coordinate push/pop and Zn
+    (op == OP_SHF || op == OP_ADDI) ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} :  // sign extend 4 bits to 16
+    regs_dat_a; // otherwise regs[a]
 
 // RAM and ROM related wiring and registers 
-reg rom_en;
-reg ram_en;
-reg ram_we;
+reg ram_we; // write enable
 wire [REGISTERS_WIDTH-1:0] ram_dat_out;
 
 // Registers related wiring (part 2)
@@ -151,8 +145,6 @@ always @(posedge clk) begin
         ldi_do <= 0;
         regs_we <= 0;
         ram_we <= 0;
-        ram_en <= 1; // ram is always enabled
-        rom_en <= 1; // rom is always enabled, start reading first instruction
     end else begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
@@ -163,11 +155,11 @@ always @(posedge clk) begin
                 pc <= imm12<<4;
                 stp <= 1<<6;
             end else if (is_cr) begin // 'skp'
-                pc <= pc + (is_skp ? {{(3){imm12[11]}},imm12} : 1);
+                pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
             end else begin
                 if (cs_pop) begin // return
-                    pc <= cs_pc_out + 1;
+                    pc <= cs_pc_out + 1; // get return address from 'Calls'
                 end else begin
                     pc <= pc + 1; // start fetching next instruction
                 end
@@ -197,8 +189,8 @@ always @(posedge clk) begin
             end // is_jmp
         end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
             // ? separate this into 2 different steps which disables 'we' for the relevant component
-            ram_we <= 0;
-            regs_we <= 0;
+            ram_we <= 0; // if it is 'st'
+            regs_we <= 0; // if it is 'ld'
             stp <= 1;
         end else if(stp[2]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
@@ -224,7 +216,7 @@ end
 
 BlockROM rom( // 32K x 16b
     .clka(clk),
-    .ena(rom_en),
+    .ena(1),
     .addra(pc),
     .douta(instr)
 );
@@ -249,14 +241,14 @@ Registers #(REGISTERS_ADDR_WIDTH, REGISTERS_WIDTH) regs ( // 16 x 16b
     .ra2(regb), // register address 2
     .we(regs_we), // write 'wd' to address 'ra2'
     .wd(regs_wd), // data to write to register 'ra2' when 'we' is enabled
-    .rd1(regs_rd1), // register data 1
-    .rd2(regs_rd2) // register data 2
+    .rd1(regs_dat_a), // register data 1
+    .rd2(regs_dat_b) // register data 2
 );
 
 ALU #(REGISTERS_WIDTH) alu(
     .op(alu_op),
     .a(alu_operand_a),
-    .b(regs_rd2),
+    .b(regs_dat_b),
     .result(alu_result),
     .zf(alu_zf),
     .nf(alu_nf)
@@ -278,10 +270,10 @@ Zn zn(
 
 BlockRAM ram( // 64K x 16b
     .clka(clk),
-    .ena(ram_en),
+    .ena(1),
     .wea(ram_we),
-    .addra(regs_rd1),
-    .dina(regs_rd2),
+    .addra(regs_dat_a),
+    .dina(regs_dat_b),
     .douta(ram_dat_out)
 );
 
