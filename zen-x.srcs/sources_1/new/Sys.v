@@ -33,8 +33,17 @@ zenx zx(
     .led0_b(led0_b)
 );
 
-reg [7:0] data = 8'h31;
-reg send_data = 1;
+wire [7:0] data;
+wire send_data;
+
+uart_rx urx(
+  .rst(!clk_locked),
+  .clk(clk),
+  .data(data),
+  .rxd(send_data),
+  .rx(uart_rx)
+);
+
 
 uart_tx utx(
   .rst(!clk_locked),
