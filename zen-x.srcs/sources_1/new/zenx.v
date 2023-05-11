@@ -7,9 +7,9 @@ module zenx(
     input wire clk,
     input wire [1:0] btn,
     output wire [3:0] led,
-    output wire led0_b,
+    output wire led0_r,
     output wire led0_g,
-    output wire led0_r
+    output wire led0_b
 );
 
 localparam ROM_ADDR_WIDTH = 15; // 2**15 instructions
@@ -113,13 +113,13 @@ wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Ca
 //reg [25:0] counter;
 //assign led[2:0] = {counter[25],counter[23],counter[21]};
 //assign led[0] = btn[0];
-assign led[0] = pc[0];
-assign led[1] = pc[1];
-assign led[2] = pc[2];
-assign led[3] = pc[3];
-assign led0_b = pc[4];
-assign led0_g = pc[5];
-assign led0_r = pc[6];
+assign led[0] = pc[btn[1]?4:0];
+assign led[1] = pc[btn[1]?5:1];
+assign led[2] = pc[btn[1]?6:2];
+assign led[3] = pc[btn[1]?7:3];
+assign led0_b = 0;
+assign led0_g = pc==50;
+assign led0_r = 0;
 
 reg [8:0] stp; // state of instruction execution
 

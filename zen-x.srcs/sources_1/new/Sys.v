@@ -6,9 +6,9 @@ module Sys(
     input wire clk_in,
     input wire [1:0] btn,
     output wire [3:0] led,
-    output wire led0_b,
+    output wire led0_r,
     output wire led0_g,
-    output wire led0_r
+    output wire led0_b
 );
 
 wire clk_locked;
@@ -26,9 +26,9 @@ zenx zx(
     .clk(clk),
     .btn(btn),
     .led(led),
-    .led0_b(led0_b),
+    .led0_r(led0_r),
     .led0_g(led0_g),
-    .led0_r(led0_r)
+    .led0_b(led0_b)
 );
 
 endmodule

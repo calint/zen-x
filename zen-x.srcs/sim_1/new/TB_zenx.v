@@ -221,9 +221,11 @@ initial begin
     #clk_tk // 001f: skp 1
     #clk_tk // 
     
+    // pc=50, zn=01
     #clk_tk // 000f: skp 0 ; hang
     #clk_tk //
-        
+     
+    #clk_tk   
     $finish;
 end
 
