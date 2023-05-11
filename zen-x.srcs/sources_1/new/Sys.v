@@ -33,7 +33,7 @@ zenx zx(
     .led0_b(led0_b)
 );
 
-reg [7:0] data = 8'h30;
+reg [7:0] data = 8'h31;
 reg send_data = 1;
 
 uart_tx utx(
