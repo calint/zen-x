@@ -6,7 +6,7 @@ module Sys(
     input wire clk_in,
     output wire uart_tx,
     input wire uart_rx,
-    input wire [1:0] btn,
+    input wire [1:0] btn, // btn[0] wired to reset, can not be read
     output wire [3:0] led,
     output wire led0_r,
     output wire led0_g,
@@ -26,7 +26,7 @@ Clocking clkg(
 zenx zx(
     .rst(!clk_locked),
     .clk(clk),
-    .btn(btn),
+    .btn(btn[1]),
     .led(led),
     .led0_r(led0_r),
     .led0_g(led0_g),

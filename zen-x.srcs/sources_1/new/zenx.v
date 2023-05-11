@@ -5,7 +5,7 @@
 module zenx(
     input wire rst,
     input wire clk,
-    input wire [1:0] btn,
+    input wire btn,
     output wire [3:0] led,
     output wire led0_r,
     output wire led0_g,
@@ -14,8 +14,8 @@ module zenx(
 
 localparam ROM_ADDR_WIDTH = 15; // 2**15 instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
-localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
 localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
+localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
 localparam OP_ADDI = 4'b0001;
@@ -66,19 +66,19 @@ wire is_cr = instr_c && instr_r; // enabled if illegal c && r op => enables 8 ot
 wire is_cs_op = is_do_op && !is_cr && (instr_c ^ instr_r); // enabled if instruction operates on Calls
 wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
 
-wire is_jmp = is_do_op && is_cr;
+wire is_skp = is_do_op && is_cr; // note. gives a spurious spike because the instruction arrives ~100us later than posedge clk
 
 // Registers related wiring (part 1)
-wire [15:0] regs_rd1; // regs[a]
-wire [15:0] regs_rd2; // regs[b]
+wire [REGISTERS_WIDTH-1:0] regs_rd1; // regs[a]
+wire [REGISTERS_WIDTH-1:0] regs_rd2; // regs[b]
 
 // ALU related wiring
-wire [15:0] alu_result;
+wire [REGISTERS_WIDTH-1:0] alu_result;
 wire is_alu_op = !is_ldi && !is_cr && !cs_push && (!op[0] || op == OP_ADDI);
 wire [2:0] alu_op = 
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
-wire [15:0] alu_operand_a =
+wire [REGISTERS_WIDTH-1:0] alu_operand_a =
     (op == OP_SHF || op == OP_ADDI) ? {{(12){rega[3]}},rega} :  // sign extend 4 bits to 16
     regs_rd1; // otherwise regs[rega]
 
@@ -93,12 +93,12 @@ reg cs_en; // used to coordinate push/pop and Zn
 reg rom_en;
 reg ram_en;
 reg ram_we;
-wire [15:0] ram_dat_out;
+wire [REGISTERS_WIDTH-1:0] ram_dat_out;
 
 // Registers related wiring (part 2)
 reg regs_we; // registers write enabled
 reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr
-wire [15:0] regs_wd =
+wire [REGISTERS_WIDTH-1:0] regs_wd =
     regs_wd_sel == 0 ? alu_result :
     regs_wd_sel == 1 ? ram_dat_out :
     instr;
@@ -109,15 +109,16 @@ wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
-assign led[0] = pc[btn[1]?4:0];
-assign led[1] = pc[btn[1]?5:1];
-assign led[2] = pc[btn[1]?6:2];
-assign led[3] = pc[btn[1]?7:3];
+reg [7:0] stp; // state of instruction execution
+
+// debugging
+assign led[0] = pc[btn ? 4 : 0];
+assign led[1] = pc[btn ? 5 : 1];
+assign led[2] = pc[btn ? 6 : 2];
+assign led[3] = pc[btn ? 7 : 3];
 assign led0_b = 0;
 assign led0_g = (pc==50); // pc at finished in hang of rom
 assign led0_r = 0;
-
-reg [8:0] stp; // state of instruction execution
 
 /*
 always @* begin
@@ -135,7 +136,7 @@ always @(negedge clk) begin
     if (rst) begin
         cs_en <= 0;
     end else begin
-        if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
+        if (cs_push || cs_pop) begin // this will be called twice while the instruction executes
             cs_en <= ~cs_en;
         end
     end
@@ -150,52 +151,43 @@ always @(posedge clk) begin
         ldi_do <= 0;
         regs_we <= 0;
         ram_we <= 0;
-        ram_en <= 1;
-        rom_en <= 1; // start reading first instruction
+        ram_en <= 1; // ram is always enabled
+        rom_en <= 1; // rom is always enabled, start reading first instruction
     end else begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
         `endif
         if(stp[0]) begin
             // got instruction from rom, execute
-            if (cs_push) begin
-                regs_we <= 0;
-                ram_we <= 0;
+            if (cs_push) begin // call
                 pc <= imm12<<4;
                 stp <= 1<<6;
-            end else if (is_cr) begin
-                regs_we <= 0;
-                ram_we <= 0;
-                pc <= pc + (is_jmp ? {{(3){imm12[11]}},imm12} : 1);
+            end else if (is_cr) begin // 'skp'
+                pc <= pc + (is_skp ? {{(3){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
             end else begin
-                if (cs_pop) begin
+                if (cs_pop) begin // return
                     pc <= cs_pc_out + 1;
                 end else begin
                     pc <= pc + 1; // start fetching next instruction
                 end
                 if (is_alu_op) begin
                     regs_we <= is_do_op ? 1 : 0;
-                    ram_we <= 0;
                     regs_wd_sel <= 0; // select alu result for write to 'regb'
                     stp <= 1<<5;
                 end else begin
                     case(op)
                     OP_LDI: begin
-                        regs_we <= 0;
-                        ram_we <= 0;
                         ldi_reg <= regb;
                         ldi_do <= is_do_op;
                         stp <= stp << 2;
                     end
                     OP_ST: begin
-                        regs_we <= 0;
                         ram_we <= is_do_op;
                         stp <= stp << 1;
                     end
                     OP_LD: begin
                         regs_we <= is_do_op;
-                        ram_we <= 0;
                         regs_wd_sel <= 1; // select ram output for write to 'regb'
                         stp <= stp << 1;
                     end
@@ -204,15 +196,16 @@ always @(posedge clk) begin
                 end // is_alu_op
             end // is_jmp
         end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
+            // ? separate this into 2 different steps which disables 'we' for the relevant component
             ram_we <= 0;
             regs_we <= 0;
             stp <= 1;
         end else if(stp[2]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
-            regs_we <= ldi_do; // write rom output to register
-            regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             stp <= stp << 1;
         end else if(stp[3]) begin // ldi: load register
+            regs_we <= ldi_do; // write rom output to register
+            regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
         end else if(stp[4]) begin // ldi: wait for rom to get next instruction
@@ -236,7 +229,7 @@ BlockROM rom( // 32K x 16b
     .douta(instr)
 );
 
-Calls #(4, ROM_ADDR_WIDTH) cs(
+Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs(
     .rst(rst),
     .clk(clk),
     .pc_in(pc), // current program counter
@@ -250,7 +243,7 @@ Calls #(4, ROM_ADDR_WIDTH) cs(
     .nf_out(cs_nf) // top of stack negative flag
 );
 
-Registers regs( // 16 x 16b
+Registers #(REGISTERS_ADDR_WIDTH, REGISTERS_WIDTH) regs ( // 16 x 16b
     .clk(clk),
     .ra1(rega), // register address 1
     .ra2(regb), // register address 2
@@ -260,7 +253,7 @@ Registers regs( // 16 x 16b
     .rd2(regs_rd2) // register data 2
 );
 
-ALU alu(
+ALU #(REGISTERS_WIDTH) alu(
     .op(alu_op),
     .a(alu_operand_a),
     .b(regs_rd2),

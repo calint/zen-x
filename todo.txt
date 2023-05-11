@@ -1,9 +1,13 @@
 [ ] Calls: consolidate push, pop, en to en, sel
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
-[ ] uart
+[ ] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartige
+[o] uart
 [ ]   send "hello world"
-[ ]   echo
-[ ] interrupts and i/o
+[x]   echo
+[ ] i/o
+[ ] interrupts
+[ ] assembler webapp
+[ ] emulator webapp
 ------------------------------------------------------------------------------
 [x] check if racing between
 [x]   Calls vs Zn
