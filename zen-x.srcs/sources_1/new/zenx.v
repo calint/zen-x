@@ -122,7 +122,7 @@ reg [8:0] stp; // state of instruction execution
 /*
 always @* begin
     if (is_jmp) begin
-        // doesn't because of the 'spurios' spike while combo is evaluating
+        // doesn't work because of the 'spurios' spike while combo is evaluating
         pc = pc + {{(4){imm12[11]}}, imm12};
     end
 end
@@ -160,13 +160,11 @@ always @(posedge clk) begin
             // got instruction from rom, execute
             if (cs_push) begin
                 regs_we <= 0;
-//                ram_en <= 0;
                 ram_we <= 0;
                 pc <= imm12<<4;
                 stp <= 1<<6;
             end else if (is_cr) begin
                 regs_we <= 0;
-//                ram_en <= 0;
                 ram_we <= 0;
                 pc <= pc + (is_jmp ? {{(3){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
@@ -178,7 +176,6 @@ always @(posedge clk) begin
                 end
                 if (is_alu_op) begin
                     regs_we <= is_do_op ? 1 : 0;
-//                    ram_en <= 0;
                     ram_we <= 0;
                     regs_wd_sel <= 0; // select alu result for write to 'regb'
                     stp <= 1<<5;
@@ -186,7 +183,6 @@ always @(posedge clk) begin
                     case(op)
                     OP_LDI: begin
                         regs_we <= 0;
-//                        ram_en <= 0;
                         ram_we <= 0;
                         ldi_reg <= regb;
                         ldi_do <= is_do_op;
@@ -194,13 +190,11 @@ always @(posedge clk) begin
                     end
                     OP_ST: begin
                         regs_we <= 0;
-//                        ram_en <= 1;
                         ram_we <= is_do_op;
                         stp <= stp << 1;
                     end
                     OP_LD: begin
                         regs_we <= is_do_op;
-//                        ram_en <= 1;
                         ram_we <= 0;
                         regs_wd_sel <= 1; // select ram output for write to 'regb'
                         stp <= stp << 1;
@@ -210,14 +204,12 @@ always @(posedge clk) begin
                 end // is_alu_op
             end // is_jmp
         end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
-//            ram_en <= 0;
             ram_we <= 0;
             regs_we <= 0;
             stp <= 1;
         end else if(stp[2]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
             regs_we <= ldi_do; // write rom output to register
-//            ram_en <= ldi_do;
             regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             stp <= stp << 1;
         end else if(stp[3]) begin // ldi: load register
@@ -227,7 +219,6 @@ always @(posedge clk) begin
             regs_we <= 0;
             ldi_do <= 0;
             is_ldi <= 0;
-//            ram_en <= 0;
             stp <= 1;
         end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction
             regs_we <= 0;

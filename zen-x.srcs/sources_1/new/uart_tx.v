@@ -47,7 +47,7 @@ always @(posedge clk) begin
                     tx_reg <= 0;
                     state <= STATE_START_BIT;
                     bit_count <= 0;
-                    bit_counter <= BIT_TIME / 2;
+                    bit_counter <= BIT_TIME; // ? half the bit_time also works
                 end else begin
                     tx_reg <= 1;
                 end

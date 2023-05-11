@@ -192,7 +192,7 @@ initial begin
     //  7: 0x0000
     //  8: 0x0000
     
-    #clk_tk // 0038: call 0x0030
+    #clk_tk // 003b: call 0x0030
     #clk_tk
 
     // pc=48, zn=00

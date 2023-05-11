@@ -11,12 +11,12 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="177.083 ns"></ZoomStartTime>
-      <ZoomEndTime time="456.584 ns"></ZoomEndTime>
-      <Cursor1Time time="390.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,520.001 ns"></ZoomEndTime>
+      <Cursor1Time time="430.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="159"></NameColumnWidth>
+      <NameColumnWidth column_width="155"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="32" />
@@ -70,6 +70,10 @@
       <obj_property name="CustomSignalColor">#00FFFF</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
+   <wvobject type="array" fp_name="/TB_zenx/zx/regs_wd">
+      <obj_property name="ElementShortName">regs_wd[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_wd[15:0]</obj_property>
+   </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/ram_en">
       <obj_property name="ElementShortName">ram_en</obj_property>
       <obj_property name="ObjectShortName">ram_en</obj_property>
@@ -89,10 +93,6 @@
    <wvobject type="array" fp_name="/TB_zenx/zx/regs_rd2">
       <obj_property name="ElementShortName">regs_rd2[15:0]</obj_property>
       <obj_property name="ObjectShortName">regs_rd2[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/regs_wd">
-      <obj_property name="ElementShortName">regs_wd[15:0]</obj_property>
-      <obj_property name="ObjectShortName">regs_wd[15:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/alu_result">
       <obj_property name="ElementShortName">alu_result[15:0]</obj_property>
