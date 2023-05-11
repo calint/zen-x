@@ -41,7 +41,7 @@ always @(posedge clk) begin
                 rx_done <= 0;
                 state <= STATE_START_BIT;
                 bit_count <= 0;
-                bit_counter <= BIT_TIME / 2;
+                bit_counter <= BIT_TIME / 2;  // offset the sample time to the middle of the oversampling
             end
         end
         STATE_START_BIT: begin

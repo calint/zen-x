@@ -27,6 +27,8 @@ reg [3:0] bit_count;
 reg [$clog2(BIT_TIME)-1:0] bit_counter;
 reg tx_reg;
 
+reg tx_go_prv;
+
 always @(posedge clk) begin
     if (rst) begin
         state <= STATE_IDLE;
@@ -34,14 +36,21 @@ always @(posedge clk) begin
         bit_count <= 0;
         bit_counter <= 0;
         tx <= 1;
+        tx_done <= 0;
+        tx_go_prv <= 0;
     end else begin
         case(state)
         STATE_IDLE: begin
-            if (tx_go) begin
-                tx_reg <= 0;
-                state <= STATE_START_BIT;
-                bit_count <= 0;
-                bit_counter <= BIT_TIME / 2;
+            if (tx_go != tx_go_prv) begin
+                tx_go_prv <= tx_go;
+                if (tx_go) begin
+                    tx_reg <= 0;
+                    state <= STATE_START_BIT;
+                    bit_count <= 0;
+                    bit_counter <= BIT_TIME / 2;
+                end else begin
+                    tx_reg <= 1;
+                end
             end else begin
                 tx_reg <= 1;
             end

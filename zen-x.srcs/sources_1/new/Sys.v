@@ -58,11 +58,13 @@ uart_tx utx(
   .tx_done(tx_done)
 );
 
+
 always @(posedge clk) begin
-    if (reset) begin
+    if (!clk_locked) begin
         tx_go <= 0;
-        state <= 0;
         rx_done_prv <= 0;
+        data_out <= 0;
+        state <= 0;
     end else begin
         case(state)
         0: begin

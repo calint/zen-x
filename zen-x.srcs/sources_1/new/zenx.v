@@ -109,25 +109,24 @@ wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
-// outputs
-//reg [25:0] counter;
-//assign led[2:0] = {counter[25],counter[23],counter[21]};
-//assign led[0] = btn[0];
 assign led[0] = pc[btn[1]?4:0];
 assign led[1] = pc[btn[1]?5:1];
 assign led[2] = pc[btn[1]?6:2];
 assign led[3] = pc[btn[1]?7:3];
 assign led0_b = 0;
-assign led0_g = pc==50;
+assign led0_g = (pc==50); // pc at finished in hang of rom
 assign led0_r = 0;
 
 reg [8:0] stp; // state of instruction execution
 
+/*
 always @* begin
     if (is_jmp) begin
-        //pc = pc + {{(4){imm12[11]}}, imm12};
+        // doesn't because of the 'spurios' spike while combo is evaluating
+        pc = pc + {{(4){imm12[11]}}, imm12};
     end
 end
+*/
 
 always @(negedge clk) begin
 //    `ifdef DBG
@@ -135,9 +134,7 @@ always @(negedge clk) begin
 //    `endif
     if (rst) begin
         cs_en <= 0;
-//        counter <= 0;
     end else begin
-//        counter <= counter + 1;
         if (cs_push || cs_pop) begin // this will be called twice while the instruction is active
             cs_en <= ~cs_en;
         end
