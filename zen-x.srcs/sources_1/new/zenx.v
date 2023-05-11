@@ -216,7 +216,6 @@ end
 
 BlockROM rom( // 32K x 16b
     .clka(clk),
-    .ena(1),
     .addra(pc),
     .douta(instr)
 );
@@ -270,7 +269,6 @@ Zn zn(
 
 BlockRAM ram( // 64K x 16b
     .clka(clk),
-    .ena(1),
     .wea(ram_we),
     .addra(regs_dat_a),
     .dina(regs_dat_b),
