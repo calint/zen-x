@@ -53,13 +53,21 @@ initial begin
     if (zx.regs.mem[3]==16'hffff) $display("case 3 passed");
     else $display("case 3 FAILED. expected 0xffff, got %h", zx.regs.mem[3]); 
 
+    #clk_tk // 1273: st r2 r1
+    #clk_tk // ram[r2]=regs[1] => ram[0xabcd]=0x1234
+
     #clk_tk // 3173: st r1 r3
-    #clk_tk // ram[r1]=regs[3] => ram[0x1234]=0xffff, get rom[7]
+    #clk_tk // ram[r1]=regs[3] => ram[0x1234]=0xffff
     
-    #clk_tk // 4150: ld r1 r4
-    #clk_tk // regs[4]=ram[r1] => regs[4]=ram[0x1234]=0xffff, get rom[9]
-    if (zx.regs.mem[4]==16'hffff) $display("case 4 passed");
-    else $display("case 4 FAILED. expected 0xffff, got %h", zx.regs.mem[4]); 
+    #clk_tk // 6253: ld r2 r6
+    #clk_tk // regs[6]=ram[r2] => regs[6]=ram[0xabcd]=0x1234
+    if (zx.regs.mem[6]==16'h1234) $display("case 4 passed");
+    else $display("case 4 FAILED. expected 0x1234, got %h", zx.regs.mem[4]); 
+    
+    #clk_tk // 4153: ld r1 r4
+    #clk_tk // regs[4]=ram[r1]=ram[0x1234]=0xffff
+    if (zx.regs.mem[4]==16'hffff) $display("case 4.1 passed");
+    else $display("case 4.1 FAILED. expected 0xffff, got %h", zx.regs.mem[4]); 
     
     #clk_tk // 1373: st r3 r1
     #clk_tk // ram[r3]=regs[1] => ram[0xffff]=0x1234, get rom[8]
@@ -69,18 +77,19 @@ initial begin
     if (zx.regs.mem[5]==16'h1234) $display("case 5 passed");
     else $display("case 5 FAILED. expected 0x1234, got %h", zx.regs.mem[5]); 
 
-    // regs
+    // regs        zn:00
     //  0: 0x0000
     //  1: 0x1234
     //  2: 0xabcd
     //  3: 0xffff
     //  4: 0xffff
     //  5: 0x1234
+    //  6: 0x1234
     
     #clk_tk // 4113: addi 1 r4
     #clk_tk
-    if (zx.regs.mem[4]==0) $display("case 5 passed");
-    else $display("case 5 FAILED. expected 0, got %0d", zx.regs.mem[4]); 
+    if (zx.regs.mem[4]==0) $display("case 5.1 passed");
+    else $display("case 5.1 FAILED. expected 0, got %0d", zx.regs.mem[4]); 
 
     #clk_tk // 4f13: addi -1 r4
     #clk_tk
@@ -160,19 +169,18 @@ initial begin
     if (zx.regs.mem[7]==1) $display("case 17 passed");
     else $display("case 17 FAILED. expected 1, got %h", zx.regs.mem[7]); 
 
-    // pc=26
-    // zn=01
+    // pc=28, zn=01
     #clk_tk // 003c: skp 3 ; not executed because zn!=00
     #clk_tk // wait for next instruction
-    if (zx.pc==27) $display("case 18 passed");
-    else $display("case 18 FAILED. expected 27, got %0d", zx.pc);
+    if (zx.pc==29) $display("case 18 passed");
+    else $display("case 18 FAILED. expected 29, got %0d", zx.pc);
 
     #clk_tk // 003f: ifzn skp 3
     #clk_tk // wait for next instruction
-    if (zx.pc==27+3) $display("case 19 passed");
-    else $display("case 19 FAILED. expected 30, got %0d", zx.pc);
+    if (zx.pc==29+3) $display("case 19 passed");
+    else $display("case 19 FAILED. expected 32, got %0d", zx.pc);
     
-    // pc=30 zn=01
+    // pc=32 zn=01
     // regs
     //  0: 0x0000
     //  1: 0x1234
@@ -184,36 +192,36 @@ initial begin
     //  7: 0x0000
     //  8: 0x0000
     
-    #clk_tk // 0038: call 0x0020
+    #clk_tk // 0038: call 0x0030
     #clk_tk
 
-    // pc=32
-    // flags zn=00
-    if (zx.pc==32) $display("case 20 passed");
-    else $display("case 20 FAILED. expected 32, got %0d", zx.pc);
+    // pc=48, zn=00
+    if (zx.pc==48) $display("case 20 passed");
+    else $display("case 20 FAILED. expected 48, got %0d", zx.pc);
     if (!zx.zn_zf && !zx.zn_nf) $display("case 21 passed");
     else $display("case 21 FAILED. expected 0, 0 got %0d, %0d", zx.zn_zf, zx.zn_nf);
     
     #clk_tk // 8117: addi 1 r8 ret
     #clk_tk //
 
-    // pc=32
+    // pc=33
     // flags zn=01
-    if (zx.pc==31) $display("case 23 passed");
-    else $display("case 23 FAILED. expected 31, got %0d", zx.pc);
+    if (zx.pc==33) $display("case 23 passed");
+    else $display("case 23 FAILED. expected 33, got %0d", zx.pc);
     if (!zx.zn_zf && zx.zn_nf) $display("case 24 passed");
     else $display("case 24 FAILED. expected 0, 1 got %0d, %0d", zx.zn_zf, zx.zn_nf);
     if (zx.regs.mem[8]==1) $display("case 25 passed");
     else $display("case 25 FAILED. expected 1, got %0d", zx.regs.mem[8]); 
     
-    #clk_tk // 002f: skp 2
+    #clk_tk // 010f: skp 2
     #clk_tk //
-    if (zx.pc==33) $display("case 26 passed");
-    else $display("case 26 FAILED. expected 33, got %0d", zx.pc);
+    if (zx.pc==49) $display("case 26 passed");
+    else $display("case 26 FAILED. expected 49, got %0d", zx.pc);
     
-    #clk_tk // 001f: skp 1 ; hang
+    #clk_tk // 001f: skp 1
+    #clk_tk // 
+    
     #clk_tk // 000f: skp 0 ; hang
-    #clk_tk //
     #clk_tk //
         
     $finish;
