@@ -9,12 +9,12 @@ module uart_rx #(
   input wire clk,
   input wire rx,
   output reg [7:0] data,
-  output reg rxd
+  output reg rx_done
 );
 
-parameter BIT_TIME = CLK_FREQ / BAUD_RATE;
-parameter STOP_BITS = 1;
-parameter START_BIT = 0;
+localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
+localparam STOP_BITS = 1;
+localparam START_BIT = 0;
 
 localparam STATE_IDLE      = 0;
 localparam STATE_START_BIT = 1;
@@ -23,7 +23,7 @@ localparam STATE_STOP_BITS = 3;
 
 reg [2:0] state;
 reg [3:0] bit_count;
-reg [$ceil($clog2(BIT_TIME)):0] bit_counter;
+reg [$clog2(BIT_TIME)-1:0] bit_counter;
 reg rx_reg;
 reg [7:0] data_reg;
 
@@ -33,12 +33,12 @@ always @(posedge clk) begin
         data_reg <= 8'h00;
         bit_count <= 0;
         bit_counter <= 0;
-        rxd <= 0;
+        rx_done <= 0;
     end else begin
         case(state)
         STATE_IDLE: begin
             if (!rx) begin
-                rxd <= 0;
+                rx_done <= 0;
                 state <= STATE_START_BIT;
                 bit_count <= 0;
                 bit_counter <= BIT_TIME / 2;
@@ -66,7 +66,7 @@ always @(posedge clk) begin
                 state <= STATE_IDLE;
                 if (rx_reg == STOP_BITS) begin
                     data <= data_reg;
-                    rxd <= 1;
+                    rx_done <= 1;
                 end
             end
         end

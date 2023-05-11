@@ -33,25 +33,57 @@ zenx zx(
     .led0_b(led0_b)
 );
 
-wire [7:0] data;
-wire send_data;
+reg [7:0] data_out;
+wire [7:0] data_in;
+wire rx_done;
+reg rx_done_prv;
+wire tx_done;
+reg tx_go;
+reg state; // 0: waiting for rx_done, 1: waiting for tx_done
 
 uart_rx urx(
   .rst(!clk_locked),
   .clk(clk),
-  .data(data),
-  .rxd(send_data),
+  .data(data_in),
+  .rx_done(rx_done),
   .rx(uart_rx)
 );
-
 
 uart_tx utx(
   .rst(!clk_locked),
   .clk(clk),
-  .data(data),
-  .send(send_data),
-  .tx(uart_tx)
+  .data(data_out),
+  .tx_go(tx_go),
+  .tx(uart_tx),
+  .tx_done(tx_done)
 );
+
+always @(posedge clk) begin
+    if (reset) begin
+        tx_go <= 0;
+        state <= 0;
+        rx_done_prv <= 0;
+    end else begin
+        case(state)
+        0: begin
+            if (rx_done_prv != rx_done) begin
+                rx_done_prv <= rx_done;
+                if (rx_done) begin
+                    data_out <= data_in;
+                    tx_go <= 1;
+                    state <= 1;
+                end
+            end
+        end
+        1: begin
+            if (tx_done) begin
+                tx_go <= 0;
+                state <= 0;
+            end
+        end
+        endcase
+    end
+ end
 
 endmodule
 

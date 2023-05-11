@@ -8,13 +8,14 @@ module uart_tx #(
     input wire rst,
     input wire clk,
     input wire [7:0] data,
-    input wire send,
-    output reg tx
+    input wire tx_go,
+    output reg tx,
+    output reg tx_done
 );
 
-parameter BIT_TIME = CLK_FREQ / BAUD_RATE;
-parameter STOP_BITS = 1;
-parameter START_BIT = 0;
+localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
+localparam STOP_BITS = 1;
+localparam START_BIT = 0;
 
 localparam STATE_IDLE      = 0;
 localparam STATE_START_BIT = 1;
@@ -23,7 +24,7 @@ localparam STATE_STOP_BITS = 3;
 
 reg [2:0] state;
 reg [3:0] bit_count;
-reg [$ceil($clog2(BIT_TIME)):0] bit_counter;
+reg [$clog2(BIT_TIME)-1:0] bit_counter;
 reg tx_reg;
 
 always @(posedge clk) begin
@@ -36,7 +37,7 @@ always @(posedge clk) begin
     end else begin
         case(state)
         STATE_IDLE: begin
-            if (send) begin
+            if (tx_go) begin
                 tx_reg <= 0;
                 state <= STATE_START_BIT;
                 bit_count <= 0;
@@ -46,6 +47,7 @@ always @(posedge clk) begin
             end
         end
         STATE_START_BIT: begin
+            tx_done <= 0;
             tx_reg <= START_BIT;
             if (bit_counter == 0) begin
                 bit_counter <= BIT_TIME;
@@ -68,6 +70,7 @@ always @(posedge clk) begin
             if (bit_counter == 0) begin
                 state <= STATE_IDLE;
                 tx_reg <= 1;
+                tx_done <= 1;
             end
         end
         endcase
