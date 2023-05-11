@@ -220,7 +220,7 @@ always @(posedge clk) begin
             is_ldi <= ldi_do; // from previous step 
             regs_we <= ldi_do; // write rom output to register
             regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
-            stp = stp << 1;
+            stp <= stp << 1;
         end else if(stp[3]) begin // ldi: load register
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
