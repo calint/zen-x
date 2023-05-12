@@ -149,7 +149,7 @@ initial begin
     if (zx.regs.mem[6]==16'h1234) $display("case 13 passed");
     else $display("case 13 FAILED. expected 0x1234, got %h", zx.regs.mem[6]);
     
-    #clk_tk // 61e3: shf 1 r6 ; 0x1234 >> 1 = 0x091a
+    #clk_tk // 60e3: shf 0 r6 ; 0x1234 >> 1 = 0x091a
     #clk_tk
     if (zx.regs.mem[6]==16'h091a) $display("case 14 passed");
     else $display("case 14 FAILED. expected 0x091a, got %h", zx.regs.mem[6]);
