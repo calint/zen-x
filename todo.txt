@@ -6,7 +6,8 @@
 [ ] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
 [ ] zenx: 1 cycle jmp: always @* if (is_skp) pc = pc + {{(4){imm12[11]}}, imm12};
           doesn't work because 'is_skp' is triggered by previous instruction (ldi data)
-          during the ~100ps delay of rom data after "posedge clk" 
+          during the ~100ps delay of rom data after "posedge clk"
+[ ] zenx: 1 cycle call
 [o] uart
 [ ]   send "hello world"
 [x]   echo
