@@ -47,7 +47,7 @@ wire [15:0] instr; // current instruction from ROM
 wire instr_z = instr[0]; // if enabled execute instruction if z-flag matches 'zn_zf' (also considering instr_n)
 wire instr_n = instr[1]; // if enabled execute instruction if n-flag matches 'zn_nf' (also considering instr_z)
 // both 'instr_z' and 'instr_n' enabled means execute instruction without considering flags 
-wire instr_r = instr[2]; // if enabled returns from current 'call', if 'instr_x' and loop not finished then ignored
+wire instr_r = instr[2]; // if enabled returns from current 'call'
 wire instr_c = instr[3]; // if enabled 'call'
 // note. instr_r && instr_c is illegal and instead enables another page of operations that can't 'return' during same operation
 wire [3:0] op = instr[7:4]; // operation
