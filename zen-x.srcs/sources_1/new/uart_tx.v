@@ -17,10 +17,10 @@ localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
 localparam STOP_BITS = 1;
 localparam START_BIT = 0;
 
-localparam STATE_IDLE      = 0;
-localparam STATE_START_BIT = 1;
-localparam STATE_DATA_BITS = 2;
-localparam STATE_STOP_BITS = 3;
+localparam STATE_IDLE       = 0;
+localparam STATE_START_BITS = 1;
+localparam STATE_DATA_BITS  = 2;
+localparam STATE_STOP_BITS  = 3;
 
 reg [2:0] state;
 reg [3:0] bit_count;
@@ -46,7 +46,7 @@ always @(posedge clk) begin
                 if (go) begin
                     bsy <= 1;
                     tx_reg <= 0;
-                    state <= STATE_START_BIT;
+                    state <= STATE_START_BITS;
                     bit_count <= 0;
                     bit_counter <= BIT_TIME; // ? half the bit_time also works
                 end else begin
@@ -56,7 +56,7 @@ always @(posedge clk) begin
                 tx_reg <= 1;
             end
         end
-        STATE_START_BIT: begin
+        STATE_START_BITS: begin
             tx_reg <= START_BIT;
             if (bit_counter == 0) begin
                 bit_counter <= BIT_TIME;
