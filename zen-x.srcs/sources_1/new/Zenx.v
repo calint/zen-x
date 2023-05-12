@@ -31,7 +31,7 @@ localparam ALU_XOR = 3'b011; // bitwise xor
 localparam ALU_AND = 3'b100; // bitwise and
 localparam ALU_NOT = 3'b101; // bitwise not
 localparam ALU_CP  = 3'b110; // copy
-localparam ALU_SHF = 3'b111; // shift
+localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value
 
 reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 
