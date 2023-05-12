@@ -128,7 +128,7 @@ always @(negedge clk) begin
         cs_en <= 0;
     end else begin
         if (is_cs_op) begin // this will be called twice while the instruction executes
-            cs_en <= ~cs_en; // coordinates to avoid racing
+            cs_en <= ~cs_en; // coordination to avoid racing
         end
     end
 end
@@ -223,9 +223,9 @@ Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs(
     .pc_in(pc), // current program counter
     .zf_in(zn_zf), // current zero flag
     .nf_in(zn_nf), // current negative flag
-    .en(cs_en),
-    .push(cs_push),
-    .pop(cs_pop),
+    .push(cs_push), // enabled when it is a 'call'
+    .pop(cs_pop), // enabled when instruction is also 'return'
+    .en(cs_en), // enables 'push' or 'pop'
     .pc_out(cs_pc_out), // top of stack program counter
     .zf_out(cs_zf), // top of stack zero flag
     .nf_out(cs_nf) // top of stack negative flag
