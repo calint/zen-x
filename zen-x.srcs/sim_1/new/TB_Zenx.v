@@ -1,21 +1,21 @@
 `timescale 1ns / 1ps
 `default_nettype none
-`define DBG
+//`define DBG
 
-module TB_zenx;
+module TB_Zenx;
+
+parameter clk_tk = 20;
+parameter rst_dur = clk_tk * 5;
 
 reg clk = 0;
-parameter clk_tk = 20;
 always #(clk_tk/2) clk = ~clk;
-parameter rst_dur = clk_tk*5;
 
-wire [3:0] led;
 reg rst;
 
-wire [15:0] debug;
+wire [3:0] led;
 wire [2:0] led_bgr;
 
-zenx zx(
+Zenx zx(
     .rst(rst),
     .clk(clk),
     .led(led),

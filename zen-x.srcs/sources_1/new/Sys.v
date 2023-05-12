@@ -23,7 +23,7 @@ Clocking clkg (
     .clk_out1(clk)
 );
 
-zenx zx (
+Zenx zx (
     .rst(!clk_locked),
     .clk(clk),
     .btn(btn),

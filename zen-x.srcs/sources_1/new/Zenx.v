@@ -2,7 +2,7 @@
 `default_nettype none
 //`define DBG
 
-module zenx (
+module Zenx (
     input wire rst,
     input wire clk,
     input wire btn,
