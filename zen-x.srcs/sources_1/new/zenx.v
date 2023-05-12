@@ -59,7 +59,7 @@ wire [11:0] imm12 = instr[15:4];
 wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
 
 // enabled if instruction will execute
-wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf==instr_z && zn_nf==instr_n));
+wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf == instr_z && zn_nf == instr_n));
 
 // Calls related wiring (part 1)
 wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp'
@@ -235,8 +235,8 @@ Registers #(REGISTERS_ADDR_WIDTH, REGISTERS_WIDTH) regs ( // 16 x 16b
     .clk(clk),
     .ra1(rega), // register address 1
     .ra2(regb), // register address 2
-    .we(regs_we), // write 'wd' to address 'ra2'
     .wd(regs_wd), // data to write to register 'ra2' when 'we' is enabled
+    .we(regs_we), // enables write 'wd' to address 'ra2'
     .rd1(regs_dat_a), // register data 1
     .rd2(regs_dat_b) // register data 2
 );

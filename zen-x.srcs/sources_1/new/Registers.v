@@ -5,8 +5,8 @@ module Registers #(parameter ADDR_WIDTH = 4, parameter WIDTH = 16) (
     input wire clk,
     input wire [ADDR_WIDTH-1:0] ra1, // register address 1
     input wire [ADDR_WIDTH-1:0] ra2, // register address 2
-    input wire we, // write 'wd' to address 'ra2'
     input wire [WIDTH-1:0] wd, // data to write to register 'ra2' when 'we' is enabled
+    input wire we, // enables write 'wd' to address 'ra2'
     output wire [WIDTH-1:0] rd1, // register data 1
     output wire [WIDTH-1:0] rd2 // register data 2
     );
