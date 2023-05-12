@@ -87,7 +87,8 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [REGISTERS_WIDTH-1:0] alu_operand_a =
-    (op == OP_SHF || op == OP_ADDI) ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : // sign extend 4 bits to register width
+    op == OP_SHF ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : 
+    op == OP_ADDI ? rega[3] ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : {{(REGISTERS_WIDTH-4){1'b0}},rega} + 1 :
     regs_dat_a; // otherwise regs[a]
 
 // RAM related wiring and registers
@@ -158,7 +159,7 @@ always @(posedge clk) begin
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
             end else if (op == OP_IO) begin // input / output
-                utx_dat <= regs_dat_b[7:0];
+                utx_dat <= rega[0] ? regs_dat_b[15:8] : regs_dat_b[7:0];
                 utx_go <= 1;
                 stp <= 1 << 7; // stp[7]
             end else begin
