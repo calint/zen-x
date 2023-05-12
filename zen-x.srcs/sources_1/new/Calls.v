@@ -8,9 +8,9 @@ module Calls #(parameter ADDR_WIDTH = 4, parameter ROM_ADDR_WIDTH = 16) (
     input wire [ROM_ADDR_WIDTH-1:0] pc_in, // current program counter
     input wire zf_in, // current zero flag
     input wire nf_in, // current negative flag
-    input wire push, // enabled when it is a 'call'
-    input wire pop, // enabled when instruction is also 'return'
-    input wire en, // enables push or pop
+    input wire call, // pushes current 'pc_in', 'zf_in' and 'nf_in' on the stack
+    input wire ret, // pops stack and on negedge the top of stack is available on *_out 
+    input wire en, // enables 'call' or 'ret'
     output reg [ROM_ADDR_WIDTH-1:0] pc_out, // top of stack program counter
     output reg zf_out, // top of stack zero flag
     output reg nf_out // top of stack negative flag
@@ -31,7 +31,7 @@ end
 
 always @(negedge clk) begin
 //    `ifdef DBG
-//        $display(" ~clk: Calls: pc=%0d, en=%0d, push=%0d, pop=%0d", pc_in, en, push, pop);
+//        $display(" ~clk: Calls: pc=%0d, en=%0d, call=%0d, ret=%0d", pc_in, en, call, ret);
 //    `endif
     pc_out <= pc_out_nxt;
     zf_out <= zf_out_nxt;
@@ -40,20 +40,20 @@ end
 
 always @(posedge clk) begin
     `ifdef DBG
-        $display("  clk: Calls: pc=%0d, en=%0d, push=%0d, pop=%0d", pc_in, en, push, pop);
+        $display("  clk: Calls: pc=%0d, en=%0d, call=%0d, ret=%0d", pc_in, en, call, ret);
     `endif
 
     if (rst) begin
         idx <= {ADDR_WIDTH{1'b1}};
     end else begin
         if (en) begin
-            if (push) begin
+            if (call) begin
                 idx = idx + 1;
                 mem[idx] <= {zf_in, nf_in, pc_in};
                 zf_out_nxt <= zf_in;
                 nf_out_nxt <= nf_in;
                 pc_out_nxt <= pc_in;
-            end else if (pop) begin
+            end else if (ret) begin
                 idx = idx - 1;
                 zf_out_nxt <= mem[idx][ROM_ADDR_WIDTH+1];
                 nf_out_nxt <= mem[idx][ROM_ADDR_WIDTH];

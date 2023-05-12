@@ -64,8 +64,8 @@ wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf == instr_z && zn_nf =
 // Calls related wiring (part 1)
 wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp'
 wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on 'Calls'
-wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
-wire cs_pop = is_cs_op && instr_r; // enabled if 'return'
+wire cs_call = is_cs_op && instr_c; // enabled if instruction is 'call'
+wire cs_ret = is_cs_op && instr_r; // enabled if 'return'
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' if 'return'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
@@ -77,7 +77,7 @@ wire [REGISTERS_WIDTH-1:0] regs_dat_b; // regs[b]
 
 // ALU related wiring
 wire [REGISTERS_WIDTH-1:0] alu_result;
-wire is_alu_op = !is_ldi && !is_cr && !cs_push && (!op[0] || op == OP_ADDI);
+wire is_alu_op = !is_ldi && !is_cr && !cs_call && (!op[0] || op == OP_ADDI);
 wire [2:0] alu_op = 
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
@@ -99,8 +99,8 @@ wire [REGISTERS_WIDTH-1:0] regs_wd =
 
 // Zn related wiring (part 2)
 wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'
-wire zn_sel = cs_pop; // if 'zn_we': if 'return' select flags from from Calls otherwise ALU 
-wire zn_clr = cs_push; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
+wire zn_sel = cs_ret; // if 'zn_we': if 'return' select flags from from Calls otherwise ALU 
+wire zn_clr = cs_call; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
 reg [7:0] stp; // state of instruction execution
@@ -148,14 +148,14 @@ always @(posedge clk) begin
         `endif
         if(stp[0]) begin
             // got instruction from rom, execute
-            if (cs_push) begin // call
+            if (cs_call) begin // call
                 pc <= imm12<<4;
                 stp <= 1<<6;
             end else if (is_cr) begin // skp
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
             end else begin
-                if (cs_pop) begin // return
+                if (cs_ret) begin // return
                     pc <= cs_pc_out + 1; // get return address from 'Calls'
                 end else begin
                     pc <= pc + 1; // start fetching next instruction
@@ -184,7 +184,7 @@ always @(posedge clk) begin
                     endcase
                 end // is_alu_op
             end // is_jmp
-        end else if(stp[1]) begin // ld,st: wait one cycle for ram op to finish
+        end else if(stp[1]) begin // ld, st: wait one cycle for ram op to finish
             // ? separate this into 2 different steps which disables 'we' for the relevant component
             ram_we <= 0; // if it is 'st'
             regs_we <= 0; // if it is 'ld'
@@ -202,10 +202,10 @@ always @(posedge clk) begin
             ldi_do <= 0;
             is_ldi <= 0;
             stp <= 1;
-        end else if(stp[5]) begin // alu, wait one cycle for rom to get next instruction
+        end else if(stp[5]) begin // alu: wait one cycle for rom to get next instruction
             regs_we <= 0;
             stp <= 1;
-        end else if(stp[6]) begin // skp,call: wait one cycle for rom to get next instruction
+        end else if(stp[6]) begin // call, skp: wait one cycle for rom to get next instruction
             stp <= 1;
         end // stp[x]
     end // else rst
@@ -223,8 +223,8 @@ Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs (
     .pc_in(pc), // current program counter
     .zf_in(zn_zf), // current zero flag
     .nf_in(zn_nf), // current negative flag
-    .push(cs_push), // enabled when it is a 'call'
-    .pop(cs_pop), // enabled when instruction is also 'return'
+    .call(cs_call), // enabled when it is a 'call'
+    .ret(cs_ret), // enabled when instruction is also 'return'
     .en(cs_en), // enables 'push' or 'pop'
     .pc_out(cs_pc_out), // top of stack program counter
     .zf_out(cs_zf), // top of stack zero flag

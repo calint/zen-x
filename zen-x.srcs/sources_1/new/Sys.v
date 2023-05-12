@@ -58,7 +58,6 @@ uart_tx utx (
   .tx_done(tx_done)
 );
 
-
 always @(posedge clk) begin
     if (!clk_locked) begin
         tx_go <= 0;
