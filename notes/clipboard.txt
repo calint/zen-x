@@ -130,3 +130,4 @@ wire [REGISTERS_WIDTH-1:0] alu_operand_a =
     op == OP_SHF ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : 
     op == OP_ADDI ? rega[3] ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : {{(REGISTERS_WIDTH-4){1'b0}},rega} + 1 :
     regs_dat_a; // otherwise regs[a]
+-------------------------------------------------------------
