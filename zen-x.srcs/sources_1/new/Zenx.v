@@ -317,9 +317,9 @@ uart_tx #(
     .rst(rst),
     .clk(clk),
     .data(utx_dat),
-    .tx_go(utx_go),
+    .go(utx_go),
     .tx(uart_tx),
-    .tx_bsy(utx_bsy)
+    .bsy(utx_bsy)
 );
 
 endmodule
