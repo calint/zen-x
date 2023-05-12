@@ -149,8 +149,8 @@ always @(posedge clk) begin
         if(stp[0]) begin
             // got instruction from rom, execute
             if (cs_call) begin // call
-                pc <= imm12<<4;
-                stp <= 1<<6;
+                pc <= imm12 << 4;
+                stp <= 1 << 6;
             end else if (is_cr) begin // skp
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
@@ -163,7 +163,7 @@ always @(posedge clk) begin
                 if (is_alu_op) begin
                     regs_we <= is_do_op;
                     regs_wd_sel <= 0; // select alu result for write to 'regb'
-                    stp <= 1<<5;
+                    stp <= 1 << 5;
                 end else begin
                     case(op)
                     OP_LDI: begin
