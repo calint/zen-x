@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="TB_Zenx.wdb" id="1">
+         <top_modules>
+            <top_module name="TB_Zenx" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="780.051 ns"></ZoomEndTime>
+      <Cursor1Time time="550.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="147"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="29" />
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/pc">
+      <obj_property name="ElementShortName">pc[14:0]</obj_property>
+      <obj_property name="ObjectShortName">pc[14:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/instr">
+      <obj_property name="ElementShortName">instr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">instr[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/rom/douta">
+      <obj_property name="ElementShortName">douta[15:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/is_do_op">
+      <obj_property name="ElementShortName">is_do_op</obj_property>
+      <obj_property name="ObjectShortName">is_do_op</obj_property>
+      <obj_property name="CustomSignalColor">#A52A2A</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/is_ldi">
+      <obj_property name="ElementShortName">is_ldi</obj_property>
+      <obj_property name="ObjectShortName">is_ldi</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/ldi_do">
+      <obj_property name="ElementShortName">ldi_do</obj_property>
+      <obj_property name="ObjectShortName">ldi_do</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/stp">
+      <obj_property name="ElementShortName">stp[7:0]</obj_property>
+      <obj_property name="ObjectShortName">stp[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/regs_we">
+      <obj_property name="ElementShortName">regs_we</obj_property>
+      <obj_property name="ObjectShortName">regs_we</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/regs_wd">
+      <obj_property name="ElementShortName">regs_wd[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_wd[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/regs_wd_sel">
+      <obj_property name="ElementShortName">regs_wd_sel[1:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_wd_sel[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/ram_we">
+      <obj_property name="ElementShortName">ram_we</obj_property>
+      <obj_property name="ObjectShortName">ram_we</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/rega">
+      <obj_property name="ElementShortName">rega[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rega[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/regs_dat_a">
+      <obj_property name="ElementShortName">regs_dat_a[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_dat_a[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/regb">
+      <obj_property name="ElementShortName">regb[3:0]</obj_property>
+      <obj_property name="ObjectShortName">regb[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/regs_dat_b">
+      <obj_property name="ElementShortName">regs_dat_b[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_dat_b[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/ram_dat_out">
+      <obj_property name="ElementShortName">ram_dat_out[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_dat_out[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/alu_result">
+      <obj_property name="ElementShortName">alu_result[15:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_result[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_clr">
+      <obj_property name="ElementShortName">zn_clr</obj_property>
+      <obj_property name="ObjectShortName">zn_clr</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_zf">
+      <obj_property name="ElementShortName">zn_zf</obj_property>
+      <obj_property name="ObjectShortName">zn_zf</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_nf">
+      <obj_property name="ElementShortName">zn_nf</obj_property>
+      <obj_property name="ObjectShortName">zn_nf</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_sel">
+      <obj_property name="ElementShortName">zn_sel</obj_property>
+      <obj_property name="ObjectShortName">zn_sel</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_we">
+      <obj_property name="ElementShortName">zn_we</obj_property>
+      <obj_property name="ObjectShortName">zn_we</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/is_alu_op">
+      <obj_property name="ElementShortName">is_alu_op</obj_property>
+      <obj_property name="ObjectShortName">is_alu_op</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/cs_en">
+      <obj_property name="ElementShortName">cs_en</obj_property>
+      <obj_property name="ObjectShortName">cs_en</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/cs_call">
+      <obj_property name="ElementShortName">cs_call</obj_property>
+      <obj_property name="ObjectShortName">cs_call</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/cs_ret">
+      <obj_property name="ElementShortName">cs_ret</obj_property>
+      <obj_property name="ObjectShortName">cs_ret</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/led">
+      <obj_property name="ElementShortName">led[3:0]</obj_property>
+      <obj_property name="ObjectShortName">led[3:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+</wave_config>
