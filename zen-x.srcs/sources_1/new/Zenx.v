@@ -160,7 +160,6 @@ always @(posedge clk) begin
             end else if (op == OP_IO) begin // input / output
                 utx_dat <= regs_dat_b[7:0];
                 utx_go <= 1;
-                utx_cnt <= 0;
                 stp <= 1 << 7; // stp[7]
             end else begin
                 if (cs_ret) begin // return
