@@ -161,7 +161,7 @@ always @(posedge clk) begin
                     pc <= pc + 1; // start fetching next instruction
                 end
                 if (is_alu_op) begin
-                    regs_we <= is_do_op;
+                    regs_we <= is_do_op; // enable write back to register if instruction should execute
                     regs_wd_sel <= 0; // select alu result for write to 'regb'
                     stp <= 1 << 5;
                 end else begin
