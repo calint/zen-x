@@ -66,7 +66,7 @@ pre pipeline
  1001 :       :     :
  1011 :       :     :
  1101 :       :     :
- 1111 : io    :  ?  : uart read / write byte
+ 1111 : io    :  ?  : uart read / write low / high byte
  -----:-------:-----:--------------------------------------
  
   rc  :       : cyc :
