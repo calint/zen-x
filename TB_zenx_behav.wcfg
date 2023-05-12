@@ -135,14 +135,14 @@
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/cs_call">
-      <obj_property name="ElementShortName">cs_push</obj_property>
-      <obj_property name="ObjectShortName">cs_push</obj_property>
+      <obj_property name="ElementShortName">cs_call</obj_property>
+      <obj_property name="ObjectShortName">cs_call</obj_property>
       <obj_property name="CustomSignalColor">#0000FF</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/cs_ret">
-      <obj_property name="ElementShortName">cs_pop</obj_property>
-      <obj_property name="ObjectShortName">cs_pop</obj_property>
+      <obj_property name="ElementShortName">cs_ret</obj_property>
+      <obj_property name="ObjectShortName">cs_ret</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/led">
       <obj_property name="ElementShortName">led[3:0]</obj_property>
