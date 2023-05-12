@@ -12,6 +12,10 @@
 [ ]   send "hello world"
 [x]   echo
 [ ] i/o
+[ ]   step 1: blocking uart "io 000[r|w] reg"
+[ ]           io 0001 r2 ; writes lower 8 bits of r2 to uart
+[ ]           io 0000 r2 ; reads 8 bits from uart into lower r2
+[ ]   [ ] "hello world"
 [ ] interrupts
 [ ] consider having more cores sharing the same rom and ram
 [ ]   'await' instruction that waits for interrupt then continues 
