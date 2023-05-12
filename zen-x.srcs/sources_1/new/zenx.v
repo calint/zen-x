@@ -38,7 +38,7 @@ reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data for 'ldi'
 reg [3:0] ldi_reg; // register to write when 'ldi'
-reg ldi_do;
+reg ldi_do; // used for coordination in instruction execution steps
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
@@ -90,7 +90,7 @@ reg ram_we; // write enable
 wire [REGISTERS_WIDTH-1:0] ram_dat_out; // current data at address 'reg_dat_a'
 
 // Registers related wiring (part 2)
-reg regs_we; // registers write enabled
+reg regs_we; // write enable
 reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr
 wire [REGISTERS_WIDTH-1:0] regs_wd =
     regs_wd_sel == 0 ? alu_result :
