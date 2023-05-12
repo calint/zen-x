@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module Sys(
+module Sys (
     input wire reset,
     input wire clk_in,
     output wire uart_tx,
@@ -16,14 +16,14 @@ module Sys(
 wire clk_locked;
 wire clk;
 
-Clocking clkg(
+Clocking clkg (
     .reset(reset),
     .locked(clk_locked),
     .clk_in1(clk_in),
     .clk_out1(clk)
 );
 
-zenx zx(
+zenx zx (
     .rst(!clk_locked),
     .clk(clk),
     .btn(btn),
@@ -41,7 +41,7 @@ wire tx_done;
 reg tx_go;
 reg state; // 0: waiting for rx_done, 1: waiting for tx_done
 
-uart_rx urx(
+uart_rx urx (
   .rst(!clk_locked),
   .clk(clk),
   .data(data_in),
@@ -49,7 +49,7 @@ uart_rx urx(
   .rx(uart_rx)
 );
 
-uart_tx utx(
+uart_tx utx (
   .rst(!clk_locked),
   .clk(clk),
   .data(data_out),

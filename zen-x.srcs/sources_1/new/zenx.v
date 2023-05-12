@@ -2,7 +2,7 @@
 `default_nettype none
 //`define DBG
 
-module zenx(
+module zenx (
     input wire rst,
     input wire clk,
     input wire btn,
@@ -211,13 +211,13 @@ always @(posedge clk) begin
     end // else rst
 end
 
-BlockROM rom( // 32K x 16b
+BlockROM rom ( // 32K x 16b
     .clka(clk),
     .addra(pc),
     .douta(instr)
 );
 
-Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs(
+Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs (
     .rst(rst),
     .clk(clk),
     .pc_in(pc), // current program counter
@@ -241,7 +241,7 @@ Registers #(REGISTERS_ADDR_WIDTH, REGISTERS_WIDTH) regs ( // 16 x 16b
     .rd2(regs_dat_b) // register data 2
 );
 
-ALU #(REGISTERS_WIDTH) alu(
+ALU #(REGISTERS_WIDTH) alu (
     .op(alu_op),
     .a(alu_operand_a),
     .b(regs_dat_b),
@@ -250,7 +250,7 @@ ALU #(REGISTERS_WIDTH) alu(
     .nf(alu_nf)
 );
 
-Zn zn(
+Zn zn (
     .rst(rst),
     .clk(clk),
     .cs_zf(cs_zf),

@@ -14,7 +14,7 @@ module Calls #(parameter ADDR_WIDTH = 4, parameter ROM_ADDR_WIDTH = 16) (
     output reg [ROM_ADDR_WIDTH-1:0] pc_out, // top of stack program counter
     output reg zf_out, // top of stack zero flag
     output reg nf_out // top of stack negative flag
-    );
+);
 
 reg [ADDR_WIDTH-1:0] idx;
 reg [ROM_ADDR_WIDTH+1:0] mem [0:2**ADDR_WIDTH-1]; // {zf, nf, addr}
