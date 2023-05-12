@@ -87,7 +87,10 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [REGISTERS_WIDTH-1:0] alu_operand_a =
-    (op == OP_SHF || op == OP_ADDI) ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : // sign extend 4 bits to register width
+    op == OP_SHF  ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} :
+    op == OP_ADDI ? $signed(rega)<0 ? 
+        {{(REGISTERS_WIDTH-4){rega[3]}},rega} : 
+        {{(REGISTERS_WIDTH-4){1'b0}},rega + 1} : // sign extend 4 bits to register width
     regs_dat_a; // otherwise regs[a]
 
 // RAM related wiring and registers

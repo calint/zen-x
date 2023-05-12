@@ -94,7 +94,7 @@ initial begin
     //  5: 0x1234
     //  6: 0x1234
     
-    #clk_tk // 4113: addi 1 r4
+    #clk_tk // 4013: addi 0 r4
     #clk_tk
     if (zx.regs.mem[4]==0) $display("case 5.1 passed");
     else $display("case 5.1 FAILED. expected 0, got %0d", zx.regs.mem[4]); 
@@ -167,7 +167,7 @@ initial begin
     if (zx.regs.mem[7]==0) $display("case 16 passed");
     else $display("case 16 FAILED. expected 0, got %h", zx.regs.mem[7]); 
 
-    #clk_tk // 4013: addi 0 r4 ; sets zn-flags for r4
+    #clk_tk // 44c3: cp r4 r4 ; sets zn-flags for r4
     #clk_tk
 
     #clk_tk // 7032: ifn ldi r7; will execute
@@ -209,7 +209,7 @@ initial begin
     if (!zx.zn_zf && !zx.zn_nf) $display("case 21 passed");
     else $display("case 21 FAILED. expected 0, 0 got %0d, %0d", zx.zn_zf, zx.zn_nf);
     
-    #clk_tk // 8117: addi 1 r8 ret
+    #clk_tk // 8117: addi 0 r8 ret
     #clk_tk //
 
     // pc=33, zn=01
