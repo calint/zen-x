@@ -117,7 +117,7 @@ assign led[1] = pc[btn ? 5 : 1];
 assign led[2] = pc[btn ? 6 : 2];
 assign led[3] = pc[btn ? 7 : 3];
 assign led0_b = 0;
-assign led0_g = (pc==50); // pc at finished in hang of rom
+assign led0_g = (pc==61); // pc at finished in hang of rom
 assign led0_r = 0;
 
 // uart_tx related wiring
