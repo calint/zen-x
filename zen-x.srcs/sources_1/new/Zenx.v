@@ -153,7 +153,7 @@ always @(posedge clk) begin
                 stp <= 1 << 6;
             end else if (is_cr) begin // skp
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
-                stp <= 1<<6;
+                stp <= 1 << 6;
             end else begin
                 if (cs_ret) begin // return
                     pc <= cs_pc_out + 1; // get return address from 'Calls'
