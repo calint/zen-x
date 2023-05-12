@@ -10,6 +10,7 @@
 [ ] i/o
 [ ] interrupts
 [ ] consider having more cores sharing the same rom and ram
+[ ]   'await' instruction that waits for interrupt then continues 
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
