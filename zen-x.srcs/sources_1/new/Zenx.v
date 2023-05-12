@@ -49,7 +49,7 @@ wire instr_n = instr[1]; // if enabled execute instruction if n-flag matches 'zn
 // both 'instr_z' and 'instr_n' enabled means execute instruction without considering flags 
 wire instr_r = instr[2]; // if enabled returns from current 'call'
 wire instr_c = instr[3]; // if enabled 'call'
-// note. instr_r && instr_c is illegal and instead enables another page of operations that can't 'return' during same operation
+// note. instr_r && instr_c is 'skp' which jumps to 'pc' + signed immediate 12 bits
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
 wire [3:0] regb = is_ldi ? ldi_reg : instr[15:12]; // address of 'regb'
