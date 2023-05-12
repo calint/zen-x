@@ -9,6 +9,7 @@
 [x]   echo
 [ ] i/o
 [ ] interrupts
+[ ] consider having more cores sharing the same rom and ram
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
