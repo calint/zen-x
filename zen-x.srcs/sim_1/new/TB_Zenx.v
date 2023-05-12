@@ -221,7 +221,7 @@ initial begin
     #clk_tk // 000f: skp 0 ; hang
     #clk_tk //
      
-    #clk_tk   
+    #clk_tk //   
     $finish;
 end
 
