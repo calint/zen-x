@@ -14,8 +14,8 @@
 [ ] assembler webapp
 [ ] emulator webapp
 [ ] zenx: 1 cycle jmp: always @* if (is_skp) pc = pc + {{(4){imm12[11]}}, imm12};
-          doesn't work because 'is_skp' is triggered by previous instruction (ldi)
-          during the delay after "posedge clk" of ~100ps before rom data arrives to instr 
+          doesn't work because 'is_skp' is triggered by previous instruction (ldi data)
+          during the ~100ps delay of rom data after "posedge clk" 
 ------------------------------------------------------------------------------
 [-] Calls: consolidate push, pop, en to en, sel
       => it gets messy because many combos use push or pop flag
