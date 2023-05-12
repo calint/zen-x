@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# generates the 'coe' file for BlockROM from 'rom.txt'
+#  refresh the ip by validating and saving after changes in 'rom.txt'
+
 input_file=rom.txt
 output_file=zen-x.srcs/sources_1/rom.coe
 
