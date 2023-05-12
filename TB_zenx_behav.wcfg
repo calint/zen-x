@@ -11,22 +11,18 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,282.750 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,566.251 ns"></ZoomEndTime>
-      <Cursor1Time time="1,370.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="780.051 ns"></ZoomEndTime>
+      <Cursor1Time time="550.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="151"></NameColumnWidth>
+      <NameColumnWidth column_width="147"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="33" />
+   <WVObjectSize size="29" />
    <wvobject type="logic" fp_name="/TB_zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_zenx/zx/rom_en">
-      <obj_property name="ElementShortName">rom_en</obj_property>
-      <obj_property name="ObjectShortName">rom_en</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/clk">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -60,8 +56,8 @@
       <obj_property name="ObjectShortName">ldi_do</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/stp">
-      <obj_property name="ElementShortName">stp[8:0]</obj_property>
-      <obj_property name="ObjectShortName">stp[8:0]</obj_property>
+      <obj_property name="ElementShortName">stp[7:0]</obj_property>
+      <obj_property name="ObjectShortName">stp[7:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/regs_we">
@@ -78,41 +74,33 @@
       <obj_property name="ElementShortName">regs_wd_sel[1:0]</obj_property>
       <obj_property name="ObjectShortName">regs_wd_sel[1:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_zenx/zx/ram_en">
-      <obj_property name="ElementShortName">ram_en</obj_property>
-      <obj_property name="ObjectShortName">ram_en</obj_property>
-   </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/ram_we">
       <obj_property name="ElementShortName">ram_we</obj_property>
       <obj_property name="ObjectShortName">ram_we</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/ram_dat_out">
-      <obj_property name="ElementShortName">ram_dat_out[15:0]</obj_property>
-      <obj_property name="ObjectShortName">ram_dat_out[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/regs_rd1">
-      <obj_property name="ElementShortName">regs_rd1[15:0]</obj_property>
-      <obj_property name="ObjectShortName">regs_rd1[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/regs_rd2">
-      <obj_property name="ElementShortName">regs_rd2[15:0]</obj_property>
-      <obj_property name="ObjectShortName">regs_rd2[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_zenx/zx/alu_result">
-      <obj_property name="ElementShortName">alu_result[15:0]</obj_property>
-      <obj_property name="ObjectShortName">alu_result[15:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/rega">
       <obj_property name="ElementShortName">rega[3:0]</obj_property>
       <obj_property name="ObjectShortName">rega[3:0]</obj_property>
    </wvobject>
+   <wvobject type="array" fp_name="/TB_zenx/zx/regs_dat_a">
+      <obj_property name="ElementShortName">regs_dat_a[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_dat_a[15:0]</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/regb">
       <obj_property name="ElementShortName">regb[3:0]</obj_property>
       <obj_property name="ObjectShortName">regb[3:0]</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_zenx/zx/is_jmp">
-      <obj_property name="ElementShortName">is_jmp</obj_property>
-      <obj_property name="ObjectShortName">is_jmp</obj_property>
+   <wvobject type="array" fp_name="/TB_zenx/zx/regs_dat_b">
+      <obj_property name="ElementShortName">regs_dat_b[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regs_dat_b[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_zenx/zx/ram_dat_out">
+      <obj_property name="ElementShortName">ram_dat_out[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ram_dat_out[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_zenx/zx/alu_result">
+      <obj_property name="ElementShortName">alu_result[15:0]</obj_property>
+      <obj_property name="ObjectShortName">alu_result[15:0]</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_zenx/zx/zn_clr">
       <obj_property name="ElementShortName">zn_clr</obj_property>
@@ -155,10 +143,6 @@
    <wvobject type="logic" fp_name="/TB_zenx/zx/cs_pop">
       <obj_property name="ElementShortName">cs_pop</obj_property>
       <obj_property name="ObjectShortName">cs_pop</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_zenx/zx/is_jmp">
-      <obj_property name="ElementShortName">is_jmp</obj_property>
-      <obj_property name="ObjectShortName">is_jmp</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_zenx/zx/led">
       <obj_property name="ElementShortName">led[3:0]</obj_property>
