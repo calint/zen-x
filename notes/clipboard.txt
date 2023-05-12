@@ -64,3 +64,5 @@ always @(posedge clk or negedge clk) begin
   end
 end
 -------------------------------------------------------------
+write_cfgmem -format mcs -size 4 -interface SPIx4 -loadbit {up 0x00000000 "/home/c/w/zen-x/zen-x.runs/impl_1/Sys.bit" } -file "/home/c/w/zen-x/zen-x.runs/impl_1/zenx"
+-------------------------------------------------------------
