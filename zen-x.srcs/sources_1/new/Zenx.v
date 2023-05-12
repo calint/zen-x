@@ -66,7 +66,7 @@ wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp'
 wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on 'Calls'
 wire cs_call = is_cs_op && instr_c; // enabled if instruction is 'call'
 wire cs_ret = is_cs_op && instr_r; // enabled if 'return'
-wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' if 'return'
+wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' before the 'call'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
 reg cs_en; // used to coordinate push/pop and Zn
