@@ -13,6 +13,9 @@ module Sys (
     output wire led0_b
 );
 
+localparam CLK_FREQ = 66_000_000;
+localparam BAUD_RATE = 9600;
+
 wire clk_locked;
 wire clk;
 
@@ -41,7 +44,7 @@ wire tx_done;
 reg tx_go;
 reg state; // 0: waiting for rx_done, 1: waiting for tx_done
 
-uart_rx urx (
+uart_rx #(CLK_FREQ, BAUD_RATE) urx (
   .rst(!clk_locked),
   .clk(clk),
   .data(data_in),
@@ -49,7 +52,7 @@ uart_rx urx (
   .rx(uart_rx)
 );
 
-uart_tx utx (
+uart_tx #(CLK_FREQ, BAUD_RATE) utx (
   .rst(!clk_locked),
   .clk(clk),
   .data(data_out),
