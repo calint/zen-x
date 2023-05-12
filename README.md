@@ -17,8 +17,8 @@ pre pipeline
                        r   g   t   l      32K 16 bit instructions
                        o   a   u   l      64K 16 bit data
                            t   r          16  16 bit registers
-                           i   n          66  MHz
-                           v
+                           i   n          64  calls stack
+                           v              66  MHz
                            e
 
                      | 0 | 1 | 2 | 3 |   4 - 7   | 8-11 | 12-15|

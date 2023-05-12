@@ -14,7 +14,7 @@ module zenx(
 
 localparam ROM_ADDR_WIDTH = 15; // 2**16 32K instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
-localparam CALLS_ADDR_WIDTH = 4; // 2**4 stack
+localparam CALLS_ADDR_WIDTH = 6; // 2**6 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since instruction encodes 4 bits to address a register) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
