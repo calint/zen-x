@@ -13,8 +13,9 @@
 [ ]   'await' instruction that waits for interrupt then continues 
 [ ] assembler webapp
 [ ] emulator webapp
-[ ] zenx: doesn't work because 'is_skp' is evaluated during the ~100ps delay before rom data available 
-      always @* if (is_skp) pc = pc + {{(4){imm12[11]}}, imm12};
+[ ] zenx: 1 cycle jmp: always @* if (is_skp) pc = pc + {{(4){imm12[11]}}, imm12};
+          doesn't work because 'is_skp' is triggered by previous instruction (ldi)
+          during the delay after "posedge clk" of ~100ps before rom data arrives to instr 
 ------------------------------------------------------------------------------
 [-] Calls: consolidate push, pop, en to en, sel
       => it gets messy because many combos use push or pop flag
