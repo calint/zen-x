@@ -3,13 +3,13 @@
 
 module uart_rx #(
     parameter CLK_FREQ = 66_000_000,
-    parameter BAUD_RATE = 9600)
-(
-  input wire rst,
-  input wire clk,
-  input wire rx,
-  output reg [7:0] data,
-  output reg rx_done
+    parameter BAUD_RATE = 9600
+)(
+    input wire rst,
+    input wire clk,
+    input wire rx,
+    output reg [7:0] data,
+    output reg rx_done
 );
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;

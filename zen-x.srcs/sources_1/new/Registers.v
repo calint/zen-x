@@ -1,7 +1,10 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module Registers #(parameter ADDR_WIDTH = 4, parameter WIDTH = 16) (
+module Registers #(
+    parameter ADDR_WIDTH = 4,
+    parameter WIDTH = 16
+)(
     input wire clk,
     input wire [ADDR_WIDTH-1:0] ra1, // register address 1
     input wire [ADDR_WIDTH-1:0] ra2, // register address 2

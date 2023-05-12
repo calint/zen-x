@@ -13,7 +13,7 @@ module Zn(
     input wire clr, // selector when 'we', clears the flags, has precedence over 'sel'
     output reg zf,
     output reg nf
-    );
+);
     
 always @(posedge clk) begin
     `ifdef DBG

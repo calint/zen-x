@@ -3,8 +3,8 @@
 
 module uart_tx #(
     parameter CLK_FREQ = 66_000_000,
-    parameter BAUD_RATE = 9600)
-(
+    parameter BAUD_RATE = 9600
+)(
     input wire rst,
     input wire clk,
     input wire [7:0] data,

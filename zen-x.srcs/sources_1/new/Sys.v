@@ -44,21 +44,27 @@ wire tx_done;
 reg tx_go;
 reg state; // 0: waiting for rx_done, 1: waiting for tx_done
 
-uart_rx #(CLK_FREQ, BAUD_RATE) urx (
-  .rst(!clk_locked),
-  .clk(clk),
-  .data(data_in),
-  .rx_done(rx_done),
-  .rx(uart_rx)
+uart_rx #(
+    CLK_FREQ,
+    BAUD_RATE
+) urx (
+    .rst(!clk_locked),
+    .clk(clk),
+    .data(data_in),
+    .rx_done(rx_done),
+    .rx(uart_rx)
 );
 
-uart_tx #(CLK_FREQ, BAUD_RATE) utx (
-  .rst(!clk_locked),
-  .clk(clk),
-  .data(data_out),
-  .tx_go(tx_go),
-  .tx(uart_tx),
-  .tx_done(tx_done)
+uart_tx #(
+    CLK_FREQ,
+    BAUD_RATE
+) utx (
+    .rst(!clk_locked),
+    .clk(clk),
+    .data(data_out),
+    .tx_go(tx_go),
+    .tx(uart_tx),
+    .tx_done(tx_done)
 );
 
 always @(posedge clk) begin

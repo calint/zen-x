@@ -208,7 +208,10 @@ BlockROM rom ( // 32K x 16b
     .douta(instr)
 );
 
-Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs (
+Calls #(
+    CALLS_ADDR_WIDTH,
+    ROM_ADDR_WIDTH
+) cs (
     .rst(rst),
     .clk(clk),
     .pc_in(pc), // current program counter
@@ -222,7 +225,10 @@ Calls #(CALLS_ADDR_WIDTH, ROM_ADDR_WIDTH) cs (
     .nf_out(cs_nf) // top of stack negative flag
 );
 
-Registers #(REGISTERS_ADDR_WIDTH, REGISTERS_WIDTH) regs ( // 16 x 16b
+Registers #(
+    REGISTERS_ADDR_WIDTH,
+    REGISTERS_WIDTH
+) regs ( // 16 x 16b
     .clk(clk),
     .ra1(rega), // register address 1
     .ra2(regb), // register address 2
@@ -232,7 +238,9 @@ Registers #(REGISTERS_ADDR_WIDTH, REGISTERS_WIDTH) regs ( // 16 x 16b
     .rd2(regs_dat_b) // register data 2
 );
 
-ALU #(REGISTERS_WIDTH) alu (
+ALU #(
+    REGISTERS_WIDTH
+) alu (
     .op(alu_op),
     .a(alu_operand_a),
     .b(regs_dat_b),
@@ -255,7 +263,7 @@ Zn zn (
     .nf(zn_nf)
 );
 
-BlockRAM ram( // 64K x 16b
+BlockRAM ram ( // 64K x 16b
     .clka(clk),
     .wea(ram_we),
     .addra(regs_dat_a),

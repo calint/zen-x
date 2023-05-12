@@ -2,7 +2,10 @@
 `default_nettype none
 //`define DBG
 
-module Calls #(parameter ADDR_WIDTH = 4, parameter ROM_ADDR_WIDTH = 16) (
+module Calls #(
+    parameter ADDR_WIDTH = 4,
+    parameter ROM_ADDR_WIDTH = 16
+)(
     input wire rst,
     input wire clk,
     input wire [ROM_ADDR_WIDTH-1:0] pc_in, // current program counter

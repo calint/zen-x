@@ -1,7 +1,9 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module ALU #(parameter WIDTH = 16) (
+module ALU #(
+    parameter WIDTH = 16
+)(
     input wire [2:0] op, // operation
     input wire signed [WIDTH-1:0] a, // first operand
     input wire signed [WIDTH-1:0] b, // second operand
