@@ -52,7 +52,7 @@ wire instr_c = instr[3]; // if enabled 'call'
 // note. instr_r && instr_c is 'skp' which jumps to 'pc' + signed immediate 12 bits
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
-wire [3:0] regb = is_ldi ? ldi_reg : instr[15:12]; // address of 'regb'
+wire [3:0] regb = is_ldi ? ldi_reg : instr[15:12]; // address of 'regb' or register to be loaded by immediate 16 bits
 wire [11:0] imm12 = instr[15:4];
 
 // Zn related wiring (part 1)
