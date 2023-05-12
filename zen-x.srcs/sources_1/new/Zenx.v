@@ -87,10 +87,7 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [REGISTERS_WIDTH-1:0] alu_operand_a =
-    op == OP_SHF  ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} :
-    op == OP_ADDI ? $signed(rega)<0 ? 
-        {{(REGISTERS_WIDTH-4){rega[3]}},rega} : 
-        {{(REGISTERS_WIDTH-4){1'b0}},rega + 1} : // sign extend 4 bits to register width
+    (op == OP_SHF || op == OP_ADDI) ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : // sign extend 4 bits to register width
     regs_dat_a; // otherwise regs[a]
 
 // RAM related wiring and registers
@@ -123,10 +120,9 @@ assign led0_g = (pc==50); // pc at finished in hang of rom
 assign led0_r = 0;
 
 // uart_tx related wiring
-reg [7:0] utx_dat;
-reg utx_go;
-wire utx_bsy; 
-reg [2:0] utx_cnt;
+reg [7:0] utx_dat; // data to send
+reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
+wire utx_bsy; // enabled while sending 
 
 always @(negedge clk) begin
     if (rst) begin
@@ -162,14 +158,10 @@ always @(posedge clk) begin
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
             end else if (op == OP_IO) begin // input / output
-                if (utx_bsy) begin
-                    stp <= 1 << 7;
-                end else begin
-                    utx_dat <= regs_dat_b[7:0];
-                    utx_go <= 1;
-                    utx_cnt <= 0;
-                    stp <= 1 << 8;
-                end
+                utx_dat <= regs_dat_b[7:0];
+                utx_go <= 1;
+                utx_cnt <= 0;
+                stp <= 1 << 7; // stp[7]
             end else begin
                 if (cs_ret) begin // return
                     pc <= cs_pc_out + 1; // get return address from 'Calls'
@@ -223,25 +215,15 @@ always @(posedge clk) begin
             stp <= 1;
         end else if(stp[6]) begin // call, skp: wait one cycle for rom to get next instruction
             stp <= 1;
-        end else if(stp[7]) begin // utx: loop until done then start transmission
-            if (!utx_bsy) begin
-                utx_dat <= regs_dat_b[7:0];
-                utx_go <= 1;
-                stp <= 1;
-            end
-        end else if(stp[8]) begin // utx: wait while uart busy
-            if (utx_cnt == 0) begin
-                stp <= stp << 1;
-            end else begin
-                utx_cnt = utx_cnt - 1;
-            end
-        end else if(stp[9]) begin // utx: wait while uart busy            
+        end else if(stp[7]) begin // utx: wait one cycle for uart to be busy
+            stp <= stp << 1;
+        end else if(stp[8]) begin // utx: wait while uart busy            
             if (!utx_bsy) begin
                 utx_go <= 0; // acknowledge
                 pc <= pc + 1;
                 stp = stp << 1;
             end
-        end else if(stp[10]) begin // wait for rom to load new instruction            
+        end else if(stp[9]) begin // wait for rom to load new instruction            
             stp <= 1;
         end // stp[x]
     end // else rst
