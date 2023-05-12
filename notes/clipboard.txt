@@ -54,3 +54,13 @@ end
 
 endmodule
 -------------------------------------------------------------
+reg delayed_clk;
+always @(posedge clk or negedge clk) begin
+  if (clk) begin
+    #1;
+    delayed_clk <= 1;
+  end else begin
+    delayed_clk <= 0;
+  end
+end
+-------------------------------------------------------------
