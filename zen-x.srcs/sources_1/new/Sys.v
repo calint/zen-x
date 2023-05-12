@@ -26,21 +26,26 @@ Clocking clkg (
     .clk_out1(clk)
 );
 
-Zenx zx (
+Zenx #(
+    CLK_FREQ,
+    BAUD_RATE
+) zx (
     .rst(!clk_locked),
     .clk(clk),
     .btn(btn),
     .led(led),
     .led0_r(led0_r),
     .led0_g(led0_g),
-    .led0_b(led0_b)
+    .led0_b(led0_b),
+    .uart_tx(uart_tx)
 );
 
+/*
 reg [7:0] data_out;
 wire [7:0] data_in;
 wire rx_done;
-reg rx_done_prv;
-wire tx_done;
+reg rx_bsy_prv;
+wire tx_bsy;
 reg tx_go;
 reg state; // 0: waiting for rx_done, 1: waiting for tx_done
 
@@ -64,13 +69,13 @@ uart_tx #(
     .data(data_out),
     .tx_go(tx_go),
     .tx(uart_tx),
-    .tx_done(tx_done)
+    .tx_bsy(tx_bsy)
 );
 
 always @(posedge clk) begin
     if (!clk_locked) begin
         tx_go <= 0;
-        rx_done_prv <= 0;
+        rx_bsy_prv <= 0;
         data_out <= 0;
         state <= 0;
     end else begin
@@ -94,7 +99,7 @@ always @(posedge clk) begin
         endcase
     end
  end
-
+*/
 endmodule
 
 `default_nettype wire

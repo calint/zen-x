@@ -15,13 +15,24 @@ reg rst;
 wire [3:0] led;
 wire [2:0] led_bgr;
 
-Zenx zx(
+wire uart_tx;
+
+integer i;
+
+localparam CLK_FREQ = 66_000_000;
+localparam BAUD_RATE = CLK_FREQ >> 2;
+
+Zenx #(
+    CLK_FREQ,
+    BAUD_RATE
+) zx (
     .rst(rst),
     .clk(clk),
     .led(led),
     .led0_b(led_bgr[2]),
     .led0_g(led_bgr[1]),
-    .led0_r(led_bgr[0])
+    .led0_r(led_bgr[0]),
+    .uart_tx(uart_tx)
 );
 
 initial begin
@@ -209,19 +220,16 @@ initial begin
     if (zx.regs.mem[8]==1) $display("case 25 passed");
     else $display("case 25 FAILED. expected 1, got %0d", zx.regs.mem[8]); 
     
-    #clk_tk // 010f: skp 2
+    #clk_tk // 010f: skp 0x10
     #clk_tk //
     if (zx.pc==49) $display("case 26 passed");
     else $display("case 26 FAILED. expected 49, got %0d", zx.pc);
     
-    #clk_tk // 001f: skp 1
-    #clk_tk // 
-    
-    // pc=50, zn=01
-    #clk_tk // 000f: skp 0 ; hang
-    #clk_tk //
-     
-    #clk_tk //   
+    // pc=49, zn=01
+    for (i = 0; i < 120; i = i + 1) begin
+        #clk_tk;
+    end
+
     $finish;
 end
 

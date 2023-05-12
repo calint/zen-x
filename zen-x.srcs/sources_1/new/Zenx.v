@@ -2,14 +2,18 @@
 `default_nettype none
 //`define DBG
 
-module Zenx (
+module Zenx #(
+    parameter CLK_FREQ = 66_000_000,
+    parameter BAUD_RATE = 9600  
+)(
     input wire rst,
     input wire clk,
     input wire btn,
     output wire [3:0] led,
     output wire led0_r,
     output wire led0_g,
-    output wire led0_b
+    output wire led0_b,
+    output wire uart_tx
 );
 
 localparam ROM_ADDR_WIDTH = 15; // 2**16 32K instructions
@@ -23,6 +27,7 @@ localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
 localparam OP_LD   = 4'b0101; // load
 localparam OP_ST   = 4'b0111; // store
 localparam OP_SHF  = 4'b1110; // shift
+localparam OP_IO   = 4'b1111; // input/output
 
 localparam ALU_ADD = 3'b000; // addition
 localparam ALU_SUB = 3'b001; // substraction
@@ -103,9 +108,9 @@ wire zn_sel = cs_ret; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_call; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
-reg [7:0] stp; // state of instruction execution
+reg [15:0] stp; // state of instruction execution
 
-// debugging
+// lights
 assign led[0] = pc[btn ? 4 : 0];
 assign led[1] = pc[btn ? 5 : 1];
 assign led[2] = pc[btn ? 6 : 2];
@@ -113,6 +118,12 @@ assign led[3] = pc[btn ? 7 : 3];
 assign led0_b = 0;
 assign led0_g = (pc==50); // pc at finished in hang of rom
 assign led0_r = 0;
+
+// uart_tx related wiring
+reg [7:0] utx_dat;
+reg utx_go;
+wire utx_bsy; 
+reg [2:0] utx_cnt;
 
 always @(negedge clk) begin
     if (rst) begin
@@ -133,6 +144,8 @@ always @(posedge clk) begin
         ldi_do <= 0;
         regs_we <= 0;
         ram_we <= 0;
+        utx_dat <= 0;
+        utx_go <= 0;
     end else begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
@@ -142,9 +155,18 @@ always @(posedge clk) begin
             if (cs_call) begin // call
                 pc <= imm12 << 4;
                 stp <= 1 << 6;
-            end else if (is_cr) begin // skp
+            end else if (is_cr) begin // skip
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
+            end else if (op == OP_IO) begin // input / output
+                if (utx_bsy) begin
+                    stp <= 1 << 7;
+                end else begin
+                    utx_dat <= regs_dat_b[7:0];
+                    utx_go <= 1;
+                    utx_cnt <= 0;
+                    stp <= 1 << 8;
+                end
             end else begin
                 if (cs_ret) begin // return
                     pc <= cs_pc_out + 1; // get return address from 'Calls'
@@ -197,6 +219,26 @@ always @(posedge clk) begin
             regs_we <= 0;
             stp <= 1;
         end else if(stp[6]) begin // call, skp: wait one cycle for rom to get next instruction
+            stp <= 1;
+        end else if(stp[7]) begin // utx: loop until done then start transmission
+            if (!utx_bsy) begin
+                utx_dat <= regs_dat_b[7:0];
+                utx_go <= 1;
+                stp <= 1;
+            end
+        end else if(stp[8]) begin // utx: wait while uart busy
+            if (utx_cnt == 0) begin
+                stp <= stp << 1;
+            end else begin
+                utx_cnt = utx_cnt - 1;
+            end
+        end else if(stp[9]) begin // utx: wait while uart busy            
+            if (!utx_bsy) begin
+                utx_go <= 0; // acknowledge
+                pc <= pc + 1;
+                stp = stp << 1;
+            end
+        end else if(stp[10]) begin // wait for rom to load new instruction            
             stp <= 1;
         end // stp[x]
     end // else rst
@@ -269,6 +311,30 @@ BlockRAM ram ( // 64K x 16b
     .addra(regs_dat_a),
     .dina(regs_dat_b),
     .douta(ram_dat_out)
+);
+/*
+uart_rx #(
+    CLK_FREQ,
+    BAUD_RATE
+) urx (
+    .rst(rst),
+    .clk(clk),
+    .data(data_in),
+    .rx_done(rx_done),
+    .rx(uart_rx)
+);
+*/
+
+uart_tx #(
+    CLK_FREQ,
+    BAUD_RATE
+) utx (
+    .rst(rst),
+    .clk(clk),
+    .data(utx_dat),
+    .tx_go(utx_go),
+    .tx(uart_tx),
+    .tx_bsy(utx_bsy)
 );
 
 endmodule
