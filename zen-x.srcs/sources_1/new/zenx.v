@@ -62,11 +62,11 @@ wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
 wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf==instr_z && zn_nf==instr_n));
 
 // Calls related wiring (part 1)
-wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp' 
-wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on Calls
+wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp'
+wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on 'Calls'
 wire cs_push = is_cs_op && instr_c; // enabled if instruction is 'call'
-wire cs_pop = is_cs_op && instr_r; // enabled if 'return', disabled if also 'next' and loop not finished
-wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // address to 'pc' if 'return'
+wire cs_pop = is_cs_op && instr_r; // enabled if 'return'
+wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' if 'return'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
 reg cs_en; // used to coordinate push/pop and Zn
@@ -82,12 +82,12 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [REGISTERS_WIDTH-1:0] alu_operand_a =
-    (op == OP_SHF || op == OP_ADDI) ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} :  // sign extend 4 bits to 16
+    (op == OP_SHF || op == OP_ADDI) ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : // sign extend 4 bits to register width
     regs_dat_a; // otherwise regs[a]
 
-// RAM and ROM related wiring and registers 
+// RAM related wiring and registers
 reg ram_we; // write enable
-wire [REGISTERS_WIDTH-1:0] ram_dat_out;
+wire [REGISTERS_WIDTH-1:0] ram_dat_out; // current data at address 'reg_dat_a'
 
 // Registers related wiring (part 2)
 reg regs_we; // registers write enabled
@@ -124,14 +124,11 @@ end
 */
 
 always @(negedge clk) begin
-//    `ifdef DBG
-//        $display(" ~clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
-//    `endif
     if (rst) begin
         cs_en <= 0;
     end else begin
-        if (cs_push || cs_pop) begin // this will be called twice while the instruction executes
-            cs_en <= ~cs_en;
+        if (is_cs_op) begin // this will be called twice while the instruction executes
+            cs_en <= ~cs_en; // coordinates to avoid racing
         end
     end
 end
@@ -154,7 +151,7 @@ always @(posedge clk) begin
             if (cs_push) begin // call
                 pc <= imm12<<4;
                 stp <= 1<<6;
-            end else if (is_cr) begin // 'skp'
+            end else if (is_cr) begin // skp
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1<<6;
             end else begin
@@ -164,7 +161,7 @@ always @(posedge clk) begin
                     pc <= pc + 1; // start fetching next instruction
                 end
                 if (is_alu_op) begin
-                    regs_we <= is_do_op ? 1 : 0;
+                    regs_we <= is_do_op;
                     regs_wd_sel <= 0; // select alu result for write to 'regb'
                     stp <= 1<<5;
                 end else begin

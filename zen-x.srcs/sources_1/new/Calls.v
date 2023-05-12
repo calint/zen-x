@@ -8,8 +8,8 @@ module Calls #(parameter ADDR_WIDTH = 4, parameter ROM_ADDR_WIDTH = 16) (
     input wire [ROM_ADDR_WIDTH-1:0] pc_in, // current program counter
     input wire zf_in, // current zero flag
     input wire nf_in, // current negative flag
-    input wire push,
-    input wire pop,
+    input wire push, // enabled when it is a 'call'
+    input wire pop, // enabled when instruction is also 'return'
     input wire en, // enables push or pop
     output reg [ROM_ADDR_WIDTH-1:0] pc_out, // top of stack program counter
     output reg zf_out, // top of stack zero flag
