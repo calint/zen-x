@@ -1,7 +1,8 @@
 [ ] Calls: consolidate push, pop, en to en, sel
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
 [ ]   rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
-[ ]     try adding a delay of 1ns in the always block
+[ ]     => try adding a delay of 1ns in the always block
+[ ]       => it overlaps the next cycle by 1ns. how to end the cycle as if there was no delay
 [ ]   ldi data can be loaded into register in a single cycle 
 [ ] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartige
 [o] uart
