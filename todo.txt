@@ -13,6 +13,8 @@
 [ ]   'await' instruction that waits for interrupt then continues 
 [ ] assembler webapp
 [ ] emulator webapp
+[ ] Zenx: doesn't work because of the 'spurios' spike of 'is_skp' while combo is evaluating
+      always @* begin if (is_skp) pc = pc + {{(4){imm12[11]}}, imm12};
 ------------------------------------------------------------------------------
 [-] Calls: consolidate push, pop, en to en, sel
       => it gets messy because many combos use push or pop flag

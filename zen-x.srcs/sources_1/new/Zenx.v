@@ -114,15 +114,6 @@ assign led0_b = 0;
 assign led0_g = (pc==50); // pc at finished in hang of rom
 assign led0_r = 0;
 
-/*
-always @* begin
-    if (is_jmp) begin
-        // doesn't work because of the 'spurios' spike while combo is evaluating
-        pc = pc + {{(4){imm12[11]}}, imm12};
-    end
-end
-*/
-
 always @(negedge clk) begin
     if (rst) begin
         cs_en <= 0;
