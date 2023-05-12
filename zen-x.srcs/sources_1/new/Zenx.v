@@ -15,7 +15,7 @@ module Zenx (
 localparam ROM_ADDR_WIDTH = 15; // 2**16 32K instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
 localparam CALLS_ADDR_WIDTH = 6; // 2**6 stack
-localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since instruction encodes 4 bits to address a register) 
+localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
 localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value
@@ -193,7 +193,7 @@ always @(posedge clk) begin
             is_ldi <= 1; // signal that next instruction is data
             stp <= stp << 1;
         end else if(stp[3]) begin // ldi: load register
-            regs_we <= ldi_do; // write rom output to register
+            regs_we <= ldi_do; // enable register write if 'ldi' is executed
             regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
