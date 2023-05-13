@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,530.001 ns"></ZoomEndTime>
-      <Cursor1Time time="1,530.000 ns"></Cursor1Time>
+      <ZoomStartTime time="1,573.333 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,446.334 ns"></ZoomEndTime>
+      <Cursor1Time time="2,080.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="143"></NameColumnWidth>
+      <NameColumnWidth column_width="135"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="33" />
+   <WVObjectSize size="35" />
    <wvobject type="logic" fp_name="/TB_Zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -152,9 +152,17 @@
       <obj_property name="ElementShortName">utx_go</obj_property>
       <obj_property name="ObjectShortName">utx_go</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/utx/go_prv">
+      <obj_property name="ElementShortName">go_prv</obj_property>
+      <obj_property name="ObjectShortName">go_prv</obj_property>
+   </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/utx_dat">
       <obj_property name="ElementShortName">utx_dat[7:0]</obj_property>
       <obj_property name="ObjectShortName">utx_dat[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/TB_Zenx/zx/utx/state">
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/utx_bsy">
       <obj_property name="ElementShortName">utx_bsy</obj_property>

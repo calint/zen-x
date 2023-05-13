@@ -168,6 +168,7 @@ always @(posedge clk) begin
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
             end else if (op == OP_LDI && rega != 0) begin // input / output
+                pc <= pc + 1; // load the next instruction to save on cycle at the end of transmission
                 if (is_do_op) begin
                     case(rega[2:0])
                     3'b110: begin // receive blocking
@@ -180,8 +181,7 @@ always @(posedge clk) begin
                     default: $display("!!! unknown IO op");
                     endcase
                 end else begin
-                    pc <= pc + 1;
-                    stp <= 1 << 9; // stp[9]
+                    stp <= 1 << 8; // stp[8] wait one cycle for next instruction
                 end
             end else begin
                 if (cs_ret && is_do_op) begin // return
@@ -226,25 +226,22 @@ always @(posedge clk) begin
             regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1;
-        end else if(stp[4]) begin // ldi: wait for rom to get next instruction
+        end else if(stp[4]) begin // ldi: wait one cycle for next instruction
             regs_we <= 0;
             ldi_do <= 0;
             is_ldi <= 0;
             stp <= 1;
-        end else if(stp[5]) begin // alu: wait one cycle for rom to get next instruction
+        end else if(stp[5]) begin // alu: wait one cycle for next instruction
             regs_we <= 0;
             stp <= 1;
-        end else if(stp[6]) begin // call, skp: wait one cycle for rom to get next instruction
+        end else if(stp[6]) begin // call, skp: wait one cycle for next instruction
             stp <= 1;
-        end else if(stp[7]) begin // utx: wait one cycle for uart to be busy
-            stp <= stp << 1;
-        end else if(stp[8]) begin // utx: wait while uart busy            
+        end else if(stp[7]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
                 utx_go <= 0; // acknowledge
-                pc <= pc + 1;
-                stp = stp << 1;
+                stp <= 1;
             end
-        end else if(stp[9]) begin // wait for rom to load new instruction            
+        end else if(stp[8]) begin // wait for rom to load new instruction            
             stp <= 1;
         end // stp[x]
     end // else rst

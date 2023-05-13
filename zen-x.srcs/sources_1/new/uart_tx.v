@@ -29,7 +29,7 @@ reg tx_reg;
 
 reg go_prv;
 
-always @(posedge clk) begin
+always @(negedge clk) begin
     if (rst) begin
         state <= STATE_IDLE;
         tx_reg <= 1;
