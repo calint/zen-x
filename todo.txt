@@ -1,5 +1,6 @@
 [ ] review uart_tx
 [ ] review uart_rx
+[ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
 [ ]   rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
 [ ]     => try adding a delay of 1ns in the always block

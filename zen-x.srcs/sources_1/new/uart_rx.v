@@ -42,7 +42,7 @@ always @(negedge clk) begin
         led <= 0;
         led_g <= 0;
     end else begin
-        led[2:0] <= state;
+        led[2:0] = state;
         case(state)
         STATE_IDLE: begin
             if (!rx && !go)
