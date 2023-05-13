@@ -8,6 +8,7 @@ module uart_rx #(
     input wire rst,
     input wire clk,
     input wire rx,
+    input wire go, // start reading next byte
     input wire ack, // enable to acknowledge that data has been read
     output reg [7:0] data,
     output reg dr, // enabled when data is ready
@@ -42,13 +43,16 @@ always @(negedge clk) begin
         bit_counter <= 0;
         dr <= 0;
         bsy <= 0;
-        led = 0;
+        led <= 0;
+        led_g <= 0;
     end else begin
         led <= state;
         case(state)
         STATE_IDLE: begin
             //led[0] <= 1;
-            if (!rx) begin
+            if (!rx && !go)
+                led_g <= 1;
+            if (!rx && go) begin
                 bsy <= 1;
                 state <= STATE_START_BIT;
                 bit_count <= 0;

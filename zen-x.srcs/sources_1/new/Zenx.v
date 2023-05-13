@@ -138,6 +138,7 @@ wire utx_bsy; // enabled while sending
 // uart_rx related wiring (part 2)
 wire [7:0] urx_dat;
 wire urx_dr; // enabled when data ready
+reg urx_go;
 reg urx_ack; // acknowledge data
 reg urx_reg_hilo;
 
@@ -168,6 +169,7 @@ always @(posedge clk) begin
         urx_regb_sel <= 0;
         urx_reg_hilo <= 0;
         urx_ack <= 0;
+        urx_go <= 0;
     end else begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
@@ -192,6 +194,7 @@ always @(posedge clk) begin
                         urx_reg <= regb;
                         urx_reg_dat <= regs_dat_b;
                         urx_reg_hilo <= rega[3];
+                        urx_go <= 1;
                         stp <= 1 << 9; // stp[9]
                     end
                     3'b010: begin // send blocking
@@ -274,8 +277,9 @@ always @(posedge clk) begin
                 regs_we <= 1;
                 regs_wd_sel <= 3; // select register write from 'urx_reg_dat'
                 urx_regb_sel <= 1;
+                urx_go <= 0;
                 urx_ack <= 1;
-                stp = stp << 1;
+                stp <= stp << 1;
             end
         end else if(stp[10]) begin // urx: 
 //            led_out[2] = 1;
@@ -377,6 +381,7 @@ uart_rx #(
     .rx(uart_rx),
     .data(urx_dat),
     .dr(urx_dr),
+    .go(urx_go),
     .ack(urx_ack),
     .led(led),
     .led_g(led0_g)

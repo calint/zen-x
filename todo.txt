@@ -20,6 +20,7 @@
 [ ]    step 2: non-blocking uart
 [x] uart to operate on negedge to save a cycle
 [x] uart simulation operate with baud rate same as clock frequency
+[ ] uart 'cat todo.txt > /dev/ttyUSB1' hangs at same location in the file
 [ ] review uart_tx
 [ ] review uart_rx
 [ ] interrupts
