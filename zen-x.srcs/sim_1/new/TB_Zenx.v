@@ -7,7 +7,8 @@ module TB_Zenx;
 localparam CLK_FREQ = 66_000_000;
 localparam BAUD_RATE = CLK_FREQ;
 
-parameter clk_tk = 1_000_000_000 / CLK_FREQ;
+parameter clk_tk = 2;
+//parameter clk_tk = 1_000_000_000 / CLK_FREQ;
 parameter rst_dur = clk_tk * 5;
 
 reg clk = 0;
