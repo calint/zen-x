@@ -16,11 +16,12 @@ wire [3:0] led;
 wire [2:0] led_bgr;
 
 wire uart_tx;
+wire uart_rx;
 
 integer i;
 
 localparam CLK_FREQ = 66_000_000;
-localparam BAUD_RATE = CLK_FREQ >> 2;
+localparam BAUD_RATE = CLK_FREQ;
 
 Zenx #(
     CLK_FREQ,
@@ -32,7 +33,8 @@ Zenx #(
     .led0_b(led_bgr[2]),
     .led0_g(led_bgr[1]),
     .led0_r(led_bgr[0]),
-    .uart_tx(uart_tx)
+    .uart_tx(uart_tx),
+    .uart_rx(uart_rx)
 );
 
 initial begin

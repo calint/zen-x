@@ -14,27 +14,24 @@ module uart_tx #(
 );
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
-localparam STOP_BITS = 1;
-localparam START_BIT = 0;
 
 localparam STATE_IDLE       = 0;
-localparam STATE_START_BITS = 1;
+localparam STATE_START_BIT = 1;
 localparam STATE_DATA_BITS  = 2;
-localparam STATE_STOP_BITS  = 3;
+localparam STATE_STOP_BIT  = 3;
 
 reg [2:0] state;
 reg [3:0] bit_count;
-reg [$clog2(BIT_TIME)-1:0] bit_counter;
-reg tx_reg;
+
+reg [($clog2(BIT_TIME)>0?$clog2(BIT_TIME):1)-1:0] bit_time_counter;
 
 reg go_prv;
 
 always @(negedge clk) begin
     if (rst) begin
         state <= STATE_IDLE;
-        tx_reg <= 1;
         bit_count <= 0;
-        bit_counter <= 0;
+        bit_time_counter <= 0;
         tx <= 1;
         bsy <= 0;
         go_prv <= 0;
@@ -45,50 +42,47 @@ always @(negedge clk) begin
                 go_prv <= go;
                 if (go) begin
                     bsy <= 1;
-                    tx_reg <= 0;
-                    state <= STATE_START_BITS;
                     bit_count <= 0;
-                    bit_counter <= BIT_TIME; // ? half the bit_time also works
-                end else begin
-                    tx_reg <= 1;
+                    bit_time_counter <= BIT_TIME - 1; // ? half the BIT_TIME also works
+                    tx <= 0; // start sending start bit
+                    state <= STATE_START_BIT;
                 end
-            end else begin
-                tx_reg <= 1;
             end
         end
-        STATE_START_BITS: begin
-            tx_reg <= START_BIT;
-            if (bit_counter == 0) begin
-                bit_counter <= BIT_TIME;
+        STATE_START_BIT: begin
+            if (bit_time_counter == 0) begin
+                bit_time_counter <= BIT_TIME - 1;
                 state <= STATE_DATA_BITS;
+                tx <= data[0]; // start sending first bit
+            end else begin
+                bit_time_counter <= bit_time_counter - 1;
             end
         end
         STATE_DATA_BITS: begin
-            tx_reg <= data[bit_count];
-            if (bit_counter == 0) begin
-                bit_counter <= BIT_TIME;
+            if (bit_time_counter == 0) begin
+                bit_time_counter <= BIT_TIME - 1;
                 bit_count = bit_count + 1;
                 if (bit_count == 8) begin
-                    state <= STATE_STOP_BITS;
+                    state <= STATE_STOP_BIT;
                     bit_count <= 0;
+                    tx <= 1; // start sending stop bit
+                end else begin
+                    tx <= data[bit_count];
                 end
+            end else begin
+                tx <= data[bit_count];
+                bit_time_counter <= bit_time_counter - 1;
             end
         end
-        STATE_STOP_BITS: begin
-            tx_reg <= STOP_BITS;
-            if (bit_counter == 0) begin
+        STATE_STOP_BIT: begin
+            if (bit_time_counter == 0) begin
                 state <= STATE_IDLE;
-                tx_reg <= 1;
                 bsy <= 0;
+            end else begin
+                bit_time_counter <= bit_time_counter - 1;
             end
         end
-        endcase
-        
-        if (bit_counter > 0) begin
-            bit_counter <= bit_counter - 1;
-        end
-        
-        tx <= tx_reg;
+        endcase        
     end
 end
 

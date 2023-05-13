@@ -19,6 +19,9 @@
 [ ]           reads 8 bits from uart into higher r2
 [ ]    step 2: non-blocking uart
 [x] uart to operate on negedge to save a cycle
+[x] uart simulation operate with baud rate same as clock frequency
+[ ] uart: review somewhat messy uart_tx
+[ ]
 [ ] interrupts
 [ ] consider having more cores sharing the same rom and ram
 [ ]   'await' instruction that waits for interrupt then continues 
