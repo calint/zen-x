@@ -136,10 +136,10 @@ reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx
 wire utx_bsy; // enabled while sending 
 
 // uart_rx related wiring (part 2)
-wire [7:0] urx_dat;
+wire [7:0] urx_dat; // last read byte
 wire urx_dr; // enabled when data ready
-reg urx_go;
-reg urx_reg_hilo;
+reg urx_go; // enable to start receiving, disable after data received to acknowledge
+reg urx_reg_hilo; // read into high or low byte of the register
 
 reg [15:0] stp; // state of instruction execution
 

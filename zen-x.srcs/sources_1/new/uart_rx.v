@@ -11,7 +11,6 @@ module uart_rx #(
     input wire go,
     output reg [7:0] data,
     output reg dr, // enabled when data is ready
-    output reg bsy, // enabled when reading a byte
     output reg [3:0] led,
     output reg led_g
 );
@@ -40,7 +39,6 @@ always @(negedge clk) begin
         bit_count <= 0;
         bit_counter <= 0;
         dr <= 0;
-        bsy <= 0;
         led <= 0;
         led_g <= 0;
     end else begin
@@ -50,44 +48,38 @@ always @(negedge clk) begin
             if (!rx && !go)
                 led[3] <= 1;
             if (!rx && go) begin
-                bsy <= 1;
                 state <= STATE_START_BIT;
                 bit_count <= 0;
                 bit_counter <= BIT_TIME / 2 - 1;  // offset the sample time to the middle of the oversampling
             end
         end
         STATE_START_BIT: begin
-            //led[1] <= 1;
             if (bit_counter == 0) begin
                 bit_counter <= BIT_TIME - 1;
                 state <= STATE_DATA_BITS;
             end
         end
         STATE_DATA_BITS: begin
-            //led[2] <= 1;
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
                 bit_counter <= BIT_TIME - 1;
-                bit_count = bit_count + 1;
-                if (bit_count == 8) begin
+                bit_count <= bit_count + 1;
+                if (bit_count == 7) begin // 7 because of the bit_count + 1 being NBA
                     state <= STATE_STOP_BITS;
                     bit_count <= 0;
                 end
             end
         end
         STATE_STOP_BITS: begin
-            //led[3] <= 1;
             if (bit_counter == 0) begin
                 state <= STATE_WAIT_GO_LOW;
                 if (rx_reg == STOP_BITS) begin
                     data <= data_reg;
-                    bsy <= 0;
                     dr <= 1;
                 end
             end
         end
         STATE_WAIT_GO_LOW: begin
-            led_g <= 1;
             if (!go) begin
                 state <= STATE_IDLE;
                 dr <= 0;

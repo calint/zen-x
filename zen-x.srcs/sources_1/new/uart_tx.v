@@ -61,7 +61,7 @@ always @(negedge clk) begin
         STATE_DATA_BITS: begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1;
-                bit_count = bit_count + 1; // ? can it be done with NBA
+                bit_count = bit_count + 1; // ? not NBA
                 if (bit_count == 8) begin
                     state <= STATE_STOP_BIT;
                     bit_count <= 0;
