@@ -5,7 +5,8 @@
 module TB_Zenx;
 
 localparam CLK_FREQ = 66_000_000;
-localparam BAUD_RATE = CLK_FREQ;
+localparam BAUD_RATE = CLK_FREQ>>1;
+localparam UART_TICKS_PER_BIT = 2;
 
 parameter clk_tk = 2;
 //parameter clk_tk = 1_000_000_000 / CLK_FREQ;
@@ -14,13 +15,13 @@ parameter rst_dur = clk_tk * 5;
 reg clk = 0;
 always #(clk_tk/2) clk = ~clk;
 
-reg rst;
+reg rst = 1;
 
 wire [3:0] led;
 wire [2:0] led_bgr;
 
 wire uart_tx;
-wire uart_rx;
+reg uart_rx = 1;
 
 integer i;
 
@@ -39,7 +40,6 @@ Zenx #(
 );
 
 initial begin
-    rst = 1;
     #rst_dur
     rst = 0;
     
@@ -229,10 +229,46 @@ initial begin
     else $display("case 26 FAILED. expected 49, got %0d", zx.pc);
     
     // pc=49, zn=01
-    for (i = 0; i < 120; i = i + 1) begin
+    // transmit "HELLO "  
+    for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
+        #clk_tk;
+    end
+    
+    uart_rx = 1; // idle
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 0; // start bit
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 1;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 0;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 1;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 0;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 1;
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 0;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 1;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 0;    
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 1; // stop bit
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    uart_rx = 1; // idle
+    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    if (zx.regs.mem[10]==16'b0101_0101) $display("case 27 passed");
+    else $display("case 27 FAILED. expected 0x0055, got %0h", zx.regs.mem[10]);
+    
+    for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
         #clk_tk;
     end
 
+    for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
+        #clk_tk;
+    end
+    
     $finish;
 end
 

@@ -39,7 +39,7 @@ localparam ALU_NOT = 3'b101; // bitwise not
 localparam ALU_CP  = 3'b110; // copy
 localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value
 
-reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
+reg [ROM_ADDR_WIDTH-1:0] pc; //led program counter
 
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data for 'ldi'
@@ -48,6 +48,11 @@ reg ldi_do; // used for coordination in instruction execution steps
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
+
+// uart_rx related (part 1)
+reg [REGISTERS_WIDTH-1:0] urx_reg_dat;
+reg urx_regb_sel;
+reg [3:0] urx_reg;
 
 // instruction break down
 wire instr_z = instr[0]; // if enabled execute instruction if z-flag matches 'zn_zf' (also considering instr_n)
@@ -58,7 +63,10 @@ wire instr_c = instr[3]; // if enabled 'call'
 // note. instr_r && instr_c is 'skp' which jumps to 'pc' + signed immediate 12 bits
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
-wire [3:0] regb = is_ldi ? ldi_reg : instr[15:12]; // address of 'regb' or register to be loaded by immediate 16 bits
+wire [3:0] regb =
+    is_ldi ? ldi_reg : 
+    urx_regb_sel ? urx_reg : // if reading from uart select the destination register
+    instr[15:12]; // address of 'regb' or register to be loaded by immediate 16 bits
 wire [11:0] imm12 = instr[15:4];
 
 // Zn related wiring (part 1)
@@ -98,11 +106,12 @@ wire [REGISTERS_WIDTH-1:0] ram_dat_out; // current data at address 'reg_dat_a'
 
 // Registers related wiring (part 2)
 reg regs_we; // write enable
-reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr
+reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr, 3: urx
 wire [REGISTERS_WIDTH-1:0] regs_wd =
     regs_wd_sel == 0 ? alu_result :
     regs_wd_sel == 1 ? ram_dat_out :
-    instr;
+    regs_wd_sel == 2 ? instr :
+    urx_reg_dat;
 
 // Zn related wiring (part 2)
 wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'
@@ -110,8 +119,7 @@ wire zn_sel = cs_ret; // if 'zn_we': if 'return' select flags from from Calls ot
 wire zn_clr = cs_call; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
 
-reg [15:0] stp; // state of instruction execution
-
+/*
 // lights
 assign led[0] = pc[btn ? 4 : 0];
 assign led[1] = pc[btn ? 5 : 1];
@@ -120,15 +128,20 @@ assign led[3] = pc[btn ? 7 : 3];
 assign led0_b = 0;
 assign led0_g = (pc==61); // pc at finished in hang of rom
 assign led0_r = 0;
+*/
 
 // uart_tx related wiring
 reg [7:0] utx_dat; // data to send
 reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
 wire utx_bsy; // enabled while sending 
 
-// uart_rx related wiring
+// uart_rx related wiring (part 2)
 wire [7:0] urx_dat;
-wire urx_done;
+wire urx_dr; // enabled when data ready
+reg urx_ack; // acknowledge data
+reg urx_reg_hilo;
+
+reg [15:0] stp; // state of instruction execution
 
 always @(negedge clk) begin
     if (rst) begin
@@ -151,6 +164,10 @@ always @(posedge clk) begin
         ram_we <= 0;
         utx_dat <= 0;
         utx_go <= 0;
+        urx_reg <= 0;
+        urx_regb_sel <= 0;
+        urx_reg_hilo <= 0;
+        urx_ack <= 0;
     end else begin
         `ifdef DBG
             $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
@@ -168,10 +185,14 @@ always @(posedge clk) begin
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
             end else if (op == OP_LDI && rega != 0) begin // input / output
-                pc <= pc + 1; // load the next instruction to save on cycle at the end of transmission
+                pc <= pc + 1; // load the next instruction to save 1 cycle at the end of transmission
                 if (is_do_op) begin
                     case(rega[2:0])
                     3'b110: begin // receive blocking
+                        urx_reg <= regb;
+                        urx_reg_dat <= regs_dat_b;
+                        urx_reg_hilo <= rega[3];
+                        stp <= 1 << 9; // stp[9]
                     end
                     3'b010: begin // send blocking
                         utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0];
@@ -241,7 +262,26 @@ always @(posedge clk) begin
                 utx_go <= 0; // acknowledge
                 stp <= 1;
             end
-        end else if(stp[8]) begin // wait for rom to load new instruction            
+        end else if(stp[9]) begin // urx: while data is not ready  
+//            led_out[0] = 1;
+            if (urx_dr) begin
+//                led_out[1] = 1;         
+                if (urx_reg_hilo) begin
+                    urx_reg_dat[15:8] <= urx_dat;
+                end else begin
+                    urx_reg_dat[7:0] <= urx_dat;                
+                end
+                regs_we <= 1;
+                regs_wd_sel <= 3; // select register write from 'urx_reg_dat'
+                urx_regb_sel <= 1;
+                urx_ack <= 1;
+                stp = stp << 1;
+            end
+        end else if(stp[10]) begin // urx: 
+//            led_out[2] = 1;
+            regs_we <= 0;
+            urx_regb_sel <= 0;
+            urx_ack <= 0;           
             stp <= 1;
         end // stp[x]
     end // else rst
@@ -336,7 +376,10 @@ uart_rx #(
     .clk(clk),
     .rx(uart_rx),
     .data(urx_dat),
-    .done(urx_done)
+    .dr(urx_dr),
+    .ack(urx_ack),
+    .led(led),
+    .led_g(led0_g)
 );
 
 endmodule
