@@ -8,8 +8,7 @@ module uart_rx #(
     input wire rst,
     input wire clk,
     input wire rx,
-    input wire go, // start reading next byte
-    input wire ack, // enable to acknowledge that data has been read
+    input wire go,
     output reg [7:0] data,
     output reg dr, // enabled when data is ready
     output reg bsy, // enabled when reading a byte
@@ -25,10 +24,9 @@ localparam STATE_IDLE         = 0;
 localparam STATE_START_BIT    = 1;
 localparam STATE_DATA_BITS    = 2;
 localparam STATE_STOP_BITS    = 3;
-localparam STATE_WAIT_ACK     = 4;
-localparam STATE_WAIT_ACK_LOW = 5;
+localparam STATE_WAIT_GO_LOW  = 4;
 
-reg [3:0] state;
+reg [2:0] state;
 reg [3:0] bit_count;
 reg [$clog2(BIT_TIME)-1:0] bit_counter;
 reg rx_reg;
@@ -46,12 +44,11 @@ always @(negedge clk) begin
         led <= 0;
         led_g <= 0;
     end else begin
-        led <= state;
+        led[2:0] <= state;
         case(state)
         STATE_IDLE: begin
-            //led[0] <= 1;
             if (!rx && !go)
-                led_g <= 1;
+                led[3] <= 1;
             if (!rx && go) begin
                 bsy <= 1;
                 state <= STATE_START_BIT;
@@ -81,7 +78,7 @@ always @(negedge clk) begin
         STATE_STOP_BITS: begin
             //led[3] <= 1;
             if (bit_counter == 0) begin
-                state <= STATE_WAIT_ACK;
+                state <= STATE_WAIT_GO_LOW;
                 if (rx_reg == STOP_BITS) begin
                     data <= data_reg;
                     bsy <= 0;
@@ -89,16 +86,11 @@ always @(negedge clk) begin
                 end
             end
         end
-        STATE_WAIT_ACK: begin
+        STATE_WAIT_GO_LOW: begin
             led_g <= 1;
-            if (ack) begin
-                state <= STATE_WAIT_ACK_LOW;
-                dr <= 0;
-            end
-        end
-        STATE_WAIT_ACK_LOW: begin
-            if (!ack) begin
+            if (!go) begin
                 state <= STATE_IDLE;
+                dr <= 0;
             end
         end
         endcase

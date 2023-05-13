@@ -1,3 +1,5 @@
+[ ] review uart_tx
+[ ] review uart_rx
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
 [ ]   rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
 [ ]     => try adding a delay of 1ns in the always block
@@ -8,27 +10,26 @@
           doesn't work because 'is_skp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
 [ ] zenx: 1 cycle call
-[o] uart
-[x]   send "hello world" => "HELLO "
-[x]   echo
-[o] i/o
-[o]   step 1: blocking uart
-[x]           writes lower 8 bits of r2 to uart
-[x]           writes higher 8 bits of r2 to uart
-[ ]           reads 8 bits from uart into lower r2
-[ ]           reads 8 bits from uart into higher r2
-[ ]    step 2: non-blocking uart
-[x] uart to operate on negedge to save a cycle
-[x] uart simulation operate with baud rate same as clock frequency
-[ ] uart 'cat todo.txt > /dev/ttyUSB1' hangs at same location in the file
-[ ] review uart_tx
-[ ] review uart_rx
-[ ] interrupts
 [ ] consider having more cores sharing the same rom and ram
 [ ]   'await' instruction that waits for interrupt then continues 
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[-] interrupts => out of scope for this experiment
+[x] uart
+[x]   send "hello world" => "HELLO "
+[x]   echo
+[x] i/o
+[x]   step 1: blocking uart
+[x]           writes lower 8 bits of r2 to uart
+[x]           writes higher 8 bits of r2 to uart
+[x]           reads 8 bits from uart into lower r2
+[x]           reads 8 bits from uart into higher r2
+[-]    step 2: non-blocking uart
+[x] uart to operate on negedge to save a cycle
+[x] uart simulation operate with baud rate same as clock frequency
+[x] uart 'cat todo.txt > /dev/ttyUSB1' hangs at same location in the file
+    => while data is being sent new data received is skipped
 [-] Calls: consolidate push, pop, en to en, sel
       => it gets messy because many combos use push or pop flag
 [x] parameterize

@@ -11,12 +11,12 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="65.811 ns"></ZoomEndTime>
-      <Cursor1Time time="684.000 ns"></Cursor1Time>
+      <ZoomStartTime time="657.050 ns"></ZoomStartTime>
+      <ZoomEndTime time="702.501 ns"></ZoomEndTime>
+      <Cursor1Time time="682.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="103"></NameColumnWidth>
+      <NameColumnWidth column_width="99"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="43" />
@@ -184,9 +184,9 @@
       <obj_property name="ElementShortName">urx_go</obj_property>
       <obj_property name="ObjectShortName">urx_go</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_Zenx/zx/urx/ack">
-      <obj_property name="ElementShortName">ack</obj_property>
-      <obj_property name="ObjectShortName">ack</obj_property>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/urx/dr">
+      <obj_property name="ElementShortName">dr</obj_property>
+      <obj_property name="ObjectShortName">dr</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/urx/state">
       <obj_property name="ElementShortName">state[3:0]</obj_property>

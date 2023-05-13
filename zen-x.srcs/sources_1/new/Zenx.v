@@ -139,7 +139,6 @@ wire utx_bsy; // enabled while sending
 wire [7:0] urx_dat;
 wire urx_dr; // enabled when data ready
 reg urx_go;
-reg urx_ack; // acknowledge data
 reg urx_reg_hilo;
 
 reg [15:0] stp; // state of instruction execution
@@ -168,7 +167,6 @@ always @(posedge clk) begin
         urx_reg <= 0;
         urx_regb_sel <= 0;
         urx_reg_hilo <= 0;
-        urx_ack <= 0;
         urx_go <= 0;
     end else begin
         `ifdef DBG
@@ -278,14 +276,12 @@ always @(posedge clk) begin
                 regs_wd_sel <= 3; // select register write from 'urx_reg_dat'
                 urx_regb_sel <= 1;
                 urx_go <= 0;
-                urx_ack <= 1;
                 stp <= stp << 1;
             end
         end else if(stp[10]) begin // urx: 
 //            led_out[2] = 1;
             regs_we <= 0;
             urx_regb_sel <= 0;
-            urx_ack <= 0;           
             stp <= 1;
         end // stp[x]
     end // else rst
@@ -382,7 +378,6 @@ uart_rx #(
     .data(urx_dat),
     .dr(urx_dr),
     .go(urx_go),
-    .ack(urx_ack),
     .led(led),
     .led_g(led0_g)
 );
