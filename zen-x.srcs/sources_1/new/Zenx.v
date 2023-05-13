@@ -180,6 +180,7 @@ always @(posedge clk) begin
                     default: $display("!!! unknown IO op");
                     endcase
                 end else begin
+                    pc <= pc + 1;
                     stp <= 1 << 9; // stp[9]
                 end
             end else begin
