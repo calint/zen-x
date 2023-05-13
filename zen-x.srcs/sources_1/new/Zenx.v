@@ -158,24 +158,32 @@ always @(posedge clk) begin
         if(stp[0]) begin
             // got instruction from rom, execute
             if (cs_call) begin // call
-                pc <= imm12 << 4;
+                if (is_do_op) begin
+                    pc <= imm12 << 4;
+                end else begin
+                    pc <= pc + 1;
+                end
                 stp <= 1 << 6;
             end else if (is_cr) begin // skip
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
             end else if (op == OP_LDI && rega != 0) begin // input / output
-                case(rega[2:0])
-                3'b110: begin // receive blocking
+                if (is_do_op) begin
+                    case(rega[2:0])
+                    3'b110: begin // receive blocking
+                    end
+                    3'b010: begin // send blocking
+                        utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0];
+                        utx_go <= 1;
+                        stp <= 1 << 7; // stp[7]
+                    end
+                    default: $display("!!! unknown IO op");
+                    endcase
+                end else begin
+                    stp <= 1 << 9; // stp[9]
                 end
-                3'b010: begin // send blocking
-                    utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0];
-                    utx_go <= 1;
-                    stp <= 1 << 7; // stp[7]
-                end
-                default: $display("!!! unknown IO op");
-                endcase
             end else begin
-                if (cs_ret) begin // return
+                if (cs_ret && is_do_op) begin // return
                     pc <= cs_pc_out + 1; // get return address from 'Calls'
                 end else begin
                     pc <= pc + 1; // start fetching next instruction
