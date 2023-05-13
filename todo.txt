@@ -9,13 +9,16 @@
           during the ~100ps delay of rom data after "posedge clk"
 [ ] zenx: 1 cycle call
 [o] uart
-[ ]   send "hello world"
+[x]   send "hello world" => "HELLO "
 [x]   echo
-[ ] i/o
-[ ]   step 1: blocking uart "io 000[r|w] reg"
-[ ]           io 0001 r2 ; writes lower 8 bits of r2 to uart
-[ ]           io 0000 r2 ; reads 8 bits from uart into lower r2
-[ ]   [ ] "hello world"
+[o] i/o
+[o]   step 1: blocking uart
+[x]           writes lower 8 bits of r2 to uart
+[x]           writes higher 8 bits of r2 to uart
+[ ]           reads 8 bits from uart into lower r2
+[ ]           reads 8 bits from uart into higher r2
+[ ]    step 2: non-blocking uart
+[ ] uart to operate on negedge to save a cycle
 [ ] interrupts
 [ ] consider having more cores sharing the same rom and ram
 [ ]   'await' instruction that waits for interrupt then continues 

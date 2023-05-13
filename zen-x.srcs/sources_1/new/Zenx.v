@@ -13,7 +13,8 @@ module Zenx #(
     output wire led0_r,
     output wire led0_g,
     output wire led0_b,
-    output wire uart_tx
+    output wire uart_tx,
+    input wire uart_rx
 );
 
 localparam ROM_ADDR_WIDTH = 15; // 2**16 32K instructions
@@ -125,6 +126,10 @@ reg [7:0] utx_dat; // data to send
 reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
 wire utx_bsy; // enabled while sending 
 
+// uart_rx related wiring
+wire [7:0] urx_dat;
+wire urx_done;
+
 always @(negedge clk) begin
     if (rst) begin
         cs_en <= 0;
@@ -158,10 +163,17 @@ always @(posedge clk) begin
             end else if (is_cr) begin // skip
                 pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
                 stp <= 1 << 6;
-            end else if (op == OP_IO) begin // input / output
-                utx_dat <= rega[0] ? regs_dat_b[15:8] : regs_dat_b[7:0];
-                utx_go <= 1;
-                stp <= 1 << 7; // stp[7]
+            end else if (op == OP_LDI && rega != 0) begin // input / output
+                case(rega[2:0])
+                3'b110: begin // receive blocking
+                end
+                3'b010: begin // send blocking
+                    utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0];
+                    utx_go <= 1;
+                    stp <= 1 << 7; // stp[7]
+                end
+                default: $display("!!! unknown IO op");
+                endcase
             end else begin
                 if (cs_ret) begin // return
                     pc <= cs_pc_out + 1; // get return address from 'Calls'
@@ -297,18 +309,6 @@ BlockRAM ram ( // 64K x 16b
     .dina(regs_dat_b),
     .douta(ram_dat_out)
 );
-/*
-uart_rx #(
-    CLK_FREQ,
-    BAUD_RATE
-) urx (
-    .rst(rst),
-    .clk(clk),
-    .data(data_in),
-    .rx_done(rx_done),
-    .rx(uart_rx)
-);
-*/
 
 uart_tx #(
     CLK_FREQ,
@@ -320,6 +320,17 @@ uart_tx #(
     .go(utx_go),
     .tx(uart_tx),
     .bsy(utx_bsy)
+);
+
+uart_rx #(
+    CLK_FREQ,
+    BAUD_RATE
+) urx (
+    .rst(rst),
+    .clk(clk),
+    .rx(uart_rx),
+    .data(urx_dat),
+    .done(urx_done)
 );
 
 endmodule

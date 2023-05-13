@@ -9,7 +9,7 @@ module uart_rx #(
     input wire clk,
     input wire rx,
     output reg [7:0] data,
-    output reg rx_done
+    output reg done
 );
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
@@ -33,12 +33,12 @@ always @(posedge clk) begin
         data_reg <= 8'h00;
         bit_count <= 0;
         bit_counter <= 0;
-        rx_done <= 0;
+        done <= 0;
     end else begin
         case(state)
         STATE_IDLE: begin
             if (!rx) begin
-                rx_done <= 0;
+                done <= 0;
                 state <= STATE_START_BIT;
                 bit_count <= 0;
                 bit_counter <= BIT_TIME / 2;  // offset the sample time to the middle of the oversampling
@@ -66,7 +66,7 @@ always @(posedge clk) begin
                 state <= STATE_IDLE;
                 if (rx_reg == STOP_BITS) begin
                     data <= data_reg;
-                    rx_done <= 1;
+                    done <= 1;
                 end
             end
         end
