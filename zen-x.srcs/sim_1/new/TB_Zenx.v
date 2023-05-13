@@ -4,7 +4,10 @@
 
 module TB_Zenx;
 
-parameter clk_tk = 20;
+localparam CLK_FREQ = 66_000_000;
+localparam BAUD_RATE = CLK_FREQ;
+
+parameter clk_tk = 1_000_000_000 / CLK_FREQ;
 parameter rst_dur = clk_tk * 5;
 
 reg clk = 0;
@@ -19,9 +22,6 @@ wire uart_tx;
 wire uart_rx;
 
 integer i;
-
-localparam CLK_FREQ = 66_000_000;
-localparam BAUD_RATE = CLK_FREQ;
 
 Zenx #(
     CLK_FREQ,

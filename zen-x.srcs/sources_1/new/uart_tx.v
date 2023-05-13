@@ -70,7 +70,6 @@ always @(negedge clk) begin
                     tx <= data[bit_count];
                 end
             end else begin
-                tx <= data[bit_count];
                 bit_time_counter <= bit_time_counter - 1;
             end
         end
