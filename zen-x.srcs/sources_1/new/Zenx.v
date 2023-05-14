@@ -356,7 +356,7 @@ BlockRAM ram ( // 64K x 16b
     .douta(ram_dat_out)
 );
 
-uart_tx #(
+UartTx #(
     CLK_FREQ,
     BAUD_RATE
 ) utx (
@@ -368,7 +368,7 @@ uart_tx #(
     .bsy(utx_bsy)
 );
 
-uart_rx #(
+UartRx #(
     CLK_FREQ,
     BAUD_RATE
 ) urx (

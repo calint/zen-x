@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module uart_tx #(
+module UartTx #(
     parameter CLK_FREQ = 66_000_000,
     parameter BAUD_RATE = 9600
 )(
