@@ -52,8 +52,8 @@ always @(negedge clk) begin
         STATE_START_BIT: begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1;
-                state <= STATE_DATA_BITS;
                 tx <= data[0]; // start sending first bit
+                state <= STATE_DATA_BITS;
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
             end
@@ -75,13 +75,13 @@ always @(negedge clk) begin
         end
         STATE_STOP_BIT: begin
             if (bit_time_counter == 0) begin
-                state <= STATE_IDLE;
                 bsy <= 0;
+                state <= STATE_IDLE;
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
             end
         end
-        endcase        
+        endcase
     end
 end
 
