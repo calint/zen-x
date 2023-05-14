@@ -173,7 +173,7 @@ always @(posedge clk) begin
             // got instruction from rom, execute
             if (is_do_op) begin
                 if (cs_call) begin // call
-                    pc <= imm12 << 4; // instruction is executed. set 'pc'
+                    pc <= imm12 << 4; // set 'pc'
                     stp <= 1 << 6; // to step 6 
                 end else if (is_cr) begin // jmp
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
@@ -187,7 +187,7 @@ always @(posedge clk) begin
                     if (op == OP_LDI && rega != 0) begin // input / output
                         case(rega[2:0]) // operation encoded in 'rega'
                         3'b110: begin // receive blocking
-                            urx_reg <= regb; // save 'regb' to be used later
+                            urx_reg <= regb; // save 'regb' to be used at write
                             urx_reg_dat <= regs_dat_b; // save current value of 'regb'
                             urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
                             urx_go <= 1; // signal start read
@@ -207,7 +207,7 @@ always @(posedge clk) begin
                     end else begin
                         case(op)
                         OP_LDI: begin
-                            ldi_reg <= regb; // save the register to which the next instruction data will be writting
+                            ldi_reg <= regb; // save the register to which the next instruction data will be written
                             stp <= stp << 2; // to step 2
                         end
                         OP_ST: begin
@@ -223,11 +223,11 @@ always @(posedge clk) begin
                         endcase
                     end // is_alu_op else
                 end // io || is_alu 
-            end else begin // is_do_op else
-                pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip next instruction if it was a 'ldi'
+            end else begin // is_do_op, instruction will not execute
+                pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
                 stp <= 1 << 6; // to step 6
             end // is_do_top else
-        end else if(stp[1]) begin // ld, st: wait one cycle for ram op to finish
+        end else if(stp[1]) begin // ld, st: wait one cycle for ram to finish
             // ? separate this into 2 different steps which disables 'we' for the relevant component
             ram_we <= 0; // if it is 'st'
             regs_we <= 0; // if it is 'ld'
@@ -245,23 +245,23 @@ always @(posedge clk) begin
             is_ldi <= 0; // disable flag that instruction is data for 'ldi'
             stp <= 1; // done
         end else if(stp[5]) begin // alu: wait one cycle for next instruction
-            regs_we <= 0;
+            regs_we <= 0; // disable register write
             stp <= 1; // done
         end else if(stp[6]) begin // call, skp, !is_do_op: wait one cycle for next instruction
             stp <= 1; // done
         end else if(stp[7]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
-                utx_go <= 0; // acknowledge 'busy'
+                utx_go <= 0; // acknowledge that transmission is done
                 stp <= 1; // done
             end
-        end else if(stp[9]) begin // urx: while data is not ready  
+        end else if(stp[9]) begin // urx: while data is not ready
             if (urx_dr) begin // if data ready
                 if (urx_reg_hilo) begin
                     urx_reg_dat[15:8] <= urx_dat; // write the high byte
                 end else begin
                     urx_reg_dat[7:0] <= urx_dat; // write the low byte
                 end
-                urx_go <= 0; // acknowledge data has been read
+                urx_go <= 0; // acknowledge the ready data has been read
                 regs_we <= 1; // enable register write
                 regs_wd_sel <= 3; // select data to write to register from 'urx_reg_dat'
                 urx_regb_sel <= 1; // signal that 'regb' is 'urx_reg'
