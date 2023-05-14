@@ -23,7 +23,7 @@ localparam CALLS_ADDR_WIDTH = 6; // 2**6 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
-localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value
+localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value (imm4>=0?++imm4:-imm4)
 localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
 localparam OP_LD   = 4'b0101; // load
 localparam OP_ST   = 4'b0111; // store
