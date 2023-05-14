@@ -1,3 +1,4 @@
+[ ] racing: at call Zn and Calls are racing for the zn-flags
 [ ] review uart_tx
 [ ] review uart_rx
 [ ] implement 'ret' on 'ldi' and 'io*'

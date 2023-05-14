@@ -253,10 +253,61 @@ initial begin
     if (zx.pc==41) $display("case 26 passed");
     else $display("case 26 FAILED. expected 41, got %0d", zx.pc);
 
-    #clk_tk // 008f: jmp 0x008
+    // pc=41 zn=01
+    // regs
+    //  0: 0x0000
+    //  1: 0x1234
+    //  2: 0xabcd
+    //  3: 0xffff
+    //  4: 0xffff
+    //  5: 0x1234
+    //  6: 0x1234
+    //  7: 0x0001
+    //  8: 0x0001
+    #clk_tk // 005a: ifn call 0x0050
+    #clk_tk
+    if (zx.pc==80) $display("case 26.1 passed");
+    else $display("case 26.1 FAILED. expected 80, got %0d", zx.pc);
+
+    // pc=80 zn=00
+    #clk_tk // 006b: call 0x0060
+    #clk_tk
+    if (zx.pc==96) $display("case 26.2 passed");
+    else $display("case 26.2 FAILED. expected 96, got %0d", zx.pc);
+
+    // pc=96 zn=00
+    #clk_tk // 8116: ifn addi 1 r8 ret ; not executed
+    #clk_tk
+    if (zx.regs.mem[8]==1) $display("case 26.3 passed");
+    else $display("case 26.3 FAILED. expected 1, got %0d", zx.regs.mem[8]);
+
+    // pc=97 zn=00
+    #clk_tk // 8115: ifz addi 1 r8 ret ; not executed
+    #clk_tk
+    if (zx.regs.mem[8]==1) $display("case 27.3 passed");
+    else $display("case 27.3 FAILED. expected 1, got %0d", zx.regs.mem[8]);
+
+    // pc=98 zn=00
+    #clk_tk // 8114: ifp addi 1 r8 ret
+    #clk_tk
+    if (zx.regs.mem[8]==3) $display("case 27.4 passed");
+    else $display("case 27.4 FAILED. expected 3, got %0d", zx.regs.mem[8]);
+    if (zx.pc==81) $display("case 27.5 passed");
+    else $display("case 27.5 FAILED. expected 81, got %d", zx.pc);
+
+    // pc=81 zn=00
+    #clk_tk // 8117: addi 1 r8 ret
+    #clk_tk
+    if (zx.regs.mem[8]==5) $display("case 27.4 passed");
+    else $display("case 27.4 FAILED. expected 5, got %0d", zx.regs.mem[8]);
+    if (!zx.zn_zf && zx.zn_nf) $display("case 27.5 passed");
+    else $display("case 27.5 FAILED. expected 0, 1 got %0d, %0d", zx.zn_zf, zx.zn_nf);
+
+    // pc=42 zn=01
+    #clk_tk // 007f: jmp 0x007
     #clk_tk //
-    if (zx.pc==49) $display("case 26 passed");
-    else $display("case 26 FAILED. expected 49, got %0d", zx.pc);
+    if (zx.pc==49) $display("case 28 passed");
+    else $display("case 28 FAILED. expected 49, got %0d", zx.pc);
 
     
     // pc=49, zn=01
@@ -289,8 +340,8 @@ initial begin
     for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
     uart_rx = 1; // idle
     for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
-    if (zx.regs.mem[10]==16'b0101_0101) $display("case 27 passed");
-    else $display("case 27 FAILED. expected 0x0055, got %0h", zx.regs.mem[10]);
+    if (zx.regs.mem[10]==16'b0101_0101) $display("case 29 passed");
+    else $display("case 29 FAILED. expected 0x0055, got %0h", zx.regs.mem[10]);
     
     for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
         #clk_tk;

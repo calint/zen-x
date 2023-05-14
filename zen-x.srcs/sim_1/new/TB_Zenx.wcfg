@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="657.050 ns"></ZoomStartTime>
-      <ZoomEndTime time="702.501 ns"></ZoomEndTime>
-      <Cursor1Time time="682.000 ns"></Cursor1Time>
+      <ZoomStartTime time="124.276 ns"></ZoomStartTime>
+      <ZoomEndTime time="169.545 ns"></ZoomEndTime>
+      <Cursor1Time time="162.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="99"></NameColumnWidth>
+      <NameColumnWidth column_width="87"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="43" />
+   <WVObjectSize size="42" />
    <wvobject type="logic" fp_name="/TB_Zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -50,10 +50,6 @@
    <wvobject type="logic" fp_name="/TB_Zenx/zx/is_ldi">
       <obj_property name="ElementShortName">is_ldi</obj_property>
       <obj_property name="ObjectShortName">is_ldi</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_Zenx/zx/ldi_do">
-      <obj_property name="ElementShortName">ldi_do</obj_property>
-      <obj_property name="ObjectShortName">ldi_do</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/stp">
       <obj_property name="ElementShortName">stp[15:0]</obj_property>
@@ -102,6 +98,10 @@
       <obj_property name="ElementShortName">alu_result[15:0]</obj_property>
       <obj_property name="ObjectShortName">alu_result[15:0]</obj_property>
    </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/is_alu_op">
+      <obj_property name="ElementShortName">is_alu_op</obj_property>
+      <obj_property name="ObjectShortName">is_alu_op</obj_property>
+   </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_clr">
       <obj_property name="ElementShortName">zn_clr</obj_property>
       <obj_property name="ObjectShortName">zn_clr</obj_property>
@@ -123,10 +123,6 @@
       <obj_property name="ObjectShortName">zn_we</obj_property>
       <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
       <obj_property name="UseCustomSignalColor">true</obj_property>
-   </wvobject>
-   <wvobject type="logic" fp_name="/TB_Zenx/zx/is_alu_op">
-      <obj_property name="ElementShortName">is_alu_op</obj_property>
-      <obj_property name="ObjectShortName">is_alu_op</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/cs_en">
       <obj_property name="ElementShortName">cs_en</obj_property>
@@ -189,8 +185,8 @@
       <obj_property name="ObjectShortName">dr</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/urx/state">
-      <obj_property name="ElementShortName">state[3:0]</obj_property>
-      <obj_property name="ObjectShortName">state[3:0]</obj_property>
+      <obj_property name="ElementShortName">state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">state[2:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/urx/bit_count">
       <obj_property name="ElementShortName">bit_count[3:0]</obj_property>
