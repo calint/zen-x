@@ -4,13 +4,13 @@ func print: # r1: strptr, r2:strlen, r3, r4
     ifz jmp done         # ifz jmp loop_end
     loop:                # loop:
         ld r1 r4         #     r4 = [r1]
-        iowl r4          #     wl r4
-        iowh r4          #     wh r4
-        addi 1 r1        #     r1 += 1
-        addi -1 r3       #     r3 -= 1
+        iowl r4          #     wrl r4
+        iowh r4          #     wrh r4
+        addi 1 r1        #     r1++
+        addi -1 r3       #     r3--
         ifp jmp loop     #     ifp jmp loop
     done:                # loop_end:
-        addi 1 r3        # r3 += 1  // reusing r3 which is now 0
+        addi 1 r3        # r3++  // reusing r3 which is now 0
         and r2 r3        # r2 &= r3
         ifp ld r1 r4     # ifp r4 = [r1]
         ifp iowl r4 ret  # ifp wl r4 ret
@@ -38,7 +38,7 @@ func input: # r1: bufptr, r2: buflen
             ifz jmp done #     ifz jmp done
             addi -1 r2   #     r2--
             ifz jmp done #     ifz jmp done
-            addi r9      #     r9++
+            addi r9      #     r10++
             jmp loop     # jmp loop
         done:            # done:
         cp r9 r2 ret     # r2 = r9 ret
