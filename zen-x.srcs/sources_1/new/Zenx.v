@@ -47,7 +47,7 @@ reg [3:0] ldi_reg; // register to write when 'ldi'
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
 
-// uart_rx related (part 1)
+// UartRx related (part 1)
 reg [REGISTERS_WIDTH-1:0] urx_reg_dat;
 reg urx_regb_sel;
 reg [3:0] urx_reg;
@@ -128,18 +128,18 @@ assign led0_g = (pc==61); // pc at finished in hang of rom
 assign led0_r = 0;
 */
 
-// uart_tx related wiring
+// UartTx related wiring
 reg [7:0] utx_dat; // data to send
 reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
 wire utx_bsy; // enabled while sending 
 
-// uart_rx related wiring (part 2)
+// UartRx related wiring (part 2)
 wire [7:0] urx_dat; // last read byte
 wire urx_dr; // enabled when data ready
 reg urx_go; // enable to start receiving, disable after data received to acknowledge
 reg urx_reg_hilo; // read into high or low byte of the register
 
-reg [15:0] stp; // state of instruction execution
+reg [15:0] stp; // instruction execution state
 
 always @(negedge clk) begin
     if (rst) begin
