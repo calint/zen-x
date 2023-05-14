@@ -1,5 +1,3 @@
-[x] racing: at call Zn and Calls are racing for the zn-flags
-      => Zn and Calls copies flags at clock up (stable), updates at clock down
 [ ] review uart_tx
 [ ] review uart_rx
 [ ] implement 'ret' on 'ldi' and 'io*'
@@ -18,6 +16,10 @@
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[x] racing: at call Zn and Calls are racing for the zn-flags
+      => Zn clears flags at negedge, Calls copies flags at posedge
+      at return: Zn copies flags to 'next state' from Calls, Calls copies 'next state' from stack
+        at negedge both update state from 'next state'. no racing
 [-]   'await' instruction that waits for interrupt then continues 
         => out of scope of this project
 [-] interrupts => out of scope for this experiment
