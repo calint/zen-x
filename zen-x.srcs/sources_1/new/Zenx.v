@@ -236,7 +236,7 @@ always @(posedge clk) begin
             is_ldi <= 1; // signal that next instruction is data
             stp <= stp << 1; // to step 3
         end else if(stp[3]) begin // ldi: load register
-            regs_we <= 1; // enable register write if 'ldi' is executed
+            regs_we <= 1; // enable register write
             regs_wd_sel <= 2; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1; // to step 4
