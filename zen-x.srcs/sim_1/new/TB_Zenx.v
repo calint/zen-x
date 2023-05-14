@@ -205,10 +205,8 @@ initial begin
     //  6: 0x1234
     //  7: 0x0000
     //  8: 0x0000
-    
     #clk_tk // 003b: call 0x0030
     #clk_tk
-
     // pc=48, zn=00
     if (zx.pc==48) $display("case 20 passed");
     else $display("case 20 FAILED. expected 48, got %0d", zx.pc);
@@ -217,7 +215,6 @@ initial begin
     
     #clk_tk // 8117: addi 0 r8 ret
     #clk_tk //
-
     // pc=33, zn=01
     if (zx.pc==33) $display("case 23 passed");
     else $display("case 23 FAILED. expected 33, got %0d", zx.pc);
@@ -226,10 +223,41 @@ initial begin
     if (zx.regs.mem[8]==1) $display("case 25 passed");
     else $display("case 25 FAILED. expected 1, got %0d", zx.regs.mem[8]); 
     
-    #clk_tk // 010f: skp 0x10
+    #clk_tk // 0044: ifp call 0x0040 ; not executed zn=01!=00
+    #clk_tk //
+    if (zx.pc==34) $display("case 25.1 passed");
+    else $display("case 25.1 FAILED. expected 34, got %0d", zx.pc);
+
+    #clk_tk // 0045: ifz call 0x0040 ; not executed zn=01!=10
+    #clk_tk //
+    if (zx.pc==35) $display("case 25.2 passed");
+    else $display("case 25.2 FAILED. expected 35, got %0d", zx.pc);
+
+    #clk_tk // 9030: ifp ldi r9, 0x0040 ; not executed zn=01!=00
+    #clk_tk // 0x0040
+    if (zx.regs.mem[9]==0) $display("case 25.3 passed");
+    else $display("case 25.3 FAILED. expected 0, got %0d", zx.regs.mem[9]);
+
+    #clk_tk // 9031: ifz ldi r9, 0x0040 ; not executed zn=01!=10
+    #clk_tk // 0x0040
+    if (zx.regs.mem[9]==0) $display("case 25.4 passed");
+    else $display("case 25.4 FAILED. expected 0, got %0d", zx.regs.mem[9]);
+    
+    #clk_tk // 00ac: ifp jmp 0x00a ; not executed zn=01!=00
+    #clk_tk //
+    if (zx.pc==40) $display("case 25.5 passed");
+    else $display("case 25.5 FAILED. expected 40, got %0d", zx.pc);
+
+    #clk_tk // 009d: ifz jmp 0x009 ; not executed zn=01!=10
+    #clk_tk //
+    if (zx.pc==41) $display("case 26 passed");
+    else $display("case 26 FAILED. expected 41, got %0d", zx.pc);
+
+    #clk_tk // 008f: jmp 0x008
     #clk_tk //
     if (zx.pc==49) $display("case 26 passed");
     else $display("case 26 FAILED. expected 49, got %0d", zx.pc);
+
     
     // pc=49, zn=01
     // transmit "HELLO "  
