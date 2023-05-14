@@ -162,17 +162,19 @@ initial begin
     if (zx.regs.mem[6]==16'h1234) $display("case 15 passed");
     else $display("case 15 FAILED. expected 0x1234, got %h", zx.regs.mem[6]);
     
-    // zn=00
+    // pc=23, zn=00
     #clk_tk // 7031: ifz ldi r7 ; will not execute
-    #clk_tk // wait for rom
-    #clk_tk // 0x0001
+//    #clk_tk // wait for rom
+//    #clk_tk // 0x0001
     #clk_tk // regs[7]=0x0000 ; will not load
     if (zx.regs.mem[7]==0) $display("case 16 passed");
     else $display("case 16 FAILED. expected 0, got %h", zx.regs.mem[7]); 
 
+    // pc=25, zn=01
     #clk_tk // 44c3: cp r4 r4 ; sets zn-flags for r4
     #clk_tk
 
+    // pc=26, zn=01
     #clk_tk // 7032: ifn ldi r7; will execute
     #clk_tk // wait for rom
     #clk_tk // 0x0001
@@ -181,11 +183,12 @@ initial begin
     else $display("case 17 FAILED. expected 1, got %h", zx.regs.mem[7]); 
 
     // pc=28, zn=01
-    #clk_tk // 003c: skp 3 ; not executed because zn!=00
+    #clk_tk // 003c: ifzn skp 3 ; will not execute because zn!=00
     #clk_tk // wait for rom
     if (zx.pc==29) $display("case 18 passed");
     else $display("case 18 FAILED. expected 29, got %0d", zx.pc);
 
+    // pc=29, zn=01
     #clk_tk // 003f: ifzn skp 3
     #clk_tk // wait for rom
     if (zx.pc==29+3) $display("case 19 passed");

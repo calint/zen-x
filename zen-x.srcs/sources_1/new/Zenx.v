@@ -170,71 +170,67 @@ always @(posedge clk) begin
         urx_go <= 0;
     end else begin
         `ifdef DBG
-            $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d", pc, instr, stp, is_do_op, cs_en);
+            $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d, zn=%d%d", pc, instr, stp, is_do_op, cs_en, zn_zf, zn_nf);
         `endif
         if(stp[0]) begin
             // got instruction from rom, execute
-            if (cs_call) begin // call
-                if (is_do_op) begin
+            if (is_do_op) begin
+                if (cs_call) begin // call
                     pc <= imm12 << 4; // instruction is executed. set 'pc'
+                    stp <= 1 << 6;
+                end else if (is_cr) begin // jmp
+                    pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
+                    stp <= 1 << 6; // step 6
                 end else begin
-                    pc <= pc + 1; // instruction is not executed. increment
-                end
+                    if (cs_ret) begin // return
+                        pc <= cs_pc_out + 1; // get return address from 'Calls'
+                    end else begin
+                        pc <= pc + 1; // not a return, increment program counter
+                    end
+                    if (op == OP_LDI && rega != 0) begin // input / output
+                        case(rega[2:0])
+                        3'b110: begin // receive blocking
+                            urx_reg <= regb; // save 'regb' to be used later
+                            urx_reg_dat <= regs_dat_b; // save current value of 'regb'
+                            urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
+                            urx_go <= 1; // signal start read
+                            stp <= 1 << 9; // stp[9]
+                        end
+                        3'b010: begin // send blocking
+                            utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
+                            utx_go <= 1; // signal start of transmission
+                            stp <= 1 << 7; // stp[7]
+                        end
+                        default: $display("!!! unknown IO op");
+                        endcase
+                    end else if (is_alu_op) begin
+                        regs_we <= 1; // enable write back to register if instruction should execute
+                        regs_wd_sel <= 0; // select alu result for write to 'regb'
+                        stp <= 1 << 5; // step 5
+                    end else begin
+                        case(op)
+                        OP_LDI: begin
+                            ldi_reg <= regb; // save the register to which the next instruction data will be writting
+                            ldi_do <= 1; // save current instruction filter
+                            stp <= stp << 2;
+                        end
+                        OP_ST: begin
+                            ram_we <= 1; // enable ram write if instruction is executed
+                            stp <= stp << 1; // next step
+                        end
+                        OP_LD: begin
+                            regs_we <= 1; // enable register write if instruction is executed
+                            regs_wd_sel <= 1; // select ram output for write to 'regb'
+                            stp <= stp << 1; // next step
+                        end
+                        default: $display("!!! unknown instruction");
+                        endcase
+                    end // is_alu_op else
+                end // io || is_alu 
+            end else begin // is_do_op else
+                pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip next instruction if it was a 'ldi'
                 stp <= 1 << 6;
-            end else if (is_cr) begin // skip
-                pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1); // increment 'pc' depending if instruction is executed
-                stp <= 1 << 6; // step 6
-            end else if (op == OP_LDI && rega != 0) begin // input / output
-                pc <= pc + 1; // load the next instruction to save 1 cycle at the end of transmission
-                if (is_do_op) begin
-                    case(rega[2:0])
-                    3'b110: begin // receive blocking
-                        urx_reg <= regb; // save 'regb' to be used later
-                        urx_reg_dat <= regs_dat_b; // save current value of 'regb'
-                        urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
-                        urx_go <= 1; // signal start read
-                        stp <= 1 << 9; // stp[9]
-                    end
-                    3'b010: begin // send blocking
-                        utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
-                        utx_go <= 1; // signal start of transmission
-                        stp <= 1 << 7; // stp[7]
-                    end
-                    default: $display("!!! unknown IO op");
-                    endcase
-                end else begin
-                    stp <= 1 << 8; // stp[8] wait one cycle for next instruction
-                end
-            end else begin
-                if (cs_ret && is_do_op) begin // return
-                    pc <= cs_pc_out + 1; // get return address from 'Calls'
-                end else begin
-                    pc <= pc + 1; // start fetching next instruction
-                end
-                if (is_alu_op) begin
-                    regs_we <= is_do_op; // enable write back to register if instruction should execute
-                    regs_wd_sel <= 0; // select alu result for write to 'regb'
-                    stp <= 1 << 5; // step 5
-                end else begin
-                    case(op)
-                    OP_LDI: begin
-                        ldi_reg <= regb; // save the register to which the next instruction data will be writting
-                        ldi_do <= is_do_op; // save current instruction filter
-                        stp <= stp << 2;
-                    end
-                    OP_ST: begin
-                        ram_we <= is_do_op; // enable ram write if instruction is executed
-                        stp <= stp << 1; // next step
-                    end
-                    OP_LD: begin
-                        regs_we <= is_do_op; // enable register write if instruction is executed
-                        regs_wd_sel <= 1; // select ram output for write to 'regb'
-                        stp <= stp << 1; // next step
-                    end
-                    default: $display("!!! unknown instruction");
-                    endcase
-                end // is_alu_op
-            end // is_jmp
+            end // is_do_top else
         end else if(stp[1]) begin // ld, st: wait one cycle for ram op to finish
             // ? separate this into 2 different steps which disables 'we' for the relevant component
             ram_we <= 0; // if it is 'st'
@@ -256,7 +252,7 @@ always @(posedge clk) begin
         end else if(stp[5]) begin // alu: wait one cycle for next instruction
             regs_we <= 0;
             stp <= 1;
-        end else if(stp[6]) begin // call, skp: wait one cycle for next instruction
+        end else if(stp[6]) begin // call, skp, !is_do_op: wait one cycle for next instruction
             stp <= 1;
         end else if(stp[7]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
