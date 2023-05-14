@@ -1,4 +1,5 @@
-[ ] racing: at call Zn and Calls are racing for the zn-flags
+[x] racing: at call Zn and Calls are racing for the zn-flags
+      => Zn and Calls copies flags at clock up (stable), updates at clock down
 [ ] review uart_tx
 [ ] review uart_rx
 [ ] implement 'ret' on 'ldi' and 'io*'
