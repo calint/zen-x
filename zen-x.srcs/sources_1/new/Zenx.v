@@ -176,28 +176,28 @@ always @(posedge clk) begin
             // got instruction from rom, execute
             if (cs_call) begin // call
                 if (is_do_op) begin
-                    pc <= imm12 << 4;
+                    pc <= imm12 << 4; // instruction is executed. set 'pc'
                 end else begin
-                    pc <= pc + 1;
+                    pc <= pc + 1; // instruction is not executed. increment
                 end
                 stp <= 1 << 6;
             end else if (is_cr) begin // skip
-                pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1);
-                stp <= 1 << 6;
+                pc <= pc + (is_do_op ? {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12} : 1); // increment 'pc' depending if instruction is executed
+                stp <= 1 << 6; // step 6
             end else if (op == OP_LDI && rega != 0) begin // input / output
                 pc <= pc + 1; // load the next instruction to save 1 cycle at the end of transmission
                 if (is_do_op) begin
                     case(rega[2:0])
                     3'b110: begin // receive blocking
-                        urx_reg <= regb;
-                        urx_reg_dat <= regs_dat_b;
-                        urx_reg_hilo <= rega[3];
-                        urx_go <= 1;
+                        urx_reg <= regb; // save 'regb' to be used later
+                        urx_reg_dat <= regs_dat_b; // save current value of 'regb'
+                        urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
+                        urx_go <= 1; // signal start read
                         stp <= 1 << 9; // stp[9]
                     end
                     3'b010: begin // send blocking
-                        utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0];
-                        utx_go <= 1;
+                        utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
+                        utx_go <= 1; // signal start of transmission
                         stp <= 1 << 7; // stp[7]
                     end
                     default: $display("!!! unknown IO op");
@@ -214,22 +214,22 @@ always @(posedge clk) begin
                 if (is_alu_op) begin
                     regs_we <= is_do_op; // enable write back to register if instruction should execute
                     regs_wd_sel <= 0; // select alu result for write to 'regb'
-                    stp <= 1 << 5;
+                    stp <= 1 << 5; // step 5
                 end else begin
                     case(op)
                     OP_LDI: begin
-                        ldi_reg <= regb;
-                        ldi_do <= is_do_op;
+                        ldi_reg <= regb; // save the register to which the next instruction data will be writting
+                        ldi_do <= is_do_op; // save current instruction filter
                         stp <= stp << 2;
                     end
                     OP_ST: begin
-                        ram_we <= is_do_op;
-                        stp <= stp << 1;
+                        ram_we <= is_do_op; // enable ram write if instruction is executed
+                        stp <= stp << 1; // next step
                     end
                     OP_LD: begin
-                        regs_we <= is_do_op;
+                        regs_we <= is_do_op; // enable register write if instruction is executed
                         regs_wd_sel <= 1; // select ram output for write to 'regb'
-                        stp <= stp << 1;
+                        stp <= stp << 1; // next step
                     end
                     default: $display("!!! unknown instruction");
                     endcase
@@ -239,19 +239,19 @@ always @(posedge clk) begin
             // ? separate this into 2 different steps which disables 'we' for the relevant component
             ram_we <= 0; // if it is 'st'
             regs_we <= 0; // if it is 'ld'
-            stp <= 1;
+            stp <= 1; // done
         end else if(stp[2]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
-            stp <= stp << 1;
+            stp <= stp << 1; // next step
         end else if(stp[3]) begin // ldi: load register
             regs_we <= ldi_do; // enable register write if 'ldi' is executed
             regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
-            stp <= stp << 1;
+            stp <= stp << 1; // next step
         end else if(stp[4]) begin // ldi: wait one cycle for next instruction
-            regs_we <= 0;
-            ldi_do <= 0; // ? not necessary
-            is_ldi <= 0;
+            regs_we <= 0; // disable register write
+            ldi_do <= 0; // ? necessary?
+            is_ldi <= 0; // disable flag that instruction is data for 'ldi'
             stp <= 1;
         end else if(stp[5]) begin // alu: wait one cycle for next instruction
             regs_we <= 0;
@@ -260,8 +260,8 @@ always @(posedge clk) begin
             stp <= 1;
         end else if(stp[7]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
-                utx_go <= 0; // acknowledge
-                stp <= 1;
+                utx_go <= 0; // acknowledge 'busy'
+                stp <= 1; // done
             end
         end else if(stp[9]) begin // urx: while data is not ready  
             if (urx_dr) begin
@@ -270,16 +270,16 @@ always @(posedge clk) begin
                 end else begin
                     urx_reg_dat[7:0] <= urx_dat;                
                 end
-                regs_we <= 1;
-                regs_wd_sel <= 3; // select register write from 'urx_reg_dat'
-                urx_regb_sel <= 1;
-                urx_go <= 0;
+                urx_go <= 0; // acknowledge data has been read
+                regs_we <= 1; // enable register write
+                regs_wd_sel <= 3; // select data to write to register from 'urx_reg_dat'
+                urx_regb_sel <= 1; // signal that 'regb' is 'urx_reg'
                 stp <= stp << 1;
             end
         end else if(stp[10]) begin // urx: // ? optimize away this step
-            regs_we <= 0;
-            urx_regb_sel <= 0;
-            stp <= 1;
+            regs_we <= 0; // disable register write
+            urx_regb_sel <= 0; // disable signal that 'regb' is 'urx_reg'
+            stp <= 1; // done
         end // stp[x]
     end // else rst
 end
