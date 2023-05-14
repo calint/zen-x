@@ -28,7 +28,6 @@ localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
 localparam OP_LD   = 4'b0101; // load
 localparam OP_ST   = 4'b0111; // store
 localparam OP_SHF  = 4'b1110; // shift
-localparam OP_IO   = 4'b1111; // input/output
 
 localparam ALU_ADD = 3'b000; // addition
 localparam ALU_SUB = 3'b001; // substraction
@@ -39,7 +38,7 @@ localparam ALU_NOT = 3'b101; // bitwise not
 localparam ALU_CP  = 3'b110; // copy
 localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value
 
-reg [ROM_ADDR_WIDTH-1:0] pc; //led program counter
+reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data for 'ldi'
@@ -175,7 +174,7 @@ always @(posedge clk) begin
             if (is_do_op) begin
                 if (cs_call) begin // call
                     pc <= imm12 << 4; // instruction is executed. set 'pc'
-                    stp <= 1 << 6;
+                    stp <= 1 << 6; // step 6 
                 end else if (is_cr) begin // jmp
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
                     stp <= 1 << 6; // step 6
@@ -186,7 +185,7 @@ always @(posedge clk) begin
                         pc <= pc + 1; // not a return, increment program counter
                     end
                     if (op == OP_LDI && rega != 0) begin // input / output
-                        case(rega[2:0])
+                        case(rega[2:0]) // operation encoded in 'rega'
                         3'b110: begin // receive blocking
                             urx_reg <= regb; // save 'regb' to be used later
                             urx_reg_dat <= regs_dat_b; // save current value of 'regb'
@@ -209,16 +208,16 @@ always @(posedge clk) begin
                         case(op)
                         OP_LDI: begin
                             ldi_reg <= regb; // save the register to which the next instruction data will be writting
-                            stp <= stp << 2;
+                            stp <= stp << 2; // to step 2
                         end
                         OP_ST: begin
                             ram_we <= 1; // enable ram write if instruction is executed
-                            stp <= stp << 1; // next step
+                            stp <= stp << 1; // next step 1
                         end
                         OP_LD: begin
                             regs_we <= 1; // enable register write if instruction is executed
                             regs_wd_sel <= 1; // select ram output for write to 'regb'
-                            stp <= stp << 1; // next step
+                            stp <= stp << 1; // next step 1
                         end
                         default: $display("!!! unknown instruction");
                         endcase
@@ -226,7 +225,7 @@ always @(posedge clk) begin
                 end // io || is_alu 
             end else begin // is_do_op else
                 pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip next instruction if it was a 'ldi'
-                stp <= 1 << 6;
+                stp <= 1 << 6; // step 6
             end // is_do_top else
         end else if(stp[1]) begin // ld, st: wait one cycle for ram op to finish
             // ? separate this into 2 different steps which disables 'we' for the relevant component
@@ -244,23 +243,23 @@ always @(posedge clk) begin
         end else if(stp[4]) begin // ldi: wait one cycle for next instruction
             regs_we <= 0; // disable register write
             is_ldi <= 0; // disable flag that instruction is data for 'ldi'
-            stp <= 1;
+            stp <= 1; // done
         end else if(stp[5]) begin // alu: wait one cycle for next instruction
             regs_we <= 0;
-            stp <= 1;
+            stp <= 1; // done
         end else if(stp[6]) begin // call, skp, !is_do_op: wait one cycle for next instruction
-            stp <= 1;
+            stp <= 1; // done
         end else if(stp[7]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
                 utx_go <= 0; // acknowledge 'busy'
                 stp <= 1; // done
             end
         end else if(stp[9]) begin // urx: while data is not ready  
-            if (urx_dr) begin
+            if (urx_dr) begin // if data ready
                 if (urx_reg_hilo) begin
-                    urx_reg_dat[15:8] <= urx_dat;
+                    urx_reg_dat[15:8] <= urx_dat; // write the high byte
                 end else begin
-                    urx_reg_dat[7:0] <= urx_dat;                
+                    urx_reg_dat[7:0] <= urx_dat; // write the low byte
                 end
                 urx_go <= 0; // acknowledge data has been read
                 regs_we <= 1; // enable register write
