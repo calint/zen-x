@@ -201,7 +201,7 @@ always @(posedge clk) begin
                         default: $display("!!! unknown IO op");
                         endcase
                     end else if (is_alu_op) begin
-                        regs_we <= 1; // enable write back to register if instruction should execute
+                        regs_we <= 1; // enable write back to register
                         regs_wd_sel <= 0; // select alu result for write to 'regb'
                         stp <= 1 << 5; // to step 5
                     end else begin
@@ -211,11 +211,11 @@ always @(posedge clk) begin
                             stp <= stp << 2; // to step 2
                         end
                         OP_ST: begin
-                            ram_we <= 1; // enable ram write if instruction is executed
+                            ram_we <= 1; // enable ram write
                             stp <= stp << 1; // to step 1
                         end
                         OP_LD: begin
-                            regs_we <= 1; // enable register write if instruction is executed
+                            regs_we <= 1; // enable register write
                             regs_wd_sel <= 1; // select ram output for write to 'regb'
                             stp <= stp << 1; // to step 1
                         end
