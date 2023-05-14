@@ -223,12 +223,12 @@ initial begin
     if (zx.regs.mem[8]==1) $display("case 25 passed");
     else $display("case 25 FAILED. expected 1, got %0d", zx.regs.mem[8]); 
     
-    #clk_tk // 0044: ifp call 0x0040 ; not executed zn=01!=00
+    #clk_tk // 0048: ifp call 0x0040 ; not executed zn=01!=00
     #clk_tk //
     if (zx.pc==34) $display("case 25.1 passed");
     else $display("case 25.1 FAILED. expected 34, got %0d", zx.pc);
 
-    #clk_tk // 0045: ifz call 0x0040 ; not executed zn=01!=10
+    #clk_tk // 0049: ifz call 0x0040 ; not executed zn=01!=10
     #clk_tk //
     if (zx.pc==35) $display("case 25.2 passed");
     else $display("case 25.2 FAILED. expected 35, got %0d", zx.pc);
