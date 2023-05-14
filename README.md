@@ -76,14 +76,15 @@ pre pipeline
  1101 :       :     :
  1111 :       :     : 
  -----:-------:-----:--------------------------------------
- 
+
+instructions with rc=10 return from call
+  (does not apply on ldi and io*)
+
   rc  :       : cyc :
  -----+-------+-----+--------------------------------------
   01  : call  :  2  : pc = imm12 << 4
   11  : skp   :  2  : pc += signed imm12
  -----+-------+-----+--------------------------------------
-
- any instruction where rc=10 returns from call
 
 I/O
  |z|n|r|c| op |rega|regb| mnemo | description
