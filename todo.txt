@@ -17,7 +17,7 @@
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [x] racing: at call Zn and Calls are racing for the zn-flags
-      => Zn clears flags at negedge, Calls copies flags at posedge
+      => Calls copies flags at posedge then Zn clears flags at negedge
       at return: Zn copies flags to 'next state' from Calls, Calls copies 'next state' from stack
         at negedge both update state from 'next state'. no racing se "Screenshot from 2023-05-15 10-03-26"
 [-]   'await' instruction that waits for interrupt then continues 
