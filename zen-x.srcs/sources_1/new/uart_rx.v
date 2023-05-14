@@ -40,9 +40,9 @@ always @(negedge clk) begin
         led <= 0;
         led_g <= 0;
     end else begin
-        led[2:0] = state;
         case(state)
         STATE_IDLE: begin
+            led <= 0;
             if (!rx && !go)
                 led[3] <= 1;
             if (!rx && go) begin
@@ -52,12 +52,14 @@ always @(negedge clk) begin
             end
         end
         STATE_START_BIT: begin
+            led <= 1;
             if (bit_counter == 0) begin
                 bit_counter <= BIT_TIME - 1;
                 state <= STATE_DATA_BITS; // ? check rx==0
             end
         end
         STATE_DATA_BITS: begin
+            led <= 2;
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
                 bit_counter <= BIT_TIME - 1;
@@ -69,6 +71,7 @@ always @(negedge clk) begin
             end
         end
         STATE_STOP_BITS: begin
+            led <= 3;
             if (bit_counter == 0) begin
                 if (rx_reg == 1) begin
                     data <= data_reg;
@@ -78,6 +81,7 @@ always @(negedge clk) begin
             end
         end
         STATE_WAIT_GO_LOW: begin
+            led <= 4;            
             if (!go) begin
                 dr <= 0;
                 state <= STATE_IDLE;

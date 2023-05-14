@@ -12,10 +12,11 @@
           during the ~100ps delay of rom data after "posedge clk"
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram
-[ ]   'await' instruction that waits for interrupt then continues 
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[-]   'await' instruction that waits for interrupt then continues 
+        => out of scope of this project
 [-] interrupts => out of scope for this experiment
 [x] uart
 [x]   send "hello world" => "HELLO "
