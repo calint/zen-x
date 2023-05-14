@@ -250,7 +250,7 @@ always @(posedge clk) begin
             stp <= stp << 1;
         end else if(stp[4]) begin // ldi: wait one cycle for next instruction
             regs_we <= 0;
-            ldi_do <= 0;
+            ldi_do <= 0; // ? not necessary
             is_ldi <= 0;
             stp <= 1;
         end else if(stp[5]) begin // alu: wait one cycle for next instruction
@@ -281,7 +281,7 @@ always @(posedge clk) begin
         end else if(stp[10]) begin // urx: 
 //            led_out[2] = 1;
             regs_we <= 0;
-            urx_regb_sel <= 0;
+            urx_regb_sel <= 0; // ? not necessary, all ops set this selector
             stp <= 1;
         end // stp[x]
     end // else rst
