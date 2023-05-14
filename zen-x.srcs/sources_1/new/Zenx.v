@@ -44,7 +44,6 @@ reg [ROM_ADDR_WIDTH-1:0] pc; //led program counter
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data for 'ldi'
 reg [3:0] ldi_reg; // register to write when 'ldi'
-reg ldi_do; // used for coordination in instruction execution steps
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
@@ -159,7 +158,6 @@ always @(posedge clk) begin
         pc <= 0;
         regs_wd_sel = 0;
         is_ldi <= 0;
-        ldi_do <= 0;
         regs_we <= 0;
         ram_we <= 0;
         utx_dat <= 0;
@@ -211,7 +209,6 @@ always @(posedge clk) begin
                         case(op)
                         OP_LDI: begin
                             ldi_reg <= regb; // save the register to which the next instruction data will be writting
-                            ldi_do <= 1; // save current instruction filter
                             stp <= stp << 2;
                         end
                         OP_ST: begin
@@ -240,13 +237,12 @@ always @(posedge clk) begin
             is_ldi <= 1; // signal that next instruction is data
             stp <= stp << 1; // next step
         end else if(stp[3]) begin // ldi: load register
-            regs_we <= ldi_do; // enable register write if 'ldi' is executed
-            regs_wd_sel <= ldi_do ? 2 : 0; // select register write from rom output
+            regs_we <= 1; // enable register write if 'ldi' is executed
+            regs_wd_sel <= 2; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
             stp <= stp << 1; // next step
         end else if(stp[4]) begin // ldi: wait one cycle for next instruction
             regs_we <= 0; // disable register write
-            ldi_do <= 0; // ? necessary?
             is_ldi <= 0; // disable flag that instruction is data for 'ldi'
             stp <= 1;
         end else if(stp[5]) begin // alu: wait one cycle for next instruction
