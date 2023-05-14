@@ -264,9 +264,7 @@ always @(posedge clk) begin
                 stp <= 1;
             end
         end else if(stp[9]) begin // urx: while data is not ready  
-//            led_out[0] = 1;
             if (urx_dr) begin
-//                led_out[1] = 1;         
                 if (urx_reg_hilo) begin
                     urx_reg_dat[15:8] <= urx_dat;
                 end else begin
@@ -278,10 +276,9 @@ always @(posedge clk) begin
                 urx_go <= 0;
                 stp <= stp << 1;
             end
-        end else if(stp[10]) begin // urx: 
-//            led_out[2] = 1;
+        end else if(stp[10]) begin // urx: // ? optimize away this step
             regs_we <= 0;
-            urx_regb_sel <= 0; // ? not necessary, all ops set this selector
+            urx_regb_sel <= 0;
             stp <= 1;
         end // stp[x]
     end // else rst
