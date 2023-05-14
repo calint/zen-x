@@ -63,9 +63,9 @@ always @(negedge clk) begin
                 bit_time_counter <= BIT_TIME - 1;
                 bit_count = bit_count + 1; // ? not NBA
                 if (bit_count == 8) begin
-                    state <= STATE_STOP_BIT;
                     bit_count <= 0;
                     tx <= 1; // start sending stop bit
+                    state <= STATE_STOP_BIT;
                 end else begin
                     tx <= data[bit_count];
                 end
