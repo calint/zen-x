@@ -77,16 +77,13 @@ pre pipeline
  1111 :       :     : 
  -----:-------:-----:--------------------------------------
 
-instructions with rc=10 return from call
-  (does not apply on ldi and io*)
-
   rc  :       : cyc :
  -----+-------+-----+--------------------------------------
   01  : call  :  2  : pc = imm12 << 4
   11  : skp   :  2  : pc += signed imm12
  -----+-------+-----+--------------------------------------
 
-I/O
+i/o
  |z|n|r|c| op |rega|regb| mnemo | description
  |-+-+-+-+----+----+----+-------+--------------------------------------
  |.|.|.|0|1100|0100|....| iowl  | uart blocking write lower regs[b]
@@ -98,8 +95,17 @@ I/O
  |.|.|.|0|1100|1110|....|       |
  |.|.|.|0|1100|1111|....|       |
 
+zn flags in instructions are compared with current flags
+instruction executes according to:
+ * zn=11 : always
+ * zn=00 : positive number
+ * zn=10 : zero
+ * zn=01 : negative number
 
-How-to with Vivado v2022.2:
+instructions with rc=10 return from call
+  does not apply on ldi and io* (todo)
+
+how-to with Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
  * find out which tty is on the usb connected to the card (i.e. /dev/ttyUSB1)
