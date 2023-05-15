@@ -44,7 +44,7 @@ always @(negedge clk) begin
             led <= 0;
             if (!rx && !go) // check if overrun
                 led[3] <= 1;
-            if (!rx && go) begin // start receiving byte
+            if (!rx && go) begin // does the cpu wait for data and start bit has started?
                 bit_count <= 0;
                 if (BIT_TIME == 1) begin
                     // the start bit has been read, jump to data
