@@ -46,15 +46,21 @@ always @(negedge clk) begin
                 led[3] <= 1;
             if (!rx && go) begin
                 bit_count <= 0;
-                 // get sample from half of the cycle
-                bit_counter <= BIT_TIME == 1 ? 0 : BIT_TIME / 2 - 1;
-                state <= STATE_START_BIT;
+                if (BIT_TIME == 1) begin
+                    // the start bit has been read, jump to data
+                    bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
+                    state <= STATE_DATA_BITS;
+                end else begin
+                     // get sample from half of the cycle
+                    bit_counter <= BIT_TIME / 2 - 1; // -1 because one of the ticks has been read before switching state
+                    state <= STATE_START_BIT;
+                end
             end
         end
         STATE_START_BIT: begin
             led <= 1;
-            if (bit_counter == 0) begin
-                bit_counter <= BIT_TIME - 1;
+            if (bit_counter == 0) begin  // no check if rx==0 because there is no error recovery
+                bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
                 state <= STATE_DATA_BITS; // ? check rx==0
             end
         end
@@ -63,7 +69,7 @@ always @(negedge clk) begin
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
                 bit_count = bit_count + 1;
-                bit_counter <= BIT_TIME - 1;
+                bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
                 if (bit_count == 8) begin
                     bit_count <= 0;
                     state <= STATE_STOP_BITS;
@@ -72,7 +78,7 @@ always @(negedge clk) begin
         end
         STATE_STOP_BITS: begin
             led <= 3;
-            if (bit_counter == 0 && rx == 1) begin // ? what if rx==0
+            if (bit_counter == 0) begin // no check if rx==1 because there is no error recovery
                 data <= data_reg;
                 dr <= 1;
                 state <= STATE_WAIT_GO_LOW;

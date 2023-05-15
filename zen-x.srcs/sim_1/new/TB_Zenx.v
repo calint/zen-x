@@ -5,8 +5,8 @@
 module TB_Zenx;
 
 localparam CLK_FREQ = 66_000_000;
-localparam BAUD_RATE = CLK_FREQ >> 2; // minimum 1
-localparam UART_TICKS_PER_BIT = 4; // minimum 2
+localparam BAUD_RATE = CLK_FREQ >> 1; // may be CLK_FREQ
+localparam UART_TICKS_PER_BIT = CLK_FREQ / BAUD_RATE;
 
 parameter clk_tk = 10;
 //parameter clk_tk = 1_000_000_000 / CLK_FREQ;
