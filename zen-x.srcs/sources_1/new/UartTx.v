@@ -15,9 +15,9 @@ module UartTx #(
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
 
-localparam STATE_IDLE       = 0;
+localparam STATE_IDLE      = 0;
 localparam STATE_START_BIT = 1;
-localparam STATE_DATA_BITS  = 2;
+localparam STATE_DATA_BITS = 2;
 localparam STATE_STOP_BIT  = 3;
 
 reg [$clog2(4)-1:0] state;
