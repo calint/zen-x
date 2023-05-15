@@ -52,7 +52,7 @@ always @(negedge clk) begin
                     state <= STATE_DATA_BITS;
                 end else begin
                      // get sample from half of the cycle
-                    bit_counter <= BIT_TIME == 1 ? 0 : BIT_TIME / 2 - 1; // -1 because one of the ticks has been read before switching state
+                    bit_counter <= BIT_TIME / 2 - 1; // -1 because one of the ticks has been read before switching state
                     state <= STATE_START_BIT;
                 end
             end
