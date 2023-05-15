@@ -39,15 +39,15 @@ always @(negedge clk) begin
             if (go) begin
                 bsy <= 1;
                 bit_count <= 0;
-                bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of start bit is being sent in this state
-                tx <= 0; // start sending start bit
+                bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of 'start bit' is being sent in this state
+                tx <= 0; // start sending 'start bit'
                 state <= STATE_START_BIT;
             end
         end
         STATE_START_BIT: begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of the first bit is being sent in this state
-                tx <= data[0]; // start sending first bit
+                tx <= data[0]; // start sending first bit of data
                 state <= STATE_DATA_BITS;
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
