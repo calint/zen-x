@@ -141,7 +141,7 @@ wire urx_dr; // enabled when data ready
 reg urx_go; // enable to start receiving, disable after data received to acknowledge
 reg urx_reg_hilo; // read into high or low byte of the register
 
-reg [15:0] stp; // state of instruction execution
+reg [5:0] stp; // state of instruction execution
 
 always @(negedge clk) begin
     if (rst) begin
@@ -176,10 +176,10 @@ always @(posedge clk) begin
             if (is_do_op) begin
                 if (cs_call) begin // call
                     pc <= imm12 << 4; // set 'pc'
-                    stp <= 1 << 6; // to step 6 
+                    stp <= 1 << 1; 
                 end else if (is_cr) begin // jmp
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
-                    stp <= 1 << 6; // to step 6
+                    stp <= 1 << 1;
                 end else begin
                     if (cs_ret) begin // return
                         pc <= cs_pc_out + 1; // get return address from 'Calls'
@@ -193,33 +193,33 @@ always @(posedge clk) begin
                             urx_reg_dat <= regs_dat_b; // save current value of 'regb'
                             urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
                             urx_go <= 1; // signal start read
-                            stp <= 1 << 9; // to step 9
+                            stp <= 1 << 5; // to step 9
                         end
                         3'b010: begin // send blocking
                             utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
                             utx_go <= 1; // signal start of transmission
-                            stp <= 1 << 7; // to step 7
+                            stp <= 1 << 4; // to step 7
                         end
                         default: $display("!!! unknown IO op");
                         endcase
                     end else if (is_alu_op) begin
                         regs_we <= 1; // enable write back to register
                         regs_wd_sel <= 0; // select alu result for write to 'regb'
-                        stp <= 1 << 5; // to step 5
+                        stp <= 1 << 1;
                     end else begin
                         case(op)
                         OP_LDI: begin
                             ldi_reg <= regb; // save the register to which the next instruction data will be written
-                            stp <= stp << 2; // to step 2
+                            stp <= 1 << 2; // to step 2
                         end
                         OP_ST: begin
                             ram_we <= 1; // enable ram write
-                            stp <= stp << 1; // to step 1
+                            stp <= 1 << 1;
                         end
                         OP_LD: begin
                             regs_we <= 1; // enable register write
                             regs_wd_sel <= 1; // select ram output for write to 'regb'
-                            stp <= stp << 1; // to step 1
+                            stp <= 1 << 1; // to step 1
                         end
                         default: $display("!!! unknown instruction");
                         endcase
@@ -227,36 +227,29 @@ always @(posedge clk) begin
                 end // io || is_alu 
             end else begin // !is_do_op, instruction will not execute
                 pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
-                stp <= 1 << 6; // to step 6
+                stp <= 1 << 1;
             end // is_do_top else
-        end else if(stp[1]) begin // ld, st: wait one cycle for ram to finish
-            // ? separate this into 2 different steps which disables 'we' for the relevant component
-            ram_we <= 0; // if it is 'st'
-            regs_we <= 0; // if it is 'ld'
+        end else if(stp[1]) begin // wait one cycle for rom and disable controls
+            ram_we <= 0; // disable ram write
+            regs_we <= 0; // disable register write
+            regs_wd_sel <= 0; // select alu result on the write register data
+            is_ldi <= 0; // disable flag that instruction is data for 'ldi'
+            urx_regb_sel <= 0; // disable signal that 'regb' is 'urx_reg'
             stp <= 1; // done
         end else if(stp[2]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
-            stp <= stp << 1; // to step 3
+            stp <= 1 << 3;
         end else if(stp[3]) begin // ldi: load register
             regs_we <= 1; // enable register write
             regs_wd_sel <= 2; // select register write from rom output
             pc <= pc + 1; // start fetching next instruction
-            stp <= stp << 1; // to step 4
-        end else if(stp[4]) begin // ldi: wait one cycle for next instruction
-            regs_we <= 0; // disable register write
-            is_ldi <= 0; // disable flag that instruction is data for 'ldi'
-            stp <= 1; // done
-        end else if(stp[5]) begin // alu: wait one cycle for next instruction
-            regs_we <= 0; // disable register write
-            stp <= 1; // done
-        end else if(stp[6]) begin // call, skp, !is_do_op: wait one cycle for next instruction
-            stp <= 1; // done
-        end else if(stp[7]) begin // utx: while uart busy wait
+            stp <= 1 << 1;
+        end else if(stp[4]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
                 utx_go <= 0; // acknowledge that transmission is done
                 stp <= 1; // done
             end
-        end else if(stp[9]) begin // urx: while data is not ready
+        end else if(stp[5]) begin // urx: while data is not ready
             if (urx_dr) begin // if data ready
                 if (urx_reg_hilo) begin
                     urx_reg_dat[15:8] <= urx_dat; // write the high byte
@@ -267,12 +260,8 @@ always @(posedge clk) begin
                 regs_we <= 1; // enable register write
                 regs_wd_sel <= 3; // select data to write to register from 'urx_reg_dat'
                 urx_regb_sel <= 1; // signal that 'regb' is 'urx_reg'
-                stp <= stp << 1; // to step 10
+                stp <= 1 << 1;
             end
-        end else if(stp[10]) begin // urx: // ? optimize away this step
-            regs_we <= 0; // disable register write
-            urx_regb_sel <= 0; // disable signal that 'regb' is 'urx_reg'
-            stp <= 1; // done
         end // stp[x]
     end // else rst
 end
