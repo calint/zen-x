@@ -109,7 +109,7 @@ how-to with Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
  * find out which tty is on the usb connected to the card (i.e. /dev/ttyUSB1)
- * connect with terminal at 230400 baud, 8 bits, 1 stop bit, no parity 
+ * connect with terminal at 9600 baud, 8 bits, 1 stop bit, no parity 
  * "HELLO" is the prompt
  * after the tests and prompt the program enters a read / write loop (echo)
  * button 0 is reset, click it to restart and display the prompt
