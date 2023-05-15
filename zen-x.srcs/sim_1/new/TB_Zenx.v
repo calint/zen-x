@@ -5,7 +5,7 @@
 module TB_Zenx;
 
 localparam CLK_FREQ = 66_000_000;
-localparam BAUD_RATE = CLK_FREQ >> 2; // minimum
+localparam BAUD_RATE = CLK_FREQ >> 2; // minimum 1
 localparam UART_TICKS_PER_BIT = 4; // minimum 2
 
 parameter clk_tk = 2;
@@ -19,6 +19,7 @@ reg rst = 1;
 
 wire [3:0] led;
 wire [2:0] led_bgr;
+reg btn = 0;
 
 wire uart_tx;
 reg uart_rx = 1;
@@ -31,6 +32,7 @@ Zenx #(
 ) zx (
     .rst(rst),
     .clk(clk),
+    .btn(btn),
     .led(led),
     .led0_b(led_bgr[2]),
     .led0_g(led_bgr[1]),

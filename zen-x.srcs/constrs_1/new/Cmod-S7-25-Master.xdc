@@ -1,41 +1,44 @@
-#####################################################################################
 ## set in vivado: open "synthesised design" 
 ##  then menu "tools" option "edit device properties" section "configuration"
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
 
-#####################################################################################
 ## connect 4 LEDs
 set_property -dict {PACKAGE_PIN E2 IOSTANDARD LVCMOS33} [get_ports {led[0]}]
 set_property -dict {PACKAGE_PIN K1 IOSTANDARD LVCMOS33} [get_ports {led[1]}]
 set_property -dict {PACKAGE_PIN J1 IOSTANDARD LVCMOS33} [get_ports {led[2]}]
 set_property -dict {PACKAGE_PIN E1 IOSTANDARD LVCMOS33} [get_ports {led[3]}]
 
-## Push Buttons
-## btn[0] is reset button
+# Push Buttons
+# btn[0] is reset button
 #set_property -dict { PACKAGE_PIN D2    IOSTANDARD LVCMOS33 } [get_ports { btn[0] }]; #IO_L6P_T0_34 Sch=btn[0]
 set_property -dict { PACKAGE_PIN D1    IOSTANDARD LVCMOS33 } [get_ports { btn }]; #IO_L6N_T0_VREF_34 Sch=btn[1]
 
-#####################################################################################
-## to avoid warnings in implementation
-set_output_delay 0.000 [get_ports {{led[0]} {led[1]} {led[2]} {led[3]}}]
-
-## RGB LEDs 
-## Note: by trying the hardware: led0_g on F1, led0_b on F2 and led0_r on D3
+# RGB LEDs 
+# Note: by trying the hardware: led0_g on F1, led0_b on F2 and led0_r on D3
 set_property -dict { PACKAGE_PIN D3    IOSTANDARD LVCMOS33 } [get_ports { led0_r }]; #IO_L9N_T1_DQS_34 Sch=led0_g
 set_property -dict { PACKAGE_PIN F1    IOSTANDARD LVCMOS33 } [get_ports { led0_g }]; #IO_L10N_T1_34 Sch=led0_b
 set_property -dict { PACKAGE_PIN F2    IOSTANDARD LVCMOS33 } [get_ports { led0_b }]; #IO_L10P_T1_34 Sch=led0_r
-
-## compare with provided mapping
+# compare with provided mapping
 #set_property -dict { PACKAGE_PIN F1    IOSTANDARD LVCMOS33 } [get_ports { led0_b }]; #IO_L10N_T1_34 Sch=led0_b
 #set_property -dict { PACKAGE_PIN D3    IOSTANDARD LVCMOS33 } [get_ports { led0_g }]; #IO_L9N_T1_DQS_34 Sch=led0_g
 #set_property -dict { PACKAGE_PIN F2    IOSTANDARD LVCMOS33 } [get_ports { led0_r }]; #IO_L10P_T1_34 Sch=led0_r
 
-## USB UART
-## Note: Port names are from the perspective of the FPGA.
+# USB UART
+# Note: Port names are from the perspective of the FPGA.
 set_property -dict { PACKAGE_PIN L12   IOSTANDARD LVCMOS33 } [get_ports { uart_tx }]; #IO_L6N_T0_D08_VREF_14 Sch=uart_rxd_out
 set_property -dict { PACKAGE_PIN K15   IOSTANDARD LVCMOS33 } [get_ports { uart_rx }]; #IO_L5N_T0_D07_14 Sch=uart_txd_in
 
+# unknown input/output delays
+#set_false_path -through [get_ports led[0]]
+#set_false_path -through [get_ports led[1]]
+#set_false_path -through [get_ports led[2]]
+#set_false_path -through [get_ports led[3]]
+#set_false_path -through [get_ports led0_r]
+#set_false_path -through [get_ports led0_g]
+#set_false_path -through [get_ports led0_b]
+#set_false_path -through [get_ports uart_rx]
+#set_false_path -through [get_ports uart_tx]
 
 
 
