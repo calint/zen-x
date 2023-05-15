@@ -9,7 +9,6 @@
           => it overlaps the next cycle by 1ns. how to end the cycle as if there was no delay
             => delays are not synthesised 
 [ ]   ldi data can be loaded into register in a single cycle 
-[ ] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
@@ -19,6 +18,8 @@
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[-] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
+    => data segment needs to be copied from rom to ram
 [x] review messy code in UartRx and UartTx
       => UartTx saves a cycle and makes possible for baud rate to be clock frequency
       => UartTx reads the first 'tick' of the next state and needs to be compensated 
