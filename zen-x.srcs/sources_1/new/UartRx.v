@@ -94,7 +94,7 @@ always @(negedge clk) begin
         end
         endcase
         
-        if (bit_counter > 0) begin
+        if (bit_counter > 0) begin // ? y this check
             bit_counter <= bit_counter - 1;
         end
         
