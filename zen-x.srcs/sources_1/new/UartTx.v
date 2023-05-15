@@ -15,17 +15,16 @@ module UartTx #(
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
 
-localparam STATE_IDLE      = 0;
-localparam STATE_START_BIT = 1;
-localparam STATE_DATA_BITS = 2;
-localparam STATE_STOP_BIT  = 3;
+localparam STATE_IDLE         = 0;
+localparam STATE_START_BIT    = 1;
+localparam STATE_DATA_BITS    = 2;
+localparam STATE_STOP_BIT     = 3;
+localparam STATE_WAIT_GO_LOW  = 4;
 
-reg [$clog2(4)-1:0] state;
+reg [$clog2(5)-1:0] state;
 reg [$clog2(9)-1:0] bit_count;
 
 reg [(BIT_TIME == 1 ? 1 : $clog2(BIT_TIME))-1:0] bit_time_counter;
-
-reg go_prv;
 
 always @(negedge clk) begin
     if (rst) begin
@@ -34,19 +33,15 @@ always @(negedge clk) begin
         bit_time_counter <= 0;
         tx <= 1;
         bsy <= 0;
-        go_prv <= 0;
     end else begin
         case(state)
         STATE_IDLE: begin
-            if (go != go_prv) begin
-                go_prv <= go;
-                if (go) begin
-                    bsy <= 1;
-                    bit_count <= 0;
-                    bit_time_counter <= BIT_TIME - 1;
-                    tx <= 0; // start sending start bit
-                    state <= STATE_START_BIT;
-                end
+            if (go) begin
+                bsy <= 1;
+                bit_count <= 0;
+                bit_time_counter <= BIT_TIME - 1;
+                tx <= 0; // start sending start bit
+                state <= STATE_START_BIT;
             end
         end
         STATE_START_BIT: begin
@@ -76,9 +71,14 @@ always @(negedge clk) begin
         STATE_STOP_BIT: begin
             if (bit_time_counter == 0) begin
                 bsy <= 0;
-                state <= STATE_IDLE;
+                state <= STATE_WAIT_GO_LOW;
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
+            end
+        end
+        STATE_WAIT_GO_LOW: begin
+            if (!go) begin
+                state <= STATE_IDLE;
             end
         end
         endcase
