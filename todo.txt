@@ -1,4 +1,4 @@
-[ ] zenx: consolidate multiple steps and compare resources used on the board
+[ ] review messy code in UartRx and UartTx
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
@@ -19,6 +19,10 @@
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[x] zenx: consolidate multiple steps and compare resources used on the board
+      => uses slightly less resources. compare:
+         notes/screenshots/Screenshot from 2023-05-15 18-41-58.png
+         notes/screenshots/Screenshot from 2023-05-15 19-06-43.png
 [x] set baud rate to something low in the spirit of retro computers
       => 9600
 [x] review uart_tx => can operate at BAUD == CLOCK_FREQ
