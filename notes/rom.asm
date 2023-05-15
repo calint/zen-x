@@ -44,7 +44,7 @@ func input: # r1: bufptr, r2: buflen
         cp r9 r2 ret     # r2 = r9 ret
                          # 
 
-fun main:                
+func main:                
     ldi strbuf r11       # r11 = &strbuf
     ld r11 r1            # r1 = [r11]
     ldi strlen r11       # r11 = &strlen
