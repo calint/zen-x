@@ -42,9 +42,9 @@ always @(negedge clk) begin
         case(state)
         STATE_IDLE: begin
             led <= 0;
-            if (!rx && !go)
+            if (!rx && !go) // check if overrun
                 led[3] <= 1;
-            if (!rx && go) begin
+            if (!rx && go) begin // start receiving byte
                 bit_count <= 0;
                 if (BIT_TIME == 1) begin
                     // the start bit has been read, jump to data
@@ -68,7 +68,7 @@ always @(negedge clk) begin
             led <= 2;
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
-                bit_count = bit_count + 1;
+                bit_count = bit_count + 1; // ? NBA
                 bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
                 if (bit_count == 8) begin
                     bit_count <= 0;
