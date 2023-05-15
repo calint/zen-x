@@ -1,4 +1,3 @@
-[ ] review messy code in UartRx and UartTx
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
@@ -20,6 +19,11 @@
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[x] review messy code in UartRx and UartTx
+      => UartTx saves a cycle and makes possible for baud rate to be clock frequency
+      => UartTx reads the first 'tick' of the next state and needs to be compensated 
+         + can be run with baud rate being clock frequency
+      => somewhat messy but ok
 [x] zenx: consolidate multiple steps and compare resources used on the board
       => uses slightly less resources. compare:
          notes/screenshots/Screenshot from 2023-05-15 18-41-58.png

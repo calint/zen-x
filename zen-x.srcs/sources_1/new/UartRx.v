@@ -62,7 +62,7 @@ always @(negedge clk) begin
             led <= 1;
             if (bit_counter == 0) begin  // no check if rx==0 because there is no error recovery
                 bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
-                state <= STATE_DATA_BITS; // ? check rx==0
+                state <= STATE_DATA_BITS;
             end
         end
         STATE_DATA_BITS: begin
