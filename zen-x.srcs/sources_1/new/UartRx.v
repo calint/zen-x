@@ -42,8 +42,9 @@ always @(negedge clk) begin
         case(state)
         STATE_IDLE: begin
             led <= 0;
-            if (!rx && !go) // check if overrun
+            if (!rx && !go) begin // check if overrun
                 led[3] <= 1;
+            end
             if (!rx && go) begin // does the cpu wait for data and start bit has started?
                 bit_count <= 0;
                 if (BIT_TIME == 1) begin
