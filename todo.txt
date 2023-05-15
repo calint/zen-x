@@ -3,6 +3,7 @@
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] reduce instruction cycles where possible since rom and ram has 1 cycle latency
 [ ]   rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
+        https://support.xilinx.com/s/question/0D52E00006hpSrzSAE/100-ps-delay-for-block-memory-generator-63?language=en_US
 [ ]     => try adding a delay of 1ns in the always block
 [ ]       => it overlaps the next cycle by 1ns. how to end the cycle as if there was no delay
 [ ]   ldi data can be loaded into register in a single cycle 
@@ -11,7 +12,8 @@
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
 [ ] zenx: 1 cycle call
-[ ] consider having more cores sharing the same rom and ram, 2 cores can run on same dual port rom/ram
+[ ] consider having more cores sharing the same rom and ram
+      => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
