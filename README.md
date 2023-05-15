@@ -103,7 +103,7 @@ instruction executes according to:
  * zn=01 : negative number
 
 instructions with rc=10 return from call
-  does not apply on ldi and io* (todo)
+  does not apply on ldi (todo)
 
 how-to with Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
