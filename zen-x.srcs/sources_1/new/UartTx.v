@@ -43,7 +43,7 @@ always @(negedge clk) begin
                 if (go) begin
                     bsy <= 1;
                     bit_count <= 0;
-                    bit_time_counter <= BIT_TIME - 1; // ? half the BIT_TIME also works
+                    bit_time_counter <= BIT_TIME - 1;
                     tx <= 0; // start sending start bit
                     state <= STATE_START_BIT;
                 end
@@ -61,7 +61,7 @@ always @(negedge clk) begin
         STATE_DATA_BITS: begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1;
-                bit_count = bit_count + 1; // ? not NBA
+                bit_count = bit_count + 1;
                 if (bit_count == 8) begin
                     bit_count <= 0;
                     tx <= 1; // start sending stop bit
