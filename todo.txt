@@ -1,8 +1,5 @@
 [ ] zenx: consolidate multiple steps and compare resources used on the board
 [ ] implement 'ret' on 'ldi' and 'io*'
-[ ] set baud rate to something low in the spirit of retro computers
-[x] review uart_tx
-[x] review uart_rx
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
 [ ]   rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
@@ -18,6 +15,10 @@
 [ ] assembler webapp
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[x] set baud rate to something low in the spirit of retro computers
+      => 9600
+[x] review uart_tx => can operate at BAUD == CLOCK_FREQ
+[x] review uart_rx => can operate at BAUD == CLOCK_FREQ / 2
 [x] racing: at call Zn and Calls are racing for the zn-flags
       => Calls copies flags at posedge then Zn clears flags at negedge
       at return: Zn copies flags to 'next state' from Calls, Calls copies 'next state' from stack

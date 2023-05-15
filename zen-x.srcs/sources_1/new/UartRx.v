@@ -46,7 +46,8 @@ always @(negedge clk) begin
                 led[3] <= 1;
             if (!rx && go) begin
                 bit_count <= 0;
-                bit_counter <= BIT_TIME / 2 - 1;  // offset the sample time to the middle of the oversampling
+                 // get sample from half of the cycle
+                bit_counter <= BIT_TIME == 1 ? 0 : BIT_TIME / 2 - 1;
                 state <= STATE_START_BIT;
             end
         end
@@ -62,23 +63,19 @@ always @(negedge clk) begin
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
                 bit_count = bit_count + 1;
+                bit_counter <= BIT_TIME - 1;
                 if (bit_count == 8) begin
                     bit_count <= 0;
-                    bit_counter <= BIT_TIME / 2 - 1; // sample at half the cycle
                     state <= STATE_STOP_BITS;
-                end else begin
-                     bit_counter <= BIT_TIME - 1;
                 end
             end
         end
         STATE_STOP_BITS: begin
             led <= 3;
-            if (bit_counter == 0) begin
-                if (rx == 1) begin
-                    data <= data_reg;
-                    dr <= 1;
-                    state <= STATE_WAIT_GO_LOW;
-                end
+            if (bit_counter == 0 && rx == 1) begin // ? what if rx==0
+                data <= data_reg;
+                dr <= 1;
+                state <= STATE_WAIT_GO_LOW;
             end
         end
         STATE_WAIT_GO_LOW: begin
