@@ -261,7 +261,7 @@ always @(posedge clk) begin
                 regs_wd_sel <= 3; // select data to write to register from 'urx_reg_dat'
                 urx_regb_sel <= 1; // signal that 'regb' is 'urx_reg'
                 stp <= 1 << 1;
-            end
+            end // stp[5]
         end // stp[x]
     end // else rst
 end
