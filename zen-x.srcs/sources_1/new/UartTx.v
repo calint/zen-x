@@ -46,7 +46,7 @@ always @(negedge clk) begin
         end
         STATE_START_BIT: begin
             if (bit_time_counter == 0) begin
-                bit_time_counter <= BIT_TIME - 1;
+                bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of the first bit is being sent in this state
                 tx <= data[0]; // start sending first bit
                 state <= STATE_DATA_BITS;
             end else begin
@@ -55,7 +55,7 @@ always @(negedge clk) begin
         end
         STATE_DATA_BITS: begin
             if (bit_time_counter == 0) begin
-                bit_time_counter <= BIT_TIME - 1;
+                bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of next bit is sent in this state
                 bit_count = bit_count + 1;
                 if (bit_count == 8) begin
                     bit_count <= 0;
