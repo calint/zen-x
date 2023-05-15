@@ -20,8 +20,8 @@ localparam STATE_START_BIT = 1;
 localparam STATE_DATA_BITS  = 2;
 localparam STATE_STOP_BIT  = 3;
 
-reg [2:0] state;
-reg [3:0] bit_count;
+reg [$clog2(4)-1:0] state;
+reg [$clog2(9)-1:0] bit_count;
 
 reg [($clog2(BIT_TIME)>0?$clog2(BIT_TIME):1)-1:0] bit_time_counter;
 
