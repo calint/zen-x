@@ -7,10 +7,10 @@ module UartTx #(
 )(
     input wire rst,
     input wire clk,
-    input wire [7:0] data,
-    input wire go,
-    output reg tx,
-    output reg bsy
+    input wire [7:0] data, // data to send
+    input wire go, // enable to start transmission, disable after 'data' has been read
+    output reg tx, // uart tx wire
+    output reg bsy // enabled while sendng
 );
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
@@ -77,7 +77,7 @@ always @(negedge clk) begin
             end
         end
         STATE_WAIT_GO_LOW: begin
-            if (!go) begin
+            if (!go) begin // wait for acknowledge that 'data' has been sent
                 state <= STATE_IDLE;
             end
         end
