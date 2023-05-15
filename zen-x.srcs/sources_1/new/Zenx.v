@@ -225,7 +225,7 @@ always @(posedge clk) begin
                         endcase
                     end // is_alu_op else
                 end // io || is_alu 
-            end else begin // is_do_op, instruction will not execute
+            end else begin // !is_do_op, instruction will not execute
                 pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
                 stp <= 1 << 6; // to step 6
             end // is_do_top else
