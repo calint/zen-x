@@ -183,13 +183,13 @@ initial begin
     else $display("case 17 FAILED. expected 1, got %h", zx.regs.mem[7]); 
 
     // pc=28, zn=01
-    #clk_tk // 003c: ifzn skp 3 ; will not execute because zn!=00
+    #clk_tk // 003c: ifzn jmp 3 ; will not execute because zn!=00
     #clk_tk // wait for rom
     if (zx.pc==29) $display("case 18 passed");
     else $display("case 18 FAILED. expected 29, got %0d", zx.pc);
 
     // pc=29, zn=01
-    #clk_tk // 003f: ifzn skp 3
+    #clk_tk // 003f: ifzn jmp 3
     #clk_tk // wait for rom
     if (zx.pc==29+3) $display("case 19 passed");
     else $display("case 19 FAILED. expected 32, got %0d", zx.pc);

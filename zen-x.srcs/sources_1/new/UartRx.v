@@ -26,7 +26,6 @@ localparam STATE_WAIT_GO_LOW  = 4;
 reg [$clog2(5)-1:0] state;
 reg [$clog2(9)-1:0] bit_count;
 reg [$clog2(BIT_TIME)-1:0] bit_counter;
-reg rx_reg;
 reg [7:0] data_reg;
 
 always @(negedge clk) begin
@@ -62,22 +61,24 @@ always @(negedge clk) begin
             led <= 2;
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
-                bit_counter <= BIT_TIME - 1;
                 bit_count = bit_count + 1;
                 if (bit_count == 8) begin
                     bit_count <= 0;
+                    bit_counter <= BIT_TIME / 2 - 1; // sample at half the cycle
                     state <= STATE_STOP_BITS;
+                end else begin
+                     bit_counter <= BIT_TIME - 1;
                 end
             end
         end
         STATE_STOP_BITS: begin
             led <= 3;
             if (bit_counter == 0) begin
-                if (rx_reg == 1) begin
+                if (rx == 1) begin
                     data <= data_reg;
                     dr <= 1;
+                    state <= STATE_WAIT_GO_LOW;
                 end
-                state <= STATE_WAIT_GO_LOW; // ? even if rx_reg==0 ?
             end
         end
         STATE_WAIT_GO_LOW: begin
@@ -89,11 +90,10 @@ always @(negedge clk) begin
         end
         endcase
         
-        if (bit_counter > 0) begin // ? y this check
+        if (bit_counter > 0) begin
             bit_counter <= bit_counter - 1;
         end
         
-        rx_reg <= rx;
     end
 end
 

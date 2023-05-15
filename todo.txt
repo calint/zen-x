@@ -1,6 +1,8 @@
-[ ] review uart_tx
-[ ] review uart_rx
+[ ] zenx: consolidate multiple steps and compare resources used on the board
 [ ] implement 'ret' on 'ldi' and 'io*'
+[ ] set baud rate to something low in the spirit of retro computers
+[x] review uart_tx
+[x] review uart_rx
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] reduce instruction cycles where possible since rom has 1 cycle latency
 [ ]   rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
@@ -8,8 +10,8 @@
 [ ]       => it overlaps the next cycle by 1ns. how to end the cycle as if there was no delay
 [ ]   ldi data can be loaded into register in a single cycle 
 [ ] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
-[ ] zenx: 1 cycle jmp: always @* if (is_skp) pc = pc + {{(4){imm12[11]}}, imm12};
-          doesn't work because 'is_skp' is triggered by previous instruction (ldi data)
+[ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
+          doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram

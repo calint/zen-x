@@ -23,7 +23,7 @@ localparam CALLS_ADDR_WIDTH = 6; // 2**6 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
-localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value (imm4>=0?++imm4:-imm4)
+localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value
 localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
 localparam OP_LD   = 4'b0101; // load
 localparam OP_ST   = 4'b0111; // store
@@ -47,10 +47,10 @@ reg [3:0] ldi_reg; // register to write when 'ldi'
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
 
-// UartRx related (part 1)
-reg [REGISTERS_WIDTH-1:0] urx_reg_dat;
-reg urx_regb_sel;
-reg [3:0] urx_reg;
+// uart_rx related (part 1)
+reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register
+reg [3:0] urx_reg; // destination register
+reg urx_regb_sel; // enabled if 'urx_reg' is selected for 'regb'
 
 // instruction break down
 wire instr_z = instr[0]; // if enabled execute instruction if z-flag matches 'zn_zf' (also considering instr_n)
@@ -127,19 +127,21 @@ assign led0_b = 0;
 assign led0_g = (pc==61); // pc at finished in hang of rom
 assign led0_r = 0;
 */
+assign led0_b = 0;
+assign led0_r = 0;
 
-// UartTx related wiring
+// uart_tx related wiring
 reg [7:0] utx_dat; // data to send
 reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
 wire utx_bsy; // enabled while sending 
 
-// UartRx related wiring (part 2)
+// uart_rx related wiring (part 2)
 wire [7:0] urx_dat; // last read byte
 wire urx_dr; // enabled when data ready
 reg urx_go; // enable to start receiving, disable after data received to acknowledge
 reg urx_reg_hilo; // read into high or low byte of the register
 
-reg [15:0] stp; // instruction execution state
+reg [15:0] stp; // state of instruction execution
 
 always @(negedge clk) begin
     if (rst) begin
@@ -221,9 +223,9 @@ always @(posedge clk) begin
                         end
                         default: $display("!!! unknown instruction");
                         endcase
-                    end // else is_alu_op || io
-                end // call || jmp || io || is_alu || ldi || st || ld 
-            end else begin // !is_do_op, instruction will not execute
+                    end // is_alu_op else
+                end // io || is_alu 
+            end else begin // is_do_op, instruction will not execute
                 pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
                 stp <= 1 << 6; // to step 6
             end // is_do_top else
