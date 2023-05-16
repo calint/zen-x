@@ -73,8 +73,10 @@ wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
 // enabled if instruction will execute
 wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf == instr_z && zn_nf == instr_n));
 
+// enabled if c && r which means 'jmp'
+wire is_jmp = instr_c && instr_r;
+
 // Calls related wiring (part 1)
-wire is_cr = instr_c && instr_r; // enabled if c && r which means it is 'skp'
 wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on 'Calls'
 wire cs_call = is_cs_op && instr_c; // enabled if instruction is 'call'
 wire cs_ret = is_cs_op && instr_r; // enabled if 'return'
@@ -89,7 +91,7 @@ wire [REGISTERS_WIDTH-1:0] regs_dat_b; // regs[b]
 
 // ALU related wiring
 wire [REGISTERS_WIDTH-1:0] alu_result;
-wire is_alu_op = !is_ldi && !is_cr && !cs_call && (!op[0] || op == OP_ADDI);
+wire is_alu_op = !is_ldi && !is_jmp && !cs_call && (!op[0] || op == OP_ADDI);
 wire [2:0] alu_op = 
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
@@ -177,7 +179,7 @@ always @(posedge clk) begin
                 if (cs_call) begin // call
                     pc <= imm12 << 4; // set 'pc'
                     stp <= 1 << 1; 
-                end else if (is_cr) begin // jmp
+                end else if (is_jmp) begin // jmp
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
                     stp <= 1 << 1;
                 end else begin
@@ -226,7 +228,7 @@ always @(posedge clk) begin
                     end // is_alu_op else
                 end // io || is_alu 
             end else begin // !is_do_op, instruction will not execute
-                pc <= pc + (!is_cr && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
+                pc <= pc + (!is_jmp && !cs_call && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
                 stp <= 1 << 1;
             end // is_do_top else
         end else if(stp[1]) begin // wait one cycle for rom and disable controls
