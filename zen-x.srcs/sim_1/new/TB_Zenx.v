@@ -45,7 +45,7 @@ Zenx #(
 );
 
 initial begin
-    $display(" ROM file loaded from '%s'", ROM_FILE);
+    $display("ROM '%s'", ROM_FILE);
     #rst_dur
     rst = 0;
     
