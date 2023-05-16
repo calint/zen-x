@@ -14,7 +14,7 @@ pre pipeline
                           
                        z   n - r   c      vintage 16 bit cpu
                        e   e   e   a 
-                       r   g   t   l      32K 16 bit instructions
+                       r   g   t   l      64K 16 bit instructions
                        o   a   u   l      64K 16 bit data
                            t   r          16  16 bit registers
                            i   n          64  calls stack

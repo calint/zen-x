@@ -17,8 +17,8 @@ module Zenx #(
     input wire uart_rx
 );
 
-localparam ROM_ADDR_WIDTH = 15; // 2**16 32K instructions
-localparam RAM_ADDR_WIDTH = 16; // 2**16 data addresses
+localparam ROM_ADDR_WIDTH = 16; // 2**16 64K instructions
+localparam RAM_ADDR_WIDTH = 16; // 2**16 64K data addresses
 localparam CALLS_ADDR_WIDTH = 6; // 2**6 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
@@ -265,11 +265,21 @@ always @(posedge clk) begin
         end // stp[x]
     end // else rst
 end
-
+/*
 BlockROM rom ( // 32K x 16b
     .clka(clk),
     .addra(pc),
     .douta(instr)
+);
+*/
+
+ROM #(
+    ROM_ADDR_WIDTH,
+    REGISTERS_WIDTH
+) rom ( // 64K x 16b
+    .clk(clk),
+    .addr(pc),
+    .dout(instr)
 );
 
 Calls #(
@@ -326,13 +336,25 @@ Zn zn (
     .zf(zn_zf),
     .nf(zn_nf)
 );
-
+/*
 BlockRAM ram ( // 64K x 16b
     .clka(clk),
     .wea(ram_we),
     .addra(regs_dat_a),
     .dina(regs_dat_b),
     .douta(ram_dat_out)
+);
+*/
+
+RAM #(
+    RAM_ADDR_WIDTH,
+    REGISTERS_WIDTH
+) ram ( // 64K x 16b
+    .clk(clk),
+    .we(ram_we),
+    .addr(regs_dat_a),
+    .din(regs_dat_b),
+    .dout(ram_dat_out)
 );
 
 UartTx #(
