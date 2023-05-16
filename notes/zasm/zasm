@@ -12,11 +12,62 @@ public class ReadFileToString {
         Tokenizer tz = new Tokenizer(src_in);
         StringBuilder src_out = new StringBuilder();
         while(true){
-            Token tk = tz.nextToken();
-            System.out.println(tk.toSource());
-            src_out.append(tk.toSource());
-            if (tk.isEmpty())
+            Token zn = tz.nextToken();
+            if(zn.id().endsWith(":")){
+                stmts.add(new Label(zn));
+                continue;
+            }
+            if(zn.isId("#")){
+                stmts.add(new Comment(zn,tz));
+                continue;
+            }
+            Token id = null;
+            if (zn.isId("ifz")||zn.isId("ifn")||zn.isId("ifp")) {
+                id = tz.nextToken();
+                if(id.isEmpty())
+                    throw new Exception(id.sourcePos()+": unexpected end of file");
+            }
+            if (zn.isEmpty()){
+                stmts.add(new Eof(zn));
                 break;
+            }
+            if(id==null){
+                id = zn;
+                zn = null;
+            }
+            if(id.isId("ldi")){
+                stmts.add(new OpLdi(zn,id,tz));
+            } else if(id.isId("st")){
+                stmts.add(new OpSt(zn,id,tz));
+            } else if(id.isId("ld")){
+                stmts.add(new OpLd(zn,id,tz));
+            } else if(id.isId("addi")){
+                stmts.add(new OpAddi(zn,id,tz));
+            } else if(id.isId("add")){
+                stmts.add(new OpAdd(zn,id,tz));
+            } else if(id.isId("or")){
+                stmts.add(new OpOr(zn,id,tz));
+            } else if(id.isId("xor")){
+                stmts.add(new OpXor(zn,id,tz));
+            } else if(id.isId("and")){
+                stmts.add(new OpAnd(zn,id,tz));
+            } else if(id.isId("not")){
+                stmts.add(new OpNot(zn,id,tz));
+            } else if(id.isId("cp")){
+                stmts.add(new OpCp(zn,id,tz));
+            } else if(id.isId("shf")){
+                stmts.add(new OpShf(zn,id,tz));
+            } else if(id.isId("jmp")){
+                stmts.add(new OpJmp(zn,id,tz));
+            } else if(id.isId("call")){
+                stmts.add(new OpJmp(zn,id,tz));
+            } else {
+                throw new Exception(id.sourcePos()+": unknown instruction '"+id.id()+"'");
+            }
+        }
+        for(var st:stmts){
+            System.out.print(st.toSource());
+            src_out.append(st.toSource());
         }
         Path file_diff = Paths.get("diff");
         String src = src_out.toString();
@@ -27,16 +78,263 @@ public class ReadFileToString {
     }
 }
 
+public class Eof extends Statement {
+    private Token tk;
+
+    public Eof(Token tk) {
+        super(null,tk);
+    }
+}
+
+public class Label extends Statement {
+    private Token nm;
+
+    public Label(Token nm) {
+        super(null,nm);
+    }
+}
+
+public class Comment extends Statement {
+    private Token tk;
+    private String txt;
+
+    public Comment(Token tk, Tokenizer tz) {
+        super(null,tk);
+        txt = tz.readComment();
+    }
+
+    public String toSource() {
+        return super.toSource()+txt;
+    }
+}
+
+public class OpCall extends Statement {
+    private Token lbl;
+
+    public OpCall(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        lbl = tz.nextToken();
+    }
+
+    public String toSource() {
+        return super.toSource()+lbl.toSource();
+    }
+}
+
+public class OpJmp extends Statement {
+    private Token lbl;
+
+    public OpJmp(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        lbl = tz.nextToken();
+    }
+
+    public String toSource() {
+        return super.toSource()+lbl.toSource();
+    }
+}
+
+public class OpShf extends Statement {
+    private Token imm4;
+    private Token regb;
+
+    public OpShf(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        imm4 = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+imm4.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpCp extends Statement {
+    private Token rega;
+    private Token regb;
+
+    public OpCp(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpNot extends Statement {
+    private Token rega;
+    private Token regb;
+
+    public OpNot(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpAnd extends Statement {
+    private Token rega;
+    private Token regb;
+
+    public OpAnd(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpXor extends Statement {
+    private Token rega;
+    private Token regb;
+
+    public OpXor(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpOr extends Statement {
+    private Token rega;
+    private Token regb;
+    public OpOr(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpAdd extends Statement {
+    private Token rega;
+    private Token regb;
+    public OpAdd(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpAddi extends Statement {
+    private Token imm4;
+    private Token regb;
+    public OpAddi(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        imm4 = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+imm4.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpLd extends Statement {
+    private Token rega;
+    private Token regb;
+    public OpLd(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpSt extends Statement {
+    private Token rega;
+    private Token regb;
+    public OpSt(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpLdi extends Statement {
+    private Token regb;
+    private Token imm16;
+    public OpLdi(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        regb = tz.nextToken();
+        imm16 = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+regb.toSource()+imm16.toSource()+toSourceRet();
+    }
+}
+
 public class Statement {
     private Token tk;
     private Token zn;
+    private Token ret;
+
     public Statement(Token zn, Token tk) {
         this.zn = zn;
         this.tk = tk;
     }
 
-    public String toString() {
-        return zn+" "+tk;
+    void readOptionalRet(Tokenizer tz) {
+        Token tk = tz.nextToken();
+        if(tk.isId("ret")) {
+            ret = tk;
+        } else {
+            tz.pushBackToken(tk);
+        }
+
+    }
+    void setRet(Token r) {
+        ret = r;
+    }
+
+    public String toSource() {
+        return (zn==null?"":zn.toSource())+tk.toSource();
+    }
+
+    public String toSourceRet() {
+        if(ret==null)
+            return "";
+        return ret.toSource();
     }
 }
 
@@ -48,8 +346,10 @@ public class Token {
     private int pos_strt;
     private int pos_end;
     private int pos_ws_rht;
+    private int linenm;
+    private int charnm;
 
-    public Token(String id, String ws_lft, String ws_rht, int pos_ws_lft, int pos_strt, int pos_end, int pos_ws_rht) {
+    public Token(String id, String ws_lft, String ws_rht, int pos_ws_lft, int pos_strt, int pos_end, int pos_ws_rht,int linenm, int charnm) {
         this.id = id;
         this.ws_lft = ws_lft;
         this.ws_rht = ws_rht;
@@ -57,25 +357,42 @@ public class Token {
         this.pos_strt = pos_strt;
         this.pos_end = pos_end;
         this.pos_ws_rht = pos_ws_rht;
+        this.linenm = linenm;
+        this.charnm = charnm;
     }
+
     public String toSource() {
         return ws_lft.toString() + id.toString() + ws_rht.toString();
+    }
+
+    public String toDebug() {
+        return linenm+":"+charnm+": "+id;
     }
 
     public boolean isEmpty() {
         return id.length() == 0;
     }
 
-    public boolean idIs(String s) {
+    public boolean isId(String s) {
         return id.equals(s);
     }
 
     public String id() {return id;}
+
+    public String sourcePos() {
+        return linenm+":"+charnm;
+    }
+
+    public int totalNChars() {
+        return pos_ws_rht-pos_ws_lft;
+    }
 }
 
 public class Tokenizer {
     private String src;
     private int pos;
+    private int linenm = 1; // current line number
+    private int charnm = 1; // character number on current line
 
     public Tokenizer(String src) {
         this.src = src;
@@ -99,21 +416,29 @@ public class Tokenizer {
             if (Character.isWhitespace(ch)) {
                 sb_ws_lft.append(ch);
                 p++;
+                if (ch=='\n') {
+                    linenm++;
+                    charnm=1;
+                } else {
+                    charnm++;
+                }
                 continue;
             }
             break;
         }
         pos_strt = p;
+        int token_linenm = linenm;
+        int token_charnm = charnm;
         while(true) {
             if (p==src.length())
                 break;
             char ch = src.charAt(p);
-            if (!Character.isWhitespace(ch)) {
-                sb_id.append(ch);
-                p++;
-                continue;
-            }
-            break;
+            if (Character.isWhitespace(ch))
+                break;
+            sb_id.append(ch);
+            p++;
+            charnm++;
+            continue;
         }
         pos_end = p;
         while(true) {
@@ -123,14 +448,61 @@ public class Tokenizer {
             if (Character.isWhitespace(ch)) {
                 sb_ws_rht.append(ch);
                 p++;
-                if(ch=='\n')
+                if (ch=='\n') {
+                    linenm++;
+                    charnm=1;
                     break;
+                } else {
+                    charnm++;
+                }
                 continue;
             }
             break;
         }
         pos_ws_rht = p;
         pos = p;
-        return new Token(sb_id.toString(),sb_ws_lft.toString(),sb_ws_rht.toString(),pos_ws_lft,pos_strt,pos_end,pos_ws_rht);
+        Token tk = new Token(sb_id.toString(),sb_ws_lft.toString(),sb_ws_rht.toString(),pos_ws_lft,pos_strt,pos_end,pos_ws_rht,token_linenm,token_charnm);
+       // System.out.println(tk.toDebug());
+        return tk;
+    }
+
+    void pushBackToken(Token tk) {
+        int nchars = tk.totalNChars();
+        while(nchars--!=0){
+            pos--;
+            if(src.charAt(pos)=='\n'){
+                linenm--;
+                charnm = findCharNmInCurrentLine();
+            }else{
+                charnm--;
+            }
+        }
+    }
+
+    private int findCharNmInCurrentLine(){
+        // ldi r3 0x0001\nadd_
+        int n = 0;
+        int p = pos;
+        while(true) {
+            if (src.charAt(p)=='\n'){
+                return pos-p;
+            }
+            p--;
+            if(p==0){
+                return pos;
+            }
+        }
+    }
+
+    public String readComment() {
+        StringBuilder sb = new StringBuilder();
+        while(true){
+            char ch = src.charAt(pos);
+            sb.append(ch);
+            pos++;
+            if(ch=='\n' || pos==src.length()){
+                return sb.toString();
+            }
+        }
     }
 }
