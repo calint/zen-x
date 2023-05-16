@@ -1,0 +1,136 @@
+#!/usr/bin/java --source 11
+
+import java.nio.file.*;
+import java.util.*;
+import java.nio.charset.*;
+
+public class ReadFileToString {
+    private static ArrayList<Statement> stmts = new ArrayList<>();
+
+    public static void main(String[] args) throws Throwable {
+        String src_in = Files.readString(Paths.get(args.length == 0 ? "rom.asm" : args[0]));
+        Tokenizer tz = new Tokenizer(src_in);
+        StringBuilder src_out = new StringBuilder();
+        while(true){
+            Token tk = tz.nextToken();
+            System.out.println(tk.toSource());
+            src_out.append(tk.toSource());
+            if (tk.isEmpty())
+                break;
+        }
+        Path file_diff = Paths.get("diff");
+        String src = src_out.toString();
+        Files.write(file_diff, src.getBytes(StandardCharsets.UTF_8));
+        if(!src.toString().equals(src_in)) {
+            System.out.println("!!! source and parsed source differ. See file 'diff'");
+        }
+    }
+}
+
+public class Statement {
+    private Token tk;
+    private Token zn;
+    public Statement(Token zn, Token tk) {
+        this.zn = zn;
+        this.tk = tk;
+    }
+
+    public String toString() {
+        return zn+" "+tk;
+    }
+}
+
+public class Token {
+    private String ws_lft;
+    private String id;
+    private String ws_rht;
+    private int pos_ws_lft;
+    private int pos_strt;
+    private int pos_end;
+    private int pos_ws_rht;
+
+    public Token(String id, String ws_lft, String ws_rht, int pos_ws_lft, int pos_strt, int pos_end, int pos_ws_rht) {
+        this.id = id;
+        this.ws_lft = ws_lft;
+        this.ws_rht = ws_rht;
+        this.pos_ws_lft = pos_ws_lft;
+        this.pos_strt = pos_strt;
+        this.pos_end = pos_end;
+        this.pos_ws_rht = pos_ws_rht;
+    }
+    public String toSource() {
+        return ws_lft.toString() + id.toString() + ws_rht.toString();
+    }
+
+    public boolean isEmpty() {
+        return id.length() == 0;
+    }
+
+    public boolean idIs(String s) {
+        return id.equals(s);
+    }
+
+    public String id() {return id;}
+}
+
+public class Tokenizer {
+    private String src;
+    private int pos;
+
+    public Tokenizer(String src) {
+        this.src = src;
+    }
+
+    public Token nextToken() {
+        int pos_ws_lft;
+        int pos_strt;
+        int pos_end;
+        int pos_ws_rht;
+        StringBuilder sb_ws_lft = new StringBuilder();
+        StringBuilder sb_id = new StringBuilder();
+        StringBuilder sb_ws_rht = new StringBuilder();
+ 
+        int p = pos;
+        pos_ws_lft = p;
+        while(true) {
+            if (p==src.length())
+                break;
+            char ch = src.charAt(p);
+            if (Character.isWhitespace(ch)) {
+                sb_ws_lft.append(ch);
+                p++;
+                continue;
+            }
+            break;
+        }
+        pos_strt = p;
+        while(true) {
+            if (p==src.length())
+                break;
+            char ch = src.charAt(p);
+            if (!Character.isWhitespace(ch)) {
+                sb_id.append(ch);
+                p++;
+                continue;
+            }
+            break;
+        }
+        pos_end = p;
+        while(true) {
+            if (p==src.length())
+                break;
+            char ch = src.charAt(p);
+            if (Character.isWhitespace(ch)) {
+                sb_ws_rht.append(ch);
+                p++;
+                if(ch=='\n')
+                    break;
+                continue;
+            }
+            break;
+        }
+        pos_ws_rht = p;
+        pos = p;
+        return new Token(sb_id.toString(),sb_ws_lft.toString(),sb_ws_rht.toString(),pos_ws_lft,pos_strt,pos_end,pos_ws_rht);
+    }
+}
