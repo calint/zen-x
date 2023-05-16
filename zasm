@@ -86,8 +86,8 @@ public class ReadFileToString {
 
     Path file_diff = Paths.get("diff");
     String src = src_out.toString();
-    Files.write(file_diff, src.getBytes(StandardCharsets.UTF_8));
     if (!src.toString().equals(src_in)) {
+      Files.write(file_diff, src.getBytes(StandardCharsets.UTF_8));
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
     //        String compiled = toc.toHexString();
