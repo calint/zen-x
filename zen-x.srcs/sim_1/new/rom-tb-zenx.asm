@@ -1,28 +1,28 @@
     ldi 0x1234 r1
     ldi 0xabcd r2
     ldi 0xffff r3
-    st r2 r1 # ram[0xabcd]=0x1234
-    st r1 r3
-    ld r2 r6
-    ld r1 r4
-    st r3 r1
-    ld r3 r5
-    addi 1 r4
-    addi -1 r4
-    add r3 r4
-    sub r3 r4
-    or r4 r6
-    xor r6 r6
-    and r4 r6
-    not r4 r6
-    cp r1 r6
-    shf 1 r6
-    shf -1 r6
-    ifz ldi 0x0001 r7
-    cp r4 r4
-    ifn ldi 0x0001 r7
-    ifp jmp lbl1
-    jmp lbl1
+    st r2 r1        # ram[0xabcd]=0x1234
+    st r1 r3        # ram[0x1234]=0xffff
+    ld r2 r6        # r6=ram[0xabcd] == 0x1234
+    ld r1 r4        # r4=ram[0x1234] == 0xffff
+    st r3 r1        # ram[0xffff]=0x1234
+    ld r3 r5        # r5=ram[0xffff] == 0x1234
+    addi 1 r4       # r4 == 0
+    addi -1 r4      # r4 == 0xffff
+    add r3 r4       # 
+    sub r3 r4       # r4 == 0xffff
+    or r4 r6        # r6 == 0xffff
+    xor r6 r6       # r6 == 0
+    and r4 r6       # r6 == 0
+    not r4 r6       # r6 == 0
+    cp r1 r6        # r6 == 0x1234
+    shf 1 r6        #
+    shf -1 r6       # r6 = 0x1234
+    ifz ldi 0x0001 r7 # z!=1 => does not execute
+    cp r4 r4        # r4 = 0xffff
+    ifn ldi 0x0001 r7 # n==1 r7=0x0001
+    ifp jmp lbl1      # zn!=00 => does not execute
+    jmp lbl1          # 
     ifp add r0 r0 # 0x000 
     ifp add r0 r0 # 0x000
 
