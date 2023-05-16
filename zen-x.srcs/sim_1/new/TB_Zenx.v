@@ -210,11 +210,15 @@ initial begin
     //  8: 0x0000
     #clk_tk // 003b: call 0x0030
     #clk_tk
-    // pc=48, zn=00
+    // pc=48, zn=00    
     if (zx.pc==48) $display("case 20 passed");
     else $display("case 20 FAILED. expected 48, got %0d", zx.pc);
+    if (zx.cs.pc_out==32) $display("case 21.1 passed");
+    else $display("case 21.1 FAILED. expected 32 got %0d", zx.cs.pc_out);
     if (!zx.zn_zf && !zx.zn_nf) $display("case 21 passed");
     else $display("case 21 FAILED. expected 0, 0 got %0d, %0d", zx.zn_zf, zx.zn_nf);
+    if (!zx.cs.zf_out && zx.cs.nf_out) $display("case 22 passed");
+    else $display("case 22 FAILED. expected 0, 1 got %0d, %0d", zx.cs.zf_out, zx.cs.nf_out);
     
     #clk_tk // 8117: addi 0 r8 ret
     #clk_tk //
