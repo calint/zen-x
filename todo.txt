@@ -1,3 +1,6 @@
+[o] assembler webapp
+      => one file java executable, happy path implemented
+[ ]   write hex with source annotations
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
@@ -15,8 +18,6 @@
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
-[o] assembler webapp
-      => one file java executable, happy path implemented
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [-] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
