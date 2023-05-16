@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000000 us"></ZoomStartTime>
-      <ZoomEndTime time="10.000001 us"></ZoomEndTime>
-      <Cursor1Time time="6.971609 us"></Cursor1Time>
+      <ZoomStartTime time="572.750 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,258.251 ns"></ZoomEndTime>
+      <Cursor1Time time="1,144.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="112"></NameColumnWidth>
+      <NameColumnWidth column_width="108"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="41" />
+   <WVObjectSize size="40" />
    <wvobject type="logic" fp_name="/TB_Zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -29,17 +29,13 @@
       <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/pc">
-      <obj_property name="ElementShortName">pc[14:0]</obj_property>
-      <obj_property name="ObjectShortName">pc[14:0]</obj_property>
+      <obj_property name="ElementShortName">pc[15:0]</obj_property>
+      <obj_property name="ObjectShortName">pc[15:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/instr">
       <obj_property name="ElementShortName">instr[15:0]</obj_property>
       <obj_property name="ObjectShortName">instr[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/TB_Zenx/zx/rom/douta">
-      <obj_property name="ElementShortName">douta[15:0]</obj_property>
-      <obj_property name="ObjectShortName">douta[15:0]</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/is_do_op">
       <obj_property name="ElementShortName">is_do_op</obj_property>
@@ -102,10 +98,6 @@
       <obj_property name="ElementShortName">is_alu_op</obj_property>
       <obj_property name="ObjectShortName">is_alu_op</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_clr">
-      <obj_property name="ElementShortName">zn_clr</obj_property>
-      <obj_property name="ObjectShortName">zn_clr</obj_property>
-   </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_zf">
       <obj_property name="ElementShortName">zn_zf</obj_property>
       <obj_property name="ObjectShortName">zn_zf</obj_property>
@@ -113,6 +105,10 @@
    <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_nf">
       <obj_property name="ElementShortName">zn_nf</obj_property>
       <obj_property name="ObjectShortName">zn_nf</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_clr">
+      <obj_property name="ElementShortName">zn_clr</obj_property>
+      <obj_property name="ObjectShortName">zn_clr</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/TB_Zenx/zx/zn_sel">
       <obj_property name="ElementShortName">zn_sel</obj_property>

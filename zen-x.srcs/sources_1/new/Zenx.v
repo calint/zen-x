@@ -19,8 +19,8 @@ module Zenx #(
 
 localparam ROM_ADDR_WIDTH = 16; // 2**16 64K instructions
 localparam RAM_ADDR_WIDTH = 16; // 2**16 64K data addresses
-localparam CALLS_ADDR_WIDTH = 6; // 2**6 stack
-localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 registers (not changable since register address encoded in instruction using 4 bits) 
+localparam CALLS_ADDR_WIDTH = 6; // 2**6 64 stack
+localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 16 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
 localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value
