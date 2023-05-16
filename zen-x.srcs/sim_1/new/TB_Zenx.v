@@ -8,10 +8,10 @@ localparam CLK_FREQ = 66_000_000;
 localparam BAUD_RATE = CLK_FREQ >> 1; // may be CLK_FREQ
 localparam UART_TICKS_PER_BIT = CLK_FREQ / BAUD_RATE;
 
-parameter clk_tk = 10;
+localparam clk_tk = 16;
 //parameter clk_tk = 1_000_000_000 / CLK_FREQ;
 // 100+ns of power-on delay in Verilog simulation due to the under-the-hood assertion of Global Set/Reset signal.
-parameter rst_dur = 200;
+localparam rst_dur = 200;
 
 reg clk = 0;
 always #(clk_tk/2) clk = ~clk;
