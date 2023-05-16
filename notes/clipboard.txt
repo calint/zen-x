@@ -12,3 +12,5 @@ cat w/zen-x/todo.txt | socat - /dev/ttyUSB1,cs8,b4800,raw
 -------------------------------------------------------------
 stty -F /dev/ttyUSB1 9600 cs8 -cstopb -parenb
 -------------------------------------------------------------
+java -jar ~/Downloads/google-java-format-1.17.0-all-deps.jar -i zasm.java
+-------------------------------------------------------------

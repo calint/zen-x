@@ -32,8 +32,8 @@ lbl1:
     ifz call x0040
     ifp ldi 0x0040 r9
     ifz ldi 0x0040 r9
-    ifp jmp x00a
-    ifz jmp x009
+    ifp jmp x007
+    ifz jmp x007
     ifn call x0050
     jmp x007
 
@@ -45,8 +45,6 @@ lbl1:
  
 x0030: func
     addi 1 r8 ret
-x00a:
-x009:
 x007:
     ldi 0x4548 r9
     wl r9

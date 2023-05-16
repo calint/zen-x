@@ -105,6 +105,8 @@ instruction executes according to:
 instructions with rc=10 return from call
   does not apply on ldi (todo)
 
+assembler provided. 'zasm' to compile. see 'rom.asm' for sample code.
+
 how-to with Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device

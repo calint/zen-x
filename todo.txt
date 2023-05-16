@@ -1,6 +1,6 @@
 [o] assembler webapp
       => one file java executable, happy path implemented
-[ ]   write hex with source annotations
+[o]   write hex with source annotations => no comments, no labels, just program counter and source position + trimmed source
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
