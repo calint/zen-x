@@ -14,6 +14,13 @@ module RAM #(
 
 reg [WIDTH-1:0] mem [0:2**ADDR_WIDTH-1];
 
+integer i;
+initial begin
+    for (i = 0; i < 2**ADDR_WIDTH; i = i + 1) begin
+        mem[i] = 0;
+    end
+end
+
 always @(posedge clk) begin
     if (we) begin
         mem[addr] <= din;
