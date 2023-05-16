@@ -1,6 +1,7 @@
 [o] assembler webapp
       => one file java executable, happy path implemented
 [o]   write hex with source annotations => no comments, no labels, just program counter and source position + trimmed source
+[ ] emulator webapp
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
@@ -11,6 +12,7 @@
         => try adding a delay of 1ns in the always block
           => it overlaps the next cycle by 1ns. how to end the cycle as if there was no delay
             => delays are not synthesised 
+      => rom data has to arrive first before any other module processes posedge or else there is racing
 [ ]   ldi data can be loaded into register in a single cycle 
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
@@ -18,7 +20,6 @@
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
-[ ] emulator webapp
 ------------------------------------------------------------------------------
 [-] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
     => data segment needs to be copied from rom to ram
