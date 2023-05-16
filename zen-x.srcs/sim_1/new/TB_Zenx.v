@@ -4,6 +4,7 @@
 
 module TB_Zenx;
 
+localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/rom-tb-zenx.hex";
 localparam CLK_FREQ = 66_000_000;
 localparam BAUD_RATE = CLK_FREQ >> 1; // may be CLK_FREQ
 localparam UART_TICKS_PER_BIT = CLK_FREQ / BAUD_RATE;
@@ -28,6 +29,7 @@ reg uart_rx = 1;
 integer i;
 
 Zenx #(
+    ROM_FILE,
     CLK_FREQ,
     BAUD_RATE
 ) zx (
@@ -43,6 +45,7 @@ Zenx #(
 );
 
 initial begin
+    $display(" ROM file loaded from '%s'", ROM_FILE);
     #rst_dur
     rst = 0;
     

@@ -3,8 +3,9 @@
 //`define DBG
 
 module Zenx #(
+    parameter ROM_FILE = "/home/c/w/zen-x/rom.hex",
     parameter CLK_FREQ = 66_000_000,
-    parameter BAUD_RATE = 9600  
+    parameter BAUD_RATE = 9600
 )(
     input wire rst,
     input wire clk,
@@ -275,6 +276,7 @@ BlockROM rom ( // 32K x 16b
 */
 
 ROM #(
+    ROM_FILE,
     ROM_ADDR_WIDTH,
     REGISTERS_WIDTH
 ) rom ( // 64K x 16b

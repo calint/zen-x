@@ -2,6 +2,7 @@
 `default_nettype none
  
 module ROM #(
+    parameter DATA_FILE = "/home/c/w/zen-x/rom.hex",
     parameter ADDR_WIDTH = 16,
     parameter WIDTH = 16
 )(
@@ -13,7 +14,7 @@ module ROM #(
 reg [WIDTH-1:0] mem [0:2**ADDR_WIDTH-1];
 
 initial begin
-    $readmemh("/home/c/w/zen-x/rom.hex", mem);
+    $readmemh(DATA_FILE, mem);
 end
 
 always @(posedge clk) begin
