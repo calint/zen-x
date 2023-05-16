@@ -23,7 +23,7 @@ localparam CALLS_ADDR_WIDTH = 6; // 2**6 64 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 16 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
-localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value
+localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value where imm4>=0?++imm4:-imm4
 localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
 localparam OP_LD   = 4'b0101; // load
 localparam OP_ST   = 4'b0111; // store
@@ -36,7 +36,7 @@ localparam ALU_XOR = 3'b011; // bitwise xor
 localparam ALU_AND = 3'b100; // bitwise and
 localparam ALU_NOT = 3'b101; // bitwise not
 localparam ALU_CP  = 3'b110; // copy
-localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value
+localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value where imm4>=0?++imm4:-imm4
 
 reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 
@@ -58,13 +58,13 @@ wire instr_n = instr[1]; // if enabled execute instruction if n-flag matches 'zn
 // both 'instr_z' and 'instr_n' enabled means execute instruction without considering flags 
 wire instr_r = instr[2]; // if enabled returns from current 'call'
 wire instr_c = instr[3]; // if enabled 'call'
-// note. instr_r && instr_c is 'skp' which jumps to 'pc' + signed immediate 12 bits
+// note. instr_r && instr_c is 'jmp': 'pc' + signed immediate 12 bits
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
 wire [3:0] regb =
-    is_ldi ? ldi_reg : 
-    urx_regb_sel ? urx_reg : // if reading from uart select the destination register
-    instr[15:12]; // address of 'regb' or register to be loaded by immediate 16 bits
+    is_ldi ? ldi_reg : // if loading instruction data into register
+    urx_regb_sel ? urx_reg : // if reading from uart
+    instr[15:12]; // address of 'regb'
 wire [11:0] imm12 = instr[15:4];
 
 // Zn related wiring (part 1)
@@ -96,12 +96,11 @@ wire [2:0] alu_op =
     op == OP_ADDI ? ALU_ADD : // 'addi' is add with signed immediate value 'rega'
     op[3:1]; // same as upper 3 bits of op
 wire [REGISTERS_WIDTH-1:0] alu_operand_a =
-    op == OP_SHF ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : 
-    op == OP_ADDI ? rega[3] ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : {{(REGISTERS_WIDTH-4){1'b0}},rega} + 1 :
+    op == OP_SHF || op == OP_ADDI ? (rega[3] ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : {{(REGISTERS_WIDTH-4){1'b0}},rega} + 1) : 
     regs_dat_a; // otherwise regs[a]
 
 // RAM related wiring and registers
-reg ram_we; // write enable
+reg ram_we; // enabled when 'reg_dat_b' is written to ram address 'rega_dat_a'
 wire [REGISTERS_WIDTH-1:0] ram_dat_out; // current data at address 'reg_dat_a'
 
 // Registers related wiring (part 2)
