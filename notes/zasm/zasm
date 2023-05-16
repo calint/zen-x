@@ -8,13 +8,14 @@ public class ReadFileToString {
     private static ArrayList<Statement> stmts = new ArrayList<>();
 
     public static void main(String[] args) throws Throwable {
-        String src_in = Files.readString(Paths.get(args.length == 0 ? "rom.asm" : args[0]));
+        String src_path = args.length == 0 ? "rom.asm" : args[0];
+        String src_in = Files.readString(Paths.get(src_path));
         Tokenizer tz = new Tokenizer(src_in);
         StringBuilder src_out = new StringBuilder();
         while(true){
             Token zn = tz.nextToken();
             if(zn.id().endsWith(":")){
-                stmts.add(new Label(zn));
+                stmts.add(new Label(zn, tz));
                 continue;
             }
             if(zn.isId("#")){
@@ -45,6 +46,8 @@ public class ReadFileToString {
                 stmts.add(new OpAddi(zn,id,tz));
             } else if(id.isId("add")){
                 stmts.add(new OpAdd(zn,id,tz));
+            } else if(id.isId("sub")){
+                stmts.add(new OpSub(zn,id,tz));
             } else if(id.isId("or")){
                 stmts.add(new OpOr(zn,id,tz));
             } else if(id.isId("xor")){
@@ -60,7 +63,7 @@ public class ReadFileToString {
             } else if(id.isId("jmp")){
                 stmts.add(new OpJmp(zn,id,tz));
             } else if(id.isId("call")){
-                stmts.add(new OpJmp(zn,id,tz));
+                stmts.add(new OpCall(zn,id,tz));
             } else if(id.isId("wl")){
                 stmts.add(new OpWl(zn,id,tz));
             } else if(id.isId("wh")){
@@ -74,8 +77,11 @@ public class ReadFileToString {
             }
             //System.out.println("** "+stmts.get(stmts.size()-1).toSource());
         }
+
+        Toc toc = new Toc();
         for(var st:stmts){
-            System.out.print(st.toSource());
+            st.compile(toc);
+//            System.out.print(st.toSource());
             src_out.append(st.toSource());
         }
         Path file_diff = Paths.get("diff");
@@ -84,6 +90,114 @@ public class ReadFileToString {
         if(!src.toString().equals(src_in)) {
             System.out.println("!!! source and parsed source differ. See file 'diff'");
         }
+
+        Files.write(Paths.get(src_path+".hex"), toc.toHexString().getBytes(StandardCharsets.UTF_8));
+    }
+}
+
+public class Toc {
+    public enum LinkType {CALL, JMP, LDI}
+    private ArrayList<Short> instrs = new ArrayList<>();
+    private ArrayList<Link> links = new ArrayList<>();
+    private HashMap<String,Label> labels = new HashMap<>();
+    private int pc;
+
+    private static class Link {
+        int pc;
+        String to;
+        LinkType type;
+        Token tk;
+
+        public Link(int pc, String to, LinkType type, Token tk) {
+            this.pc = pc;
+            this.to = to;
+            this.type = type;
+            this.tk = tk;
+        }
+    }
+
+    private static class Label {
+        int pc;
+        String name;
+        boolean isFunc;
+
+        public Label(int pc, String name, boolean isFunc) {
+            this.pc = pc;
+            this.name = name;
+            this.isFunc = isFunc;
+        }
+    }
+
+    public void write(short instr) {
+        instrs.add(Short.valueOf(instr));
+        pc++;
+    }
+
+    public void write(short instr, LinkType linkType, String label, Token tk) {
+        links.add(new Link(pc, label, linkType, tk));
+        write(instr);
+    }
+
+    public void addLabel(String name, boolean isFunc) {
+        if(isFunc) { // align at 16 bytes
+            if ((pc & 0xf) != 0) {
+                pc = (pc & 0xfff0) + 0x10;
+            }
+        }
+        labels.put(name, new Label(pc, name, isFunc));
+    }
+
+    public void link() throws Throwable {
+        for(var lnk:links) {
+            Label lbl = labels.get(lnk.to);
+            if (lbl == null) {
+                throw new Exception(lnk.tk.sourcePos()+": cannot find '"+lnk.to+"'");
+            }
+            short instr = instrs.get(lnk.pc);
+            switch(lnk.type){
+                case CALL:
+                    assert((lbl.pc & 0xf) == 0);
+                    instr |= lbl.pc>>4;
+                    break;
+
+                case JMP:
+                    int dpc = lbl.pc - lnk.pc;
+                    if(dpc > 2047 || dpc < -2048) {
+                        throw new Exception(lnk.tk.sourcePos()+": jmp to '"+lbl.name+"' out-of-range (offset: "+dpc+")");
+                    }
+                    instr |= dpc&0xfff;
+                    break;
+
+                case LDI:
+                    instr = (short) lbl.pc;
+                    break;
+
+                default: assert(false);
+            }
+            instrs.set(lnk.pc, instr);
+        }
+    }
+
+    public String toHexString() {
+        StringBuilder sb = new StringBuilder();
+        int j = 0;
+        int k = 0;
+        final int n = instrs.size();
+        for (int i = 0; i < n; i++){
+            short instr = instrs.get(i);
+            sb.append(String.format("%04X", instr)).append(' ');
+            j++;
+            if(j>3){
+                sb.append('\n');
+                j=0;
+                k++;
+                if(k>3){
+                    sb.append('\n');
+                    k = 0;
+                }
+            }
+        }
+        return sb.toString();
     }
 }
 
@@ -94,6 +208,15 @@ public class OpRl extends Statement {
         super(zn,tk);
         regb = tz.nextToken();
         readOptionalRet(tz);
+    }
+
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 3<<4;
+        instr |= 6<<8;
+        instr |= b<<12;
+        toc.write(instr);
     }
 
     public String toSource() {
@@ -110,6 +233,15 @@ public class OpRh extends Statement {
         readOptionalRet(tz);
     }
 
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 3<<4;
+        instr |= 0xe<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
+
     public String toSource() {
         return super.toSource()+regb.toSource()+toSourceRet();
     }
@@ -124,6 +256,15 @@ public class OpWh extends Statement {
         readOptionalRet(tz);
     }
 
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 3<<4;
+        instr |= 0xa<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
+
     public String toSource() {
         return super.toSource()+regb.toSource()+toSourceRet();
     }
@@ -136,6 +277,15 @@ public class OpWl extends Statement {
         super(zn,tk);
         regb = tz.nextToken();
         readOptionalRet(tz);
+    }
+
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 3<<4;
+        instr |= 2<<8;
+        instr |= b<<12;
+        toc.write(instr);
     }
 
     public String toSource() {
@@ -153,9 +303,20 @@ public class Eof extends Statement {
 
 public class Label extends Statement {
     private Token nm;
+    private Token func;
 
-    public Label(Token nm) {
+    public Label(Token nm, Tokenizer tz) {
         super(null,nm);
+        Token tp = tz.nextToken();
+        if(tp.isId("func")) {
+            func = tp;
+        } else {
+            tz.pushBackToken(tp);
+        }
+    }
+
+    public String toSource() {
+        return super.toSource()+(func!=null?func.toSource():"");
     }
 }
 
@@ -181,6 +342,12 @@ public class OpCall extends Statement {
         lbl = tz.nextToken();
     }
 
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        instr |= 0x8;
+        toc.write(instr, Toc.LinkType.CALL, lbl.id(), lbl);
+    }    
+
     public String toSource() {
         return super.toSource()+lbl.toSource();
     }
@@ -193,6 +360,12 @@ public class OpJmp extends Statement {
         super(zn,tk);
         lbl = tz.nextToken();
     }
+
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        instr |= 0xc;
+        toc.write(instr, Toc.LinkType.JMP, lbl.id(), lbl);
+    }    
 
     public String toSource() {
         return super.toSource()+lbl.toSource();
@@ -210,6 +383,23 @@ public class OpShf extends Statement {
         readOptionalRet(tz);
     }
 
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        short a = Integer.decode(imm4.id()).shortValue();
+        short b = Short.parseShort(regb.id().substring(1));
+        if (a > 8 || a<-8){
+            throw new Exception(imm4.sourcePos()+": immediate 4 bit value '"+a+"' is not within -8 to 8 excluding 0 range.");
+        }
+        instr |= 0xe<<4;
+        if(a>=0) {
+            a--; 
+        }
+        short imm4 = (short) (a>=0?a:(((a&0x07)-8)&0xf));
+        instr |= imm4<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }    
+
     public String toSource() {
         return super.toSource()+imm4.toSource()+regb.toSource()+toSourceRet();
     }
@@ -224,6 +414,16 @@ public class OpCp extends Statement {
         rega = tz.nextToken();
         regb = tz.nextToken();
         readOptionalRet(tz);
+    }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 0xc<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
     }
 
     public String toSource() {
@@ -242,6 +442,16 @@ public class OpNot extends Statement {
         readOptionalRet(tz);
     }
 
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 0xa<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
+
     public String toSource() {
         return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
     }
@@ -256,6 +466,16 @@ public class OpAnd extends Statement {
         rega = tz.nextToken();
         regb = tz.nextToken();
         readOptionalRet(tz);
+    }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 8<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
     }
 
     public String toSource() {
@@ -274,6 +494,16 @@ public class OpXor extends Statement {
         readOptionalRet(tz);
     }
 
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 6<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
+
     public String toSource() {
         return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
     }
@@ -289,6 +519,41 @@ public class OpOr extends Statement {
         readOptionalRet(tz);
     }
 
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 4<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
+
+    public String toSource() {
+        return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpSub extends Statement {
+    private Token rega;
+    private Token regb;
+    public OpSub(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        rega = tz.nextToken();
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 2<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
+
     public String toSource() {
         return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
     }
@@ -302,6 +567,15 @@ public class OpAdd extends Statement {
         rega = tz.nextToken();
         regb = tz.nextToken();
         readOptionalRet(tz);
+    }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
     }
 
     public String toSource() {
@@ -322,6 +596,23 @@ public class OpAddi extends Statement {
     public String toSource() {
         return super.toSource()+imm4.toSource()+regb.toSource()+toSourceRet();
     }
+
+    public void compile(Toc toc) throws Throwable{
+        short instr = getZnr();
+        short a = Integer.decode(imm4.id()).shortValue();
+        short b = Short.parseShort(regb.id().substring(1));
+        if (a > 8 || a<-8){
+            throw new Exception(imm4.sourcePos()+": immediate 4 bit value '"+a+"' is not within -8 to 8 excluding 0 range.");
+        }
+        instr |= 1<<4;
+        if(a>=0) {
+            a--; 
+        }
+        short imm4 = (short) (a>=0?a:(((a&0x07)-8)&0xf));
+        instr |= imm4<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }    
 }
 
 public class OpLd extends Statement {
@@ -336,6 +627,16 @@ public class OpLd extends Statement {
 
     public String toSource() {
         return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
+    }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 5<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
     }
 }
 
@@ -352,6 +653,16 @@ public class OpSt extends Statement {
     public String toSource() {
         return super.toSource()+rega.toSource()+regb.toSource()+toSourceRet();
     }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short a = Short.parseShort(rega.id().substring(1));
+        short b = Short.parseShort(regb.id().substring(1));
+        instr |= 7<<4;
+        instr |= a<<8;
+        instr |= b<<12;
+        toc.write(instr);
+    }
 }
 
 public class OpLdi extends Statement {
@@ -367,6 +678,19 @@ public class OpLdi extends Statement {
     public String toSource() {
         return super.toSource()+imm16.toSource()+regb.toSource()+toSourceRet();
     }
+
+    public void compile(Toc toc){
+        short instr = getZnr();
+        short reg = Short.parseShort(regb.id().substring(1));
+        instr |=  3<<4;
+        instr |=reg<<12;
+        toc.write(instr);
+        String addrStr = imm16.id();
+        short addr = (short) Integer.decode(addrStr).shortValue();
+        toc.write(addr);
+    }
+//    public void write(short instr)
+//    public void write(short instr, LinkType linkType, String label, Token tk)
 }
 
 public class Statement {
@@ -388,9 +712,6 @@ public class Statement {
         }
 
     }
-    void setRet(Token r) {
-        ret = r;
-    }
 
     public String toSource() {
         return (zn==null?"":zn.toSource())+tk.toSource();
@@ -400,6 +721,25 @@ public class Statement {
         if(ret==null)
             return "";
         return ret.toSource();
+    }
+
+    public short getZnr() {
+        short r = (short)(ret == null ? 0 : 4);
+        if(zn!=null) {
+            if(zn.isId("ifz")){
+                return (short)(1|r);
+            }
+            if(zn.isId("ifn")){
+                return (short)(2|r);
+            }
+            if(zn.isId("ifp")){
+                return (short)(0|r);
+            }
+        }
+        return (short)(3|r);
+    }
+
+    public void compile(Toc toc) throws Throwable {
     }
 }
 

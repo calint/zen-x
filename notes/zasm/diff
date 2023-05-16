@@ -9,8 +9,8 @@
     ld r3 r5
     addi 1 r4
     addi -1 r4
-    add r1 r4
     add r3 r4
+    sub r3 r4
     or r4 r6
     xor r6 r6
     and r4 r6
@@ -22,28 +22,27 @@
     cp r4 r4
     ifn ldi 0x0001 r7
     ifp jmp 3
-    ifn jmp 3
-    # 0x000 0x000
+    jmp 3
+    ifp add r0 r0 # 0x000 
+    ifp add r0 r0 # 0x000
+
     call x0030
     ifp call x0040
     ifz call x0040
     ifp ldi 0x0040 r9
     ifz ldi 0x0040 r9
-    ifp jmp 0x00a
-    ifz jmp 0x009
-    ifn call 0x0050
-
-    ifp call x0040
-    ifz call x0040
-    ifp ldi 0x0040 r9 
-    ifz ldi 0x0040 r9 
-    ifp jmp 0x00a
-    ifz jmp 0x009
+    ifp jmp x00a
+    ifz jmp x009
     ifn call x0050
     jmp 0x007
-    # 0x0000 0x0000 0x0000 0x0000 0x0000
-    
-x0030:
+
+    ifp add r0 r0 # 0x0000
+    ifp add r0 r0 # 0x0000
+    ifp add r0 r0 # 0x0000
+    ifp add r0 r0 # 0x0000
+    ifp add r0 r0 # 0x0000
+ 
+x0030: func
     addi 1 r8 ret
     ldi 0x4548 r9
     wl r9
@@ -54,22 +53,70 @@ x0030:
     ldi 0x204f r9
     wl r9
     wh r9
-    rl r19
+    rl r10
     wl r10
     jmp -2
 
 x0040:
-    # 0000 0000 0000 0000
-    # 0000 0000 0000 0000
-    # 0000 0000 0000 0000
-    # 0000 0000 0000 0000
+    ifp add r0 r0
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
 
-x0050:
-    call 0x0060
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+x0050: func
+    call x0060
     addi 1 r8 ret
 
-x0060:
+    ifp add r0 r0 
+    ifp add r0 r0 
+    
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+x0060: func
     ifn addi 2 r8 ret
     ifz addi 2 r8 ret
     ifp addi 2 r8 ret
-    addi 2 r8 ret
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
+    ifp add r0 r0 
