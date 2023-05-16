@@ -186,7 +186,7 @@ initial begin
     else $display("case 17 FAILED. expected 1, got %h", zx.regs.mem[7]); 
 
     // pc=28, zn=01
-    #clk_tk // 003c: ifp jmp 3 ; will not execute because zn!=00
+    #clk_tk // 004c: ifp jmp 4 ; will not execute because zn!=00
     #clk_tk // wait for rom
     if (zx.pc==29) $display("case 18 passed");
     else $display("case 18 FAILED. expected 29, got %0d", zx.pc);

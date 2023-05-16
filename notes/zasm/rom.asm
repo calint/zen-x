@@ -21,11 +21,12 @@
     ifz ldi 0x0001 r7
     cp r4 r4
     ifn ldi 0x0001 r7
-    ifp jmp 3
-    jmp 3
+    ifp jmp lbl1
+    jmp lbl1
     ifp add r0 r0 # 0x000 
     ifp add r0 r0 # 0x000
 
+lbl1:
     call x0030
     ifp call x0040
     ifz call x0040
@@ -34,7 +35,7 @@
     ifp jmp x00a
     ifz jmp x009
     ifn call x0050
-    jmp 0x007
+    jmp x007
 
     ifp add r0 r0 # 0x0000
     ifp add r0 r0 # 0x0000
@@ -44,6 +45,9 @@
  
 x0030: func
     addi 1 r8 ret
+x00a:
+x009:
+x007:
     ldi 0x4548 r9
     wl r9
     wh r9
@@ -53,9 +57,10 @@ x0030: func
     ldi 0x204f r9
     wl r9
     wh r9
+echo:
     rl r10
     wl r10
-    jmp -2
+    jmp echo
 
 x0040:
     ifp add r0 r0
@@ -80,7 +85,7 @@ x0040:
 
 x0050: func
     call x0060
-    addi 1 r8 ret
+    addi 2 r8 ret
 
     ifp add r0 r0 
     ifp add r0 r0 

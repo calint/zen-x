@@ -75,15 +75,15 @@ public class ReadFileToString {
             } else {
                 throw new Exception(id.sourcePos()+": unknown instruction '"+id.id()+"'");
             }
-            //System.out.println("** "+stmts.get(stmts.size()-1).toSource());
         }
 
         Toc toc = new Toc();
         for(var st:stmts){
             st.compile(toc);
-//            System.out.print(st.toSource());
             src_out.append(st.toSource());
         }
+        toc.link();
+
         Path file_diff = Paths.get("diff");
         String src = src_out.toString();
         Files.write(file_diff, src.getBytes(StandardCharsets.UTF_8));
@@ -157,7 +157,7 @@ public class Toc {
             switch(lnk.type){
                 case CALL:
                     assert((lbl.pc & 0xf) == 0);
-                    instr |= lbl.pc>>4;
+                    instr |= (lbl.pc>>4)<<4;
                     break;
 
                 case JMP:
@@ -165,7 +165,7 @@ public class Toc {
                     if(dpc > 2047 || dpc < -2048) {
                         throw new Exception(lnk.tk.sourcePos()+": jmp to '"+lbl.name+"' out-of-range (offset: "+dpc+")");
                     }
-                    instr |= dpc&0xfff;
+                    instr |= (dpc&0xfff)<<4;
                     break;
 
                 case LDI:
@@ -197,6 +197,7 @@ public class Toc {
                 }
             }
         }
+        sb.append('\n');
         return sb.toString();
     }
 }
@@ -302,7 +303,6 @@ public class Eof extends Statement {
 }
 
 public class Label extends Statement {
-    private Token nm;
     private Token func;
 
     public Label(Token nm, Tokenizer tz) {
@@ -314,6 +314,12 @@ public class Label extends Statement {
             tz.pushBackToken(tp);
         }
     }
+    private Token nm;
+
+    public void compile(Toc toc) throws Throwable{
+        final String id = id();
+        toc.addLabel(id.substring(0,id.length()-1),func!=null);
+    }    
 
     public String toSource() {
         return super.toSource()+(func!=null?func.toSource():"");
@@ -741,6 +747,10 @@ public class Statement {
 
     public void compile(Toc toc) throws Throwable {
     }
+
+    public String id() {
+        return tk.id();
+    }
 }
 
 public class Token {
@@ -867,7 +877,6 @@ public class Tokenizer {
         pos_ws_rht = p;
         pos = p;
         Token tk = new Token(sb_id.toString(),sb_ws_lft.toString(),sb_ws_rht.toString(),pos_ws_lft,pos_strt,pos_end,pos_ws_rht,token_linenm,token_charnm);
-       // System.out.println(tk.toDebug());
         return tk;
     }
 

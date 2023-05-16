@@ -15,7 +15,8 @@
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
-[ ] assembler webapp
+[o] assembler webapp
+      => one file java executable, happy path implemented
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [-] consider making rom 64K and ram 32K to represent a retro computer with 64K program cartidge
