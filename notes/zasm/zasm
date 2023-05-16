@@ -61,9 +61,18 @@ public class ReadFileToString {
                 stmts.add(new OpJmp(zn,id,tz));
             } else if(id.isId("call")){
                 stmts.add(new OpJmp(zn,id,tz));
+            } else if(id.isId("wl")){
+                stmts.add(new OpWl(zn,id,tz));
+            } else if(id.isId("wh")){
+                stmts.add(new OpWh(zn,id,tz));
+            } else if(id.isId("rl")){
+                stmts.add(new OpRl(zn,id,tz));
+            } else if(id.isId("rh")){
+                stmts.add(new OpRh(zn,id,tz));
             } else {
                 throw new Exception(id.sourcePos()+": unknown instruction '"+id.id()+"'");
             }
+            //System.out.println("** "+stmts.get(stmts.size()-1).toSource());
         }
         for(var st:stmts){
             System.out.print(st.toSource());
@@ -75,6 +84,62 @@ public class ReadFileToString {
         if(!src.toString().equals(src_in)) {
             System.out.println("!!! source and parsed source differ. See file 'diff'");
         }
+    }
+}
+
+public class OpRl extends Statement {
+    private Token regb;
+
+    public OpRl(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpRh extends Statement {
+    private Token regb;
+
+    public OpRh(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpWh extends Statement {
+    private Token regb;
+
+    public OpWh(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+regb.toSource()+toSourceRet();
+    }
+}
+
+public class OpWl extends Statement {
+    private Token regb;
+
+    public OpWl(Token zn, Token tk, Tokenizer tz) {
+        super(zn,tk);
+        regb = tz.nextToken();
+        readOptionalRet(tz);
+    }
+
+    public String toSource() {
+        return super.toSource()+regb.toSource()+toSourceRet();
     }
 }
 
@@ -294,13 +359,13 @@ public class OpLdi extends Statement {
     private Token imm16;
     public OpLdi(Token zn, Token tk, Tokenizer tz) {
         super(zn,tk);
-        regb = tz.nextToken();
         imm16 = tz.nextToken();
+        regb = tz.nextToken();
         readOptionalRet(tz);
     }
 
     public String toSource() {
-        return super.toSource()+regb.toSource()+imm16.toSource()+toSourceRet();
+        return super.toSource()+imm16.toSource()+regb.toSource()+toSourceRet();
     }
 }
 
@@ -500,7 +565,14 @@ public class Tokenizer {
             char ch = src.charAt(pos);
             sb.append(ch);
             pos++;
-            if(ch=='\n' || pos==src.length()){
+            charnm++;
+            if(pos==src.length()){
+                return sb.toString();
+            }
+
+            if(ch=='\n'){
+                linenm++;
+                charnm = 1;
                 return sb.toString();
             }
         }
