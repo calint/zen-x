@@ -806,13 +806,17 @@ public class Statement {
   }
 
   public String sourcePos() {
-    return zn==null ? tk.sourcePos() : zn.sourcePos();
+    return zn == null ? tk.sourcePos() : zn.sourcePos();
   }
 
-  public static short registerAddressFromToken(Token addr) throws Throwable{
+  public static short registerAddressFromToken(Token addr) throws Throwable {
     short a = Short.parseShort(addr.id().substring(1));
-    if (a<0 || a>15) {
-      throw new Exception(addr.sourcePos()+": unknown register '"+addr.id()+"'. valid registers 'r0' through 'r15'");
+    if (a < 0 || a > 15) {
+      throw new Exception(
+          addr.sourcePos()
+              + ": unknown register '"
+              + addr.id()
+              + "'. valid registers 'r0' through 'r15'");
     }
     return a;
   }
