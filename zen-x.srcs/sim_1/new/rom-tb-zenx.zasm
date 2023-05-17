@@ -1,3 +1,6 @@
+# rom intended for test bench
+#  compile with 'zasm'
+#
     ldi 0x1234 r1     # r1=0x1234
     ldi 0xabcd r2     # r2=0xabcd
     ldi 0xffff r3     # r3=0xffff

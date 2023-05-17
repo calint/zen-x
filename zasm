@@ -86,8 +86,10 @@ public class zasm {
 
     Toc toc = new Toc();
     for (Statement st : stmts) {
+      String src = st.toSource();
+      toc.addComment(src);
       st.compile(toc);
-      srcOut.append(st.toSource());
+      srcOut.append(src);
     }
     toc.link();
 
@@ -115,6 +117,7 @@ class Toc {
 
   private ArrayList<Short> instrs = new ArrayList<>();
   private ArrayList<Statement> stmts = new ArrayList<>();
+  private ArrayList<ArrayList<String>> comments = new ArrayList<>();
   private ArrayList<Link> links = new ArrayList<>();
   private HashMap<String, Label> labels = new HashMap<>();
   private int pc;
@@ -143,6 +146,28 @@ class Toc {
       this.name = name;
       this.isFunc = isFunc;
     }
+  }
+
+  private void ensureCommentsArraySize() {
+    final int n = comments.size();
+    final int m = pc + 1;
+    for (int i = n; i < m; i++) {
+      comments.add(null);
+    }
+  }
+
+  private List<String> commentsListForCurrentPc() {
+    ensureCommentsArraySize();
+    ArrayList<String> ls = comments.get(pc);
+    if (ls == null) {
+      ls = new ArrayList<>();
+      comments.set(pc, ls);
+    }
+    return ls;
+  }
+
+  public void addComment(String txt) {
+    commentsListForCurrentPc().add(txt);
   }
 
   public void write(Statement stmt, short instr) {
@@ -231,20 +256,37 @@ class Toc {
     int j = 0;
     int k = 0;
     final int n = instrs.size();
+    // ? messy handling of comments
+    ensureCommentsArraySize();
     for (int i = 0; i < n; i++) {
-      Statement stmt = stmts.get(i);
-      short instr = instrs.get(i);
-      if (stmt != null) {
-        sb.append("// [")
-            .append(i)
-            .append("] ")
-            .append(stmt.sourcePos())
-            .append(": ")
-            .append(stmt.toSource().trim())
-            .append('\n');
+      ArrayList<String> cmnts = comments.get(i);
+      if (cmnts != null) {
+        boolean lastCommentHadNewline = true;
+        for (String s : cmnts) {
+          if (lastCommentHadNewline) {
+            sb.append("// ");
+          }
+          String s1 = s.replaceAll("\n", "\n// ");
+          if (s.endsWith("\n")) {
+            s1 = s1.substring(0, s1.length() - 3);
+            lastCommentHadNewline = true;
+          } else {
+            lastCommentHadNewline = false;
+          }
+          sb.append(s1);
+        }
+        if (!lastCommentHadNewline) {
+          sb.append('\n');
+        }
       }
-      sb.append(String.format("%04X", instr)).append('\n');
+      short instr = instrs.get(i);
+      sb.append(String.format("%04X", instr)).append(" // ");
+      Statement stmt = stmts.get(i);
+      if (stmt != null) {
+        sb.append("[").append(i).append("] ").append(stmt.sourcePos()).append('\n');
+      }
     }
+    sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
     for (int i = n; i < 0x10000; i++) {
       sb.append("0 ");
     }

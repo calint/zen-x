@@ -7,7 +7,8 @@
 [x]   => bounds checking on immediate values
 [o]   write hex with source annotations
         => no comments, no labels, just program counter and source position + trimmed source
-[ ]     => improve source annotations to include comments and labels
+[o]     => improve source annotations to include comments and labels
+          => all comments and labels are in the hex file but not good enough
 [x]   pad hex file to 64K
 [ ] emulator webapp
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
