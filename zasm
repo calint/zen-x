@@ -85,7 +85,7 @@ public class zasm {
     }
 
     Toc toc = new Toc();
-    for (var st : stmts) {
+    for (Statement st : stmts) {
       st.compile(toc);
       srcOut.append(st.toSource());
     }

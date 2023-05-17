@@ -59,7 +59,7 @@
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="cmod-s7-25"/>
-    <Option Name="WTXSimLaunchSim" Val="1526"/>
+    <Option Name="WTXSimLaunchSim" Val="1527"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -201,8 +201,8 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sim_1/new/rom-tb-zenx.asm"/>
       <File Path="$PSRCDIR/sim_1/new/rom-tb-zenx.hex"/>
+      <File Path="$PSRCDIR/sim_1/new/rom-tb-zenx.zasm"/>
       <Config>
         <Option Name="DesignMode" Val="RTL"/>
         <Option Name="TopModule" Val="TB_Zenx"/>

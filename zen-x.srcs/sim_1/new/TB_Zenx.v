@@ -367,6 +367,86 @@ end
 
 endmodule
 /*
+    ldi 0x1234 r1     # r1=0x1234
+    ldi 0xabcd r2     # r2=0xabcd
+    ldi 0xffff r3     # r3=0xffff
+    st r2 r1          # ram[0xabcd]=0x1234
+    st r1 r3          # ram[0x1234]=0xffff
+    ld r2 r6          # r6=ram[0xabcd] == 0x1234
+    ld r1 r4          # r4=ram[0x1234] == 0xffff
+    st r3 r1          # ram[0xffff]=0x1234
+    ld r3 r5          # r5=ram[0xffff] == 0x1234
+    addi 1 r4         # r4 == 0
+    addi -1 r4        # r4 == 0xffff
+    add r3 r4         # r4 == 0xfffe
+    sub r3 r4         # r4 == 0xffff
+    or r4 r6          # r6 == 0xffff
+    xor r6 r6         # r6 == 0
+    and r4 r6         # r6 == 0
+    not r4 r6         # r6 == 0
+    cp r1 r6          # r6 == 0x1234
+    shf 1 r6          # r6 == 0x0910
+    shf -1 r6         # r6 = 0x1234
+    ifz ldi 0x0001 r7 # z!=1 => does not execute
+    cp r4 r4          # r4 = 0xffff
+    ifn ldi 0x0001 r7 # n==1 r7=0x0001
+    ifp jmp lbl1      # zn!=00 => does not execute
+    jmp lbl1          # 
+    0 0               # padding 
+
+lbl1:
+    call x0030
+    ifp call x0040
+    ifz call x0040
+    ifp ldi 0x0040 r9
+    ifz ldi 0x0040 r9
+    ifp jmp x007
+    ifz jmp x007
+    ifn call x0050
+    jmp x007
+
+    0 0 0 0 0
+ 
+x0030: func
+    addi 1 r8 ret
+x007:
+    ldi 0x4548 r9
+    wl r9
+    wh r9
+    ldi 0x4c4c r9
+    wl r9
+    wh r9
+    ldi 0x204f r9
+    wl r9
+    wh r9
+echo:
+    rl r10
+    wl r10
+    jmp echo
+
+x0040:
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
+
+x0050: func
+    call x0060
+    addi 2 r8 ret
+
+    0 0
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
+
+x0060: func
+    ifn addi 2 r8 ret
+    ifz addi 2 r8 ret
+    ifp addi 2 r8 ret
+*/
+
+// compiled
+/*
 // [0] 1:5: ldi 0x1234 r1
 1033
 1234
@@ -422,165 +502,140 @@ FFFF
 004C
 // [29] 25:5: jmp lbl1
 003F
-// [30] 26:5: ifp add r0 r0
+// [30] 26:5: 0
 0000
-// [31] 27:5: ifp add r0 r0
+// [31] 26:7: 0
 0000
-// [32] 30:5: call x0030
+// [32] 29:5: call x0030
 003B
-// [33] 31:5: ifp call x0040
+// [33] 30:5: ifp call x0040
 0048
-// [34] 32:5: ifz call x0040
+// [34] 31:5: ifz call x0040
 0049
-// [35] 33:5: ifp ldi 0x0040 r9
+// [35] 32:5: ifp ldi 0x0040 r9
 9030
 0040
-// [37] 34:5: ifz ldi 0x0040 r9
+// [37] 33:5: ifz ldi 0x0040 r9
 9031
 0040
-// [39] 35:5: ifp jmp x00a
+// [39] 34:5: ifp jmp x007
 00AC
-// [40] 36:5: ifz jmp x009
+// [40] 35:5: ifz jmp x007
 009D
-// [41] 37:5: ifn call x0050
+// [41] 36:5: ifn call x0050
 005A
-// [42] 38:5: jmp x007
+// [42] 37:5: jmp x007
 007F
-// [43] 40:5: ifp add r0 r0
+// [43] 39:5: 0
 0000
-// [44] 41:5: ifp add r0 r0
+// [44] 39:7: 0
 0000
-// [45] 42:5: ifp add r0 r0
+// [45] 39:9: 0
 0000
-// [46] 43:5: ifp add r0 r0
+// [46] 39:11: 0
 0000
-// [47] 44:5: ifp add r0 r0
+// [47] 39:13: 0
 0000
-// [48] 47:5: addi 1 r8 ret
+// [48] 42:5: addi 1 r8 ret
 8017
-// [49] 51:5: ldi 0x4548 r9
+// [49] 44:5: ldi 0x4548 r9
 9033
 4548
-// [51] 52:5: wl r9
+// [51] 45:5: wl r9
 9233
-// [52] 53:5: wh r9
+// [52] 46:5: wh r9
 9A33
-// [53] 54:5: ldi 0x4c4c r9
+// [53] 47:5: ldi 0x4c4c r9
 9033
 4C4C
-// [55] 55:5: wl r9
+// [55] 48:5: wl r9
 9233
-// [56] 56:5: wh r9
+// [56] 49:5: wh r9
 9A33
-// [57] 57:5: ldi 0x204f r9
+// [57] 50:5: ldi 0x204f r9
 9033
 204F
-// [59] 58:5: wl r9
+// [59] 51:5: wl r9
 9233
-// [60] 59:5: wh r9
+// [60] 52:5: wh r9
 9A33
-// [61] 61:5: rl r10
+// [61] 54:5: rl r10
 A633
-// [62] 62:5: wl r10
+// [62] 55:5: wl r10
 A233
-// [63] 63:5: jmp echo
+// [63] 56:5: jmp echo
 FFEF
-// [64] 66:5: ifp add r0 r0
+// [64] 59:5: 0
 0000
-// [65] 67:5: ifp add r0 r0
+// [65] 59:7: 0
 0000
-// [66] 68:5: ifp add r0 r0
+// [66] 59:9: 0
 0000
-// [67] 69:5: ifp add r0 r0
+// [67] 59:11: 0
 0000
-// [68] 71:5: ifp add r0 r0
+// [68] 60:5: 0
 0000
-// [69] 72:5: ifp add r0 r0
+// [69] 60:7: 0
 0000
-// [70] 73:5: ifp add r0 r0
+// [70] 60:9: 0
 0000
-// [71] 74:5: ifp add r0 r0
+// [71] 60:11: 0
 0000
-// [72] 76:5: ifp add r0 r0
+// [72] 61:5: 0
 0000
-// [73] 77:5: ifp add r0 r0
+// [73] 61:7: 0
 0000
-// [74] 78:5: ifp add r0 r0
+// [74] 61:9: 0
 0000
-// [75] 79:5: ifp add r0 r0
+// [75] 61:11: 0
 0000
-// [76] 81:5: ifp add r0 r0
+// [76] 62:5: 0
 0000
-// [77] 82:5: ifp add r0 r0
+// [77] 62:7: 0
 0000
-// [78] 83:5: ifp add r0 r0
+// [78] 62:9: 0
 0000
-// [79] 84:5: ifp add r0 r0
+// [79] 62:11: 0
 0000
-// [80] 87:5: call x0060
+// [80] 65:5: call x0060
 006B
-// [81] 88:5: addi 2 r8 ret
+// [81] 66:5: addi 2 r8 ret
 8117
-// [82] 90:5: ifp add r0 r0
+// [82] 68:5: 0
 0000
-// [83] 91:5: ifp add r0 r0
+// [83] 68:7: 0
 0000
-// [84] 93:5: ifp add r0 r0
+// [84] 69:5: 0
 0000
-// [85] 94:5: ifp add r0 r0
+// [85] 69:7: 0
 0000
-// [86] 95:5: ifp add r0 r0
+// [86] 69:9: 0
 0000
-// [87] 96:5: ifp add r0 r0
+// [87] 69:11: 0
 0000
-// [88] 98:5: ifp add r0 r0
+// [88] 70:5: 0
 0000
-// [89] 99:5: ifp add r0 r0
+// [89] 70:7: 0
 0000
-// [90] 100:5: ifp add r0 r0
+// [90] 70:9: 0
 0000
-// [91] 101:5: ifp add r0 r0
+// [91] 70:11: 0
 0000
-// [92] 103:5: ifp add r0 r0
+// [92] 71:5: 0
 0000
-// [93] 104:5: ifp add r0 r0
+// [93] 71:7: 0
 0000
-// [94] 105:5: ifp add r0 r0
+// [94] 71:9: 0
 0000
-// [95] 106:5: ifp add r0 r0
+// [95] 71:11: 0
 0000
-// [96] 109:5: ifn addi 2 r8 ret
+// [96] 74:5: ifn addi 2 r8 ret
 8116
-// [97] 110:5: ifz addi 2 r8 ret
+// [97] 75:5: ifz addi 2 r8 ret
 8115
-// [98] 111:5: ifp addi 2 r8 ret
+// [98] 76:5: ifp addi 2 r8 ret
 8114
-// [99] 112:5: ifp add r0 r0
-0000
-// [100] 114:5: ifp add r0 r0
-0000
-// [101] 115:5: ifp add r0 r0
-0000
-// [102] 116:5: ifp add r0 r0
-0000
-// [103] 117:5: ifp add r0 r0
-0000
-// [104] 119:5: ifp add r0 r0
-0000
-// [105] 120:5: ifp add r0 r0
-0000
-// [106] 121:5: ifp add r0 r0
-0000
-// [107] 122:5: ifp add r0 r0
-0000
-// [108] 124:5: ifp add r0 r0
-0000
-// [109] 125:5: ifp add r0 r0
-0000
-// [110] 126:5: ifp add r0 r0
-0000
-// [111] 127:5: ifp add r0 r0
-0000
+
 */
 
 `default_nettype wire
