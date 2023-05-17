@@ -32,9 +32,9 @@ pre pipeline
              /---/---/---/---/---/-------/------/------/-------/
             / . / . / . / 0 / 1 / 0 0 0 / imm4 / .... /  addi /
            / . / . / . / 0 / 1 / 1 0 0 / 0000 / .... /  ldi  /
-          / . / . / . / 0 / 1 / 0 1 0 / .... / .... /  ld   /
-         / . / . / . / 0 / 1 / 1 1 0 / .... / .... /  st   /
-        / . / . / . / 0 / 1 / 0 0 1 / .... / .... /       /
+          / . / . / . / 0 / 1 / 0 1 0 /  src /  dst /  ld   /
+         / . / . / . / 0 / 1 / 1 1 0 / dst  / src  /  st   /
+        / . / . / . / 0 / 1 / 0 0 1 / src  / dst  /  ldr  /
        / . / . / . / 0 / 1 / 1 0 1 / .... / .... /       /
       / . / . / . / 0 / 1 / 0 1 1 / .... / .... /       /
      / . / . / . / 0 / 1 / 1 1 1 / .... / .... /       /
@@ -67,7 +67,7 @@ pre pipeline
  0011 : ldi   :  4  : reg[b] = { next instruction }
  0101 : ld    :  2  : reg[b] = ram[a]
  0111 : st    :  2  : ram[a] = reg[b]
- 1001 :       :     :
+ 1001 : ldr   :     : reg[b] = rom[a]
  1011 :       :     :
  1101 :       :     :
  1111 :       :     : 
@@ -103,7 +103,7 @@ instructions with rc=10 return from call
 
 use 'zasm' to compile assembler code. see 'rom.asm' for sample code.
 
-how-to with Vivado v2022.2:
+how-to wit_h Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
  * find out which tty is on the usb connected to the card (i.e. /dev/ttyUSB1)
