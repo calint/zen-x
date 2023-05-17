@@ -367,174 +367,68 @@ end
 
 endmodule
 /*
-    ldi 0x1234 r1     # r1=0x1234
-    ldi 0xabcd r2     # r2=0xabcd
-    ldi 0xffff r3     # r3=0xffff
-    st r2 r1          # ram[0xabcd]=0x1234
-    st r1 r3          # ram[0x1234]=0xffff
-    ld r2 r6          # r6=ram[0xabcd] == 0x1234
-    ld r1 r4          # r4=ram[0x1234] == 0xffff
-    st r3 r1          # ram[0xffff]=0x1234
-    ld r3 r5          # r5=ram[0xffff] == 0x1234
-    addi 1 r4         # r4 == 0
-    addi -1 r4        # r4 == 0xffff
-    add r3 r4         # r4 == 0xfffe
-    sub r3 r4         # r4 == 0xffff
-    or r4 r6          # r6 == 0xffff
-    xor r6 r6         # r6 == 0
-    and r4 r6         # r6 == 0
-    not r4 r6         # r6 == 0
-    cp r1 r6          # r6 == 0x1234
-    shf 1 r6          # r6 == 0x0910
-    shf -1 r6         # r6 = 0x1234
-    ifz ldi 0x0001 r7 # z!=1 => does not execute
-    cp r4 r4          # r4 = 0xffff
-    ifn ldi 0x0001 r7 # n==1 r7=0x0001
-    ifp jmp lbl1      # zn!=00 => does not execute
-    jmp lbl1          # 
-    0 0               # padding 
-
-lbl1:
-    call x0030
-    ifp call x0040
-    ifz call x0040
-    ifp ldi 0x0040 r9
-    ifz ldi 0x0040 r9
-    ifp jmp x007
-    ifz jmp x007
-    ifn call x0050
-    jmp x007
-
-    0 0 0 0 0
- 
-x0030: func
-    addi 1 r8 ret
-x007:
-    ldi 0x4548 r9
-    wl r9
-    wh r9
-    ldi 0x4c4c r9
-    wl r9
-    wh r9
-    ldi 0x204f r9
-    wl r9
-    wh r9
-echo:
-    rl r10
-    wl r10
-    jmp echo
-
-x0040:
-    0 0 0 0
-    0 0 0 0
-    0 0 0 0
-    0 0 0 0
-
-x0050: func
-    call x0060
-    addi 2 r8 ret
-
-    0 0
-    0 0 0 0
-    0 0 0 0
-    0 0 0 0
-
-x0060: func
-    ifn addi 2 r8 ret
-    ifz addi 2 r8 ret
-    ifp addi 2 r8 ret
-*/
-
-// compiled
-/*
 // # rom intended for test bench
 // #  compile with 'zasm'
 // #
-//     ldi 0x1234 r1     
+//     ldi 0x1234 r1     # r1=0x1234
 1033 // [0] 4:5
 1234 // [1] 4:5
-// # r1=0x1234
-//     ldi 0xabcd r2     
+//     ldi 0xabcd r2     # r2=0xabcd
 2033 // [2] 5:5
 ABCD // [3] 5:5
-// # r2=0xabcd
-//     ldi 0xffff r3     
+//     ldi 0xffff r3     # r3=0xffff
 3033 // [4] 6:5
 FFFF // [5] 6:5
-// # r3=0xffff
-//     st r2 r1          
+//     st r2 r1          # ram[0xabcd]=0x1234
 1273 // [6] 7:5
-// # ram[0xabcd]=0x1234
-//     st r1 r3          
+//     st r1 r3          # ram[0x1234]=0xffff
 3173 // [7] 8:5
-// # ram[0x1234]=0xffff
-//     ld r2 r6          
+//     ld r2 r6          # r6=ram[0xabcd] == 0x1234
 6253 // [8] 9:5
-// # r6=ram[0xabcd] == 0x1234
-//     ld r1 r4          
+//     ld r1 r4          # r4=ram[0x1234] == 0xffff
 4153 // [9] 10:5
-// # r4=ram[0x1234] == 0xffff
-//     st r3 r1          
+//     st r3 r1          # ram[0xffff]=0x1234
 1373 // [10] 11:5
-// # ram[0xffff]=0x1234
-//     ld r3 r5          
+//     ld r3 r5          # r5=ram[0xffff] == 0x1234
 5353 // [11] 12:5
-// # r5=ram[0xffff] == 0x1234
-//     addi 1 r4         
+//     addi 1 r4         # r4 == 0
 4013 // [12] 13:5
-// # r4 == 0
-//     addi -1 r4        
+//     addi -1 r4        # r4 == 0xffff
 4F13 // [13] 14:5
-// # r4 == 0xffff
-//     add r3 r4         
+//     add r3 r4         # r4 == 0xfffe
 4303 // [14] 15:5
-// # r4 == 0xfffe
-//     sub r3 r4         
+//     sub r3 r4         # r4 == 0xffff
 4323 // [15] 16:5
-// # r4 == 0xffff
-//     or r4 r6          
+//     or r4 r6          # r6 == 0xffff
 6443 // [16] 17:5
-// # r6 == 0xffff
-//     xor r6 r6         
+//     xor r6 r6         # r6 == 0
 6663 // [17] 18:5
-// # r6 == 0
-//     and r4 r6         
+//     and r4 r6         # r6 == 0
 6483 // [18] 19:5
-// # r6 == 0
-//     not r4 r6         
+//     not r4 r6         # r6 == 0
 64A3 // [19] 20:5
-// # r6 == 0
-//     cp r1 r6          
+//     cp r1 r6          # r6 == 0x1234
 61C3 // [20] 21:5
-// # r6 == 0x1234
-//     shf 1 r6          
+//     shf 1 r6          # r6 == 0x0910
 60E3 // [21] 22:5
-// # r6 == 0x0910
-//     shf -1 r6         
+//     shf -1 r6         # r6 = 0x1234
 6FE3 // [22] 23:5
-// # r6 = 0x1234
-//     ifz ldi 0x0001 r7 
+//     ifz ldi 0x0001 r7 # z!=1 => does not execute
 7031 // [23] 24:5
 0001 // [24] 24:5
-// # z!=1 => does not execute
-//     cp r4 r4          
+//     cp r4 r4          # r4 = 0xffff
 44C3 // [25] 25:5
-// # r4 = 0xffff
-//     ifn ldi 0x0001 r7 
+//     ifn ldi 0x0001 r7 # n==1 r7=0x0001
 7032 // [26] 26:5
 0001 // [27] 26:5
-// # n==1 r7=0x0001
-//     ifp jmp lbl1      
+//     ifp jmp lbl1      # zn!=00 => does not execute
 004C // [28] 27:5
-// # zn!=00 => does not execute
-//     jmp lbl1          
+//     jmp lbl1          # 
 003F // [29] 28:5
-// # 
 //     0 
 0000 // [30] 29:5
-// 0               
+// 0               # padding 
 0000 // [31] 29:7
-// # padding 
 // 
 // lbl1:
 //     call x0030
@@ -678,6 +572,7 @@ FFEF // [63] 59:5
 8115 // [97] 78:5
 //     ifp addi 2 r8 ret
 8114 // [98] 79:5
+
 
 */
 

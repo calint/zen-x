@@ -2,13 +2,7 @@
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
-[o] assembler webapp
-[x]   => one file java executable 'zasm', happy path implemented
-[x]   => bounds checking on immediate values
-[o]   write hex with source annotations
-        => no comments, no labels, just program counter and source position + trimmed source
-[o]     => improve source annotations to include comments and labels
-          => all comments and labels are in the hex file but not good enough
+[ ] zasm: does not include trailing comments at the end of file
 [x]   pad hex file to 64K
 [ ] emulator webapp
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
@@ -20,6 +14,14 @@
 [ ] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
 ------------------------------------------------------------------------------
+[x] assembler
+[x]   => one file java executable 'zasm', happy path implemented
+[x]   => bounds checking on immediate values
+[x]   write hex with source annotations
+        => no comments, no labels, just program counter and source position + trimmed source
+[x]     => improve source annotations to include comments and labels
+[x]         => all comments and labels are in the hex file but not good enough
+[x]            => better output but the code is messy
 [-] reduce instruction cycles where possible since rom and ram has 1 cycle latency
       rom data arrives one cycle + ~100ps and a full cycle is wasted because of that
         https://support.xilinx.com/s/question/0D52E00006hpSrzSAE/100-ps-delay-for-block-memory-generator-63?language=en_US

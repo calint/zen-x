@@ -85,11 +85,27 @@ public class zasm {
     }
 
     Toc toc = new Toc();
-    for (Statement st : stmts) {
+    // ? messy handling of comments that are on the same line as the statement
+    // example:
+    //  cp r1 r1  # comment statement is after the statement that needs compile
+    int i = 0;
+    final int n = stmts.size();
+    while (true) {
+      if (i==n) break;
+      Statement st = stmts.get(i);
       String src = st.toSource();
       toc.addComment(src);
-      st.compile(toc);
       srcOut.append(src);
+      i++;
+      if (i==n) break;
+      Statement cmnt = stmts.get(i);
+      if (cmnt instanceof Comment) {
+        String s = cmnt.toSource();
+        toc.addComment(s);
+        srcOut.append(s);
+        i++;
+      }
+      st.compile(toc);
     }
     toc.link();
 
