@@ -28,6 +28,7 @@ Clocking clkg (
 );
 
 Zenx #(
+    "/home/c/w/zen-x/zen-x.srcs/sim_1/new/rom-tb-zenx.hex",
     CLK_FREQ,
     BAUD_RATE
 ) zx (
