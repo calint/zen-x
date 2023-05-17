@@ -1,9 +1,9 @@
-    ldi 0x1234 r1   # r1=0x1234
-    ldi 0xabcd r2   # r2=0xabcd
-    ldi 0xffff r3   # r3=0xffff
-    st r2 r1        # ram[0xabcd]=0x1234
-    st r1 r3        # ram[0x1234]=0xffff
-    ld r2 r6        # r6=ram[0xabcd] == 0x1234
+    ldi 0x1234 r1     # r1=0x1234
+    ldi 0xabcd r2     # r2=0xabcd
+    ldi 0xffff r3     # r3=0xffff
+    st r2 r1          # ram[0xabcd]=0x1234
+    st r1 r3          # ram[0x1234]=0xffff
+    ld r2 r6          # r6=ram[0xabcd] == 0x1234
     ld r1 r4          # r4=ram[0x1234] == 0xffff
     st r3 r1          # ram[0xffff]=0x1234
     ld r3 r5          # r5=ram[0xffff] == 0x1234
