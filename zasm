@@ -5,7 +5,7 @@ import java.nio.charset.*;
 import java.nio.file.*;
 import java.util.*;
 
-public class ReadFileToString {
+public class zasm {
   private static ArrayList<Statement> stmts = new ArrayList<>();
 
   public static void main(String[] args) throws Throwable {
@@ -101,7 +101,7 @@ public class ReadFileToString {
   }
 }
 
-public class Toc {
+class Toc {
   public enum LinkType {
     CALL,
     JMP,
@@ -248,7 +248,7 @@ public class Toc {
   }
 }
 
-public class OpData extends Statement {
+class OpData extends Statement {
 
   public OpData(Token data) {
     super(null, data);
@@ -259,7 +259,7 @@ public class OpData extends Statement {
   }
 }
 
-public class OpRl extends Statement {
+class OpRl extends Statement {
   private Token regb;
 
   public OpRl(Token zn, Token tk, Tokenizer tz) {
@@ -282,7 +282,7 @@ public class OpRl extends Statement {
   }
 }
 
-public class OpRh extends Statement {
+class OpRh extends Statement {
   private Token regb;
 
   public OpRh(Token zn, Token tk, Tokenizer tz) {
@@ -305,7 +305,7 @@ public class OpRh extends Statement {
   }
 }
 
-public class OpWh extends Statement {
+class OpWh extends Statement {
   private Token regb;
 
   public OpWh(Token zn, Token tk, Tokenizer tz) {
@@ -328,7 +328,7 @@ public class OpWh extends Statement {
   }
 }
 
-public class OpWl extends Statement {
+class OpWl extends Statement {
   private Token regb;
 
   public OpWl(Token zn, Token tk, Tokenizer tz) {
@@ -351,7 +351,7 @@ public class OpWl extends Statement {
   }
 }
 
-public class Eof extends Statement {
+class Eof extends Statement {
   private Token tk;
 
   public Eof(Token tk) {
@@ -359,7 +359,7 @@ public class Eof extends Statement {
   }
 }
 
-public class Label extends Statement {
+class Label extends Statement {
   private Token func;
 
   public Label(Token nm, Tokenizer tz) {
@@ -384,7 +384,7 @@ public class Label extends Statement {
   }
 }
 
-public class Comment extends Statement {
+class Comment extends Statement {
   private Token tk;
   private String txt;
 
@@ -398,7 +398,7 @@ public class Comment extends Statement {
   }
 }
 
-public class OpCall extends Statement {
+class OpCall extends Statement {
   private Token lbl;
 
   public OpCall(Token zn, Token tk, Tokenizer tz) {
@@ -417,7 +417,7 @@ public class OpCall extends Statement {
   }
 }
 
-public class OpJmp extends Statement {
+class OpJmp extends Statement {
   private Token lbl;
 
   public OpJmp(Token zn, Token tk, Tokenizer tz) {
@@ -436,7 +436,7 @@ public class OpJmp extends Statement {
   }
 }
 
-public class OpShf extends Statement {
+class OpShf extends Statement {
   private Token imm4;
   private Token regb;
 
@@ -473,7 +473,7 @@ public class OpShf extends Statement {
   }
 }
 
-public class OpCp extends Statement {
+class OpCp extends Statement {
   private Token rega;
   private Token regb;
 
@@ -499,7 +499,7 @@ public class OpCp extends Statement {
   }
 }
 
-public class OpNot extends Statement {
+class OpNot extends Statement {
   private Token rega;
   private Token regb;
 
@@ -525,7 +525,7 @@ public class OpNot extends Statement {
   }
 }
 
-public class OpAnd extends Statement {
+class OpAnd extends Statement {
   private Token rega;
   private Token regb;
 
@@ -551,7 +551,7 @@ public class OpAnd extends Statement {
   }
 }
 
-public class OpXor extends Statement {
+class OpXor extends Statement {
   private Token rega;
   private Token regb;
 
@@ -577,7 +577,7 @@ public class OpXor extends Statement {
   }
 }
 
-public class OpOr extends Statement {
+class OpOr extends Statement {
   private Token rega;
   private Token regb;
 
@@ -603,7 +603,7 @@ public class OpOr extends Statement {
   }
 }
 
-public class OpSub extends Statement {
+class OpSub extends Statement {
   private Token rega;
   private Token regb;
 
@@ -629,7 +629,7 @@ public class OpSub extends Statement {
   }
 }
 
-public class OpAdd extends Statement {
+class OpAdd extends Statement {
   private Token rega;
   private Token regb;
 
@@ -654,7 +654,7 @@ public class OpAdd extends Statement {
   }
 }
 
-public class OpAddi extends Statement {
+class OpAddi extends Statement {
   private Token imm4;
   private Token regb;
 
@@ -691,7 +691,7 @@ public class OpAddi extends Statement {
   }
 }
 
-public class OpLd extends Statement {
+class OpLd extends Statement {
   private Token rega;
   private Token regb;
 
@@ -717,7 +717,7 @@ public class OpLd extends Statement {
   }
 }
 
-public class OpSt extends Statement {
+class OpSt extends Statement {
   private Token rega;
   private Token regb;
 
@@ -743,7 +743,7 @@ public class OpSt extends Statement {
   }
 }
 
-public class OpLdi extends Statement {
+class OpLdi extends Statement {
   private Token regb;
   private Token imm16;
 
@@ -773,7 +773,7 @@ public class OpLdi extends Statement {
   }
 }
 
-public class Statement {
+class Statement {
   private Token tk;
   private Token zn;
   private Token ret;
@@ -892,7 +892,7 @@ public class Statement {
   }
 }
 
-public class Token {
+class Token {
   private String ws_lft;
   private String id;
   private String ws_rht;
@@ -953,7 +953,7 @@ public class Token {
   }
 }
 
-public class Tokenizer {
+class Tokenizer {
   private String src;
   private int pos;
   private int linenm = 1; // current line number
