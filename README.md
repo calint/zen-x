@@ -1,10 +1,6 @@
 # zen-x
 experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga Cmod S7 from Digilent
 
-under construction, second try at fpga using verilog in xilinx vivado
-
-rom and ram implemented using on board block ram
-
 pre pipeline
 
 2 cycles / instruction
