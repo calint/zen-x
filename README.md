@@ -3,9 +3,9 @@ experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga
 
 under construction
 
-pre pipeline
-
 2 cycles / instruction
+
+pre pipeline
 
 ```
                           
