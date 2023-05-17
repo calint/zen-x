@@ -237,6 +237,9 @@ public class Toc {
       }
       sb.append(String.format("%04X", instr)).append('\n');
     }
+    for (int i = n; i < 0x10000; i++) {
+      sb.append("0 ");
+    }
     sb.append('\n');
     return sb.toString();
   }

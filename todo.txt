@@ -1,6 +1,7 @@
 [o] assembler webapp
       => one file java executable, happy path implemented
 [o]   write hex with source annotations => no comments, no labels, just program counter and source position + trimmed source
+[x]   pad hex file to 64K
 [ ] emulator webapp
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
