@@ -9,11 +9,16 @@ public class zasm {
   private static ArrayList<Statement> stmts = new ArrayList<>();
 
   public static void main(String[] args) throws Throwable {
-    String src_path = args.length == 0 ? "rom.asm" : args[0];
-    System.out.println("compiling: " + src_path);
-    String src_in = Files.readString(Paths.get(src_path));
-    Tokenizer tz = new Tokenizer(src_in);
-    StringBuilder src_out = new StringBuilder();
+    String srcPathStr = args.length == 0 ? "rom.zasm" : args[0];
+    Path srcPath = Paths.get(srcPathStr);
+    if (!Files.exists(srcPath)) {
+      System.out.println("source file '" + srcPath + "' not found");
+      return;
+    }
+    System.out.println("compiling: " + srcPath);
+    String srcIn = Files.readString(srcPath);
+    Tokenizer tz = new Tokenizer(srcIn);
+    StringBuilder srcOut = new StringBuilder();
     while (true) {
       Token zn = tz.nextToken();
       if (zn.id().endsWith(":")) {
@@ -82,22 +87,22 @@ public class zasm {
     Toc toc = new Toc();
     for (var st : stmts) {
       st.compile(toc);
-      src_out.append(st.toSource());
+      srcOut.append(st.toSource());
     }
     toc.link();
 
-    String src = src_out.toString();
-    if (!src.toString().equals(src_in)) {
-      Path file_diff = Paths.get("diff");
-      Files.write(file_diff, src.getBytes(StandardCharsets.UTF_8));
+    String src = srcOut.toString();
+    if (!src.toString().equals(srcIn)) {
+      Path fileDiff = Paths.get("diff");
+      Files.write(fileDiff, src.getBytes(StandardCharsets.UTF_8));
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
     // String compiled = toc.toHexString();
     String compiled = toc.toAnnotatedHexString();
 
-    String compiled_path = src_path.substring(0, src_path.lastIndexOf('.')) + ".hex";
-    Files.write(Paths.get(compiled_path), compiled.getBytes(StandardCharsets.UTF_8));
-    System.out.println("    wrote: " + compiled_path);
+    String compiledPathStr = srcPathStr.substring(0, srcPathStr.lastIndexOf('.')) + ".hex";
+    Files.write(Paths.get(compiledPathStr), compiled.getBytes(StandardCharsets.UTF_8));
+    System.out.println("    wrote: " + compiledPathStr);
   }
 }
 
