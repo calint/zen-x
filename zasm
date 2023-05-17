@@ -10,6 +10,7 @@ public class ReadFileToString {
 
   public static void main(String[] args) throws Throwable {
     String src_path = args.length == 0 ? "rom.asm" : args[0];
+    System.out.println("compiling: "+src_path);
     String src_in = Files.readString(Paths.get(src_path));
     Tokenizer tz = new Tokenizer(src_in);
     StringBuilder src_out = new StringBuilder();
@@ -95,6 +96,7 @@ public class ReadFileToString {
 
     String compiled_path = src_path.substring(0, src_path.lastIndexOf('.')) + ".hex";
     Files.write(Paths.get(compiled_path), compiled.getBytes(StandardCharsets.UTF_8));
+    System.out.println("    wrote: "+compiled_path);
   }
 }
 
@@ -998,6 +1000,11 @@ public class Tokenizer {
   public String readComment() {
     StringBuilder sb = new StringBuilder();
     while (true) {
+      if (pos != 0 && src.charAt(pos - 1)=='\n') {
+        // check if it is an empty comment. example: "ld 0x1234 r1 #\n"
+        // without this check the next line would be read as a comment
+        return "";
+      }
       char ch = src.charAt(pos);
       sb.append(ch);
       pos++;
@@ -1005,7 +1012,6 @@ public class Tokenizer {
       if (pos == src.length()) {
         return sb.toString();
       }
-
       if (ch == '\n') {
         linenm++;
         charnm = 1;

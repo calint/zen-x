@@ -113,12 +113,12 @@ initial begin
     if (zx.regs.mem[4]==-1) $display("case 6 passed");
     else $display("case 6 FAILED. expected -1, got %0d", zx.regs.mem[4]); 
     
-    #clk_tk // 4303: add r1 r4
+    #clk_tk // 4303: add r3 r4
     #clk_tk
     if (zx.regs.mem[4]==-2) $display("case 7 passed");
     else $display("case 7 FAILED. expected -2, got %0d", zx.regs.mem[4]); 
 
-    #clk_tk // 4323: add r3 r4 ; -2-(-1)=-1
+    #clk_tk // 4323: sub r3 r4 ; -2-(-1)=-1
     #clk_tk
     if (zx.regs.mem[4]==-1) $display("case 8 passed");
     else $display("case 8 FAILED. expected -1, got %0d", zx.regs.mem[4]); 
