@@ -107,19 +107,3 @@ x0060: func
     ifn addi 2 r8 ret
     ifz addi 2 r8 ret
     ifp addi 2 r8 ret
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
