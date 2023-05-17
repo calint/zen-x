@@ -11,6 +11,7 @@
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
+          => changed implementation from IP to inferred block ram, 100ps delay gone
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
