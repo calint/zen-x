@@ -98,12 +98,15 @@ public class zasm {
       srcOut.append(src);
       i++;
       if (i==n) break;
-      Statement cmnt = stmts.get(i);
-      if (cmnt instanceof Comment) {
-        String s = cmnt.toSource();
-        toc.addComment(s);
-        srcOut.append(s);
-        i++;
+      if (!src.endsWith("\n")) {
+        // handle comment on the same line as the statement
+        Statement cmnt = stmts.get(i);
+        if (cmnt instanceof Comment) {
+          String s = cmnt.toSource();
+          toc.addComment(s);
+          srcOut.append(s);
+          i++;
+        }
       }
       st.compile(toc);
     }
@@ -267,6 +270,30 @@ class Toc {
     return sb.toString();
   }
 
+  private void appendComments(StringBuilder sb, int i) {
+    ArrayList<String> cmnts = comments.get(i);
+    if (cmnts == null)
+      return;
+    boolean lastCommentHadNewline = true;
+    for (String s : cmnts) {
+      if (s.isEmpty()) // ? find out where an empty comment is inserted
+        continue;
+      if (lastCommentHadNewline) {
+        sb.append("// ");
+      }
+      String s1 = s.replaceAll("\n", "\n// ");
+      if (s.endsWith("\n")) {
+        s1 = s1.substring(0, s1.length() - 3);
+        lastCommentHadNewline = true;
+      } else {
+        lastCommentHadNewline = false;
+      }
+      sb.append(s1);
+    }
+    if (lastCommentHadNewline)
+      return;
+    sb.append('\n');
+  }
   public String toAnnotatedHexString() {
     StringBuilder sb = new StringBuilder();
     int j = 0;
@@ -275,32 +302,18 @@ class Toc {
     // ? messy handling of comments
     ensureCommentsArraySize();
     for (int i = 0; i < n; i++) {
-      ArrayList<String> cmnts = comments.get(i);
-      if (cmnts != null) {
-        boolean lastCommentHadNewline = true;
-        for (String s : cmnts) {
-          if (lastCommentHadNewline) {
-            sb.append("// ");
-          }
-          String s1 = s.replaceAll("\n", "\n// ");
-          if (s.endsWith("\n")) {
-            s1 = s1.substring(0, s1.length() - 3);
-            lastCommentHadNewline = true;
-          } else {
-            lastCommentHadNewline = false;
-          }
-          sb.append(s1);
-        }
-        if (!lastCommentHadNewline) {
-          sb.append('\n');
-        }
-      }
+      appendComments(sb,i); 
       short instr = instrs.get(i);
       sb.append(String.format("%04X", instr)).append(" // ");
       Statement stmt = stmts.get(i);
       if (stmt != null) {
         sb.append("[").append(i).append("] ").append(stmt.sourcePos()).append('\n');
       }
+    }
+    // handle comments at end of file
+    final int m = comments.size();
+    for (int i = instrs.size(); i < m; i++) {
+      appendComments(sb, i);
     }
     sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
     for (int i = n; i < 0x10000; i++) {
