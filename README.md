@@ -101,7 +101,7 @@ instruction executes according to:
 instructions with rc=10 return from call
   does not apply on ldi (todo)
 
-use 'zasm' to compile assembler code. see 'rom.asm' for sample code.
+use 'zasm' to compile assembler code. see 'rom.zasm' for sample code.
 
 how-to wit_h Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
