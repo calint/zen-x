@@ -1,9 +1,10 @@
-[ ] zenx: ldr: load data from rom
+[ ] zenx: ? ldr: load data from rom
+[ ] zenx: ? at cpu boot copy a portion of rom to ram
+[ ] zenx: ? txr transfer from rom long instruction
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] zasm: does not include trailing comments at the end of file
-[x]   pad hex file to 64K
 [ ] emulator webapp
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ] ldi data can be loaded into register in a single cycle 
@@ -17,6 +18,7 @@
 [x] assembler
 [x]   => one file java executable 'zasm', happy path implemented
 [x]   => bounds checking on immediate values
+[x]   pad hex file to 64K
 [x]   write hex with source annotations
         => no comments, no labels, just program counter and source position + trimmed source
 [x]     => improve source annotations to include comments and labels
