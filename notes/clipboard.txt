@@ -1,9 +1,5 @@
 -------------------------------------------------------------
-TAG=2023-05-02--2 && git tag $TAG && git push origin $TAG
-
-git reset --hard HEAD
-
-git push --force origin HEAD
+TAG=2023-05-17--1--checkpoint && git tag $TAG && git push origin $TAG
 -------------------------------------------------------------
 `default_nettype none
 `default_nettype wire
@@ -15,4 +11,7 @@ cat w/zen-x/todo.txt | socat - /dev/ttyUSB1,cs8,b4800,raw
 stty -F /dev/ttyUSB1 9600 cs8 -cstopb -parenb
 -------------------------------------------------------------
 java -jar ~/Downloads/google-java-format-1.17.0-all-deps.jar -i zasm.java
+-------------------------------------------------------------
+git reset --hard HEAD
+git push --force origin HEAD
 -------------------------------------------------------------
