@@ -103,7 +103,7 @@ instructions with rc=10 return from call
 
 use 'zasm' to compile assembler code. see 'rom.zasm' for sample code.
 
-how-to wit_h Vivado v2022.2:
+how-to with Vivado v2022.2:
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
  * find out which tty is on the usb connected to the card (i.e. /dev/ttyUSB1)
