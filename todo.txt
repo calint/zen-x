@@ -4,7 +4,7 @@
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
-[ ] emulator webapp
+[ ] zasm: "endfunc" and labels have context within the function block
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ] ldi data can be loaded into register in a single cycle 
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
@@ -14,6 +14,7 @@
 [ ] zenx: 1 cycle call
 [ ] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
+[ ] emulator webapp
 ------------------------------------------------------------------------------
 [x] zasm: does not include trailing comments at the end of file
 [x] assembler

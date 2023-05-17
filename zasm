@@ -156,11 +156,13 @@ class Toc {
   }
 
   private static class Label {
+    Statement stmt;
     int pc;
     String name;
     boolean isFunc;
 
-    public Label(int pc, String name, boolean isFunc) {
+    public Label(Statement stmt, int pc, String name, boolean isFunc) {
+      this.stmt = stmt;
       this.pc = pc;
       this.name = name;
       this.isFunc = isFunc;
@@ -200,13 +202,28 @@ class Toc {
     write(stmt, instr);
   }
 
-  public void addLabel(String name, boolean isFunc) {
+  public void addLabel(Statement stmt, String name, boolean isFunc) throws Throwable {
+    Label lbl = labels.get(name);
+    if (lbl!=null) {
+      throw new Exception(stmt.sourcePos()+": label '"+name+"' already declared at "+lbl.stmt.sourcePos());
+    }
     if (isFunc) { // align at 16 bytes
       if ((pc & 0xf) != 0) {
-        pc = (pc & 0xfff0) + 0x10;
+        int pc_nxt = (pc & 0xfff0) + 0x10;
+        // add empty statements in the padding
+        for (int i = pc; i < pc_nxt; i++) {
+          instrs.add((short)0);
+          stmts.add(null);
+          comments.add(null);
+        }
+        // move the current comments to the beginning of the function
+        // one more element in comments for the next instruction
+        comments.add(null);
+        comments.set(pc_nxt, comments.remove(pc));
+        pc = pc_nxt;
       }
     }
-    labels.put(name, new Label(pc, name, isFunc));
+    labels.put(name, new Label(stmt, pc, name, isFunc));
   }
 
   public void link() throws Throwable {
@@ -304,10 +321,12 @@ class Toc {
     for (int i = 0; i < n; i++) {
       appendComments(sb,i); 
       short instr = instrs.get(i);
-      sb.append(String.format("%04X", instr)).append(" // ");
+      sb.append(String.format("%04X", instr));
       Statement stmt = stmts.get(i);
       if (stmt != null) {
-        sb.append("[").append(i).append("] ").append(stmt.sourcePos()).append('\n');
+        sb.append(" // ").append("[").append(i).append("] ").append(stmt.sourcePos()).append('\n');
+      } else {
+        sb.append("\n");
       }
     }
     // handle comments at end of file
@@ -452,7 +471,7 @@ class Label extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     final String id = id();
-    toc.addLabel(id.substring(0, id.length() - 1), func != null);
+    toc.addLabel(this, id.substring(0, id.length() - 1), func != null);
   }
 
   public String toSource() {

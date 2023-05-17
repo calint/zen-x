@@ -22,25 +22,25 @@ input: func # r1: bufptr, r2: buflen
         ldi 0xff00 r6    # r6 = 0xff00
         cp r1 r10        # r10 = r1
         xor r9 r9        # r9 = 0
-        loop:            # loop:
+        loop2:           # loop:
             addi 1 r9    #     r9++
             rl r7        #     rdl r7
             st r10 r7    #     [r10] = r7
             cp r7 r8     #     r8 = r7
             and r5 r8    #     r8 &= r5
             xor r3 r8    #     r8 ^= r3
-            ifz jmp done #     ifz jmp done
+            ifz jmp done1 #     ifz jmp done
             rh r7        #     rdh r7
             st r10 r7    #     [r10] = r7
             cp r7 r8     #     r8 = r7
             and r6 r8    #     r8 &= r6
             xor r4 r8    #     r8 ^= r4
-            ifz jmp done #     ifz jmp done
+            ifz jmp done1 #     ifz jmp done
             addi -1 r2   #     r2--
-            ifz jmp done #     ifz jmp done
+            ifz jmp done1 #     ifz jmp done
             addi 1 r9    #     r9++
-            jmp loop     # jmp loop
-        done:            # done:
+            jmp loop2    # jmp loop
+        done1:            # done:
         cp r9 r2 ret     # r2 = r9 ret
                          # 
 
@@ -50,11 +50,11 @@ main: func
     ldi strlen r11       # r11 = &strlen
     ld r11 r2            # r2 = [r11]
     cp r2 r12            # r12 = r2
-    loop:                # loop:
+    loop1:               # loop:
         call input       #   input()
         call print       #   print()
         cp r12 r2        #   r2 = r12
-    jmp loop             # jmp loop
+    jmp loop1            # jmp loop
 
 strbuf: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 strlen: 0
