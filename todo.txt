@@ -3,7 +3,7 @@
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [o] assembler webapp
-[x]   => one file java executable, happy path implemented
+[x]   => one file java executable 'zasm', happy path implemented
 [x]   => bounds checking on immediate values
 [o]   write hex with source annotations
         => no comments, no labels, just program counter and source position + trimmed source
