@@ -12,7 +12,7 @@
 [x]   pad hex file to 64K
 [ ] emulator webapp
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
-[ ]   ldi data can be loaded into register in a single cycle 
+[ ] ldi data can be loaded into register in a single cycle 
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
