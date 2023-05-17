@@ -10,7 +10,7 @@ public class ReadFileToString {
 
   public static void main(String[] args) throws Throwable {
     String src_path = args.length == 0 ? "rom.asm" : args[0];
-    System.out.println("compiling: "+src_path);
+    System.out.println("compiling: " + src_path);
     String src_in = Files.readString(Paths.get(src_path));
     Tokenizer tz = new Tokenizer(src_in);
     StringBuilder src_out = new StringBuilder();
@@ -74,8 +74,8 @@ public class ReadFileToString {
       } else if (id.isId("rh")) {
         stmts.add(new OpRh(zn, id, tz));
       } else {
-          short data = Statement.parseImm16(id);
-          stmts.add(new OpData(id));
+        short data = Statement.parseImm16(id);
+        stmts.add(new OpData(id));
       }
     }
 
@@ -92,12 +92,12 @@ public class ReadFileToString {
       Files.write(file_diff, src.getBytes(StandardCharsets.UTF_8));
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
-    //String compiled = toc.toHexString();
+    // String compiled = toc.toHexString();
     String compiled = toc.toAnnotatedHexString();
 
     String compiled_path = src_path.substring(0, src_path.lastIndexOf('.')) + ".hex";
     Files.write(Paths.get(compiled_path), compiled.getBytes(StandardCharsets.UTF_8));
-    System.out.println("    wrote: "+compiled_path);
+    System.out.println("    wrote: " + compiled_path);
   }
 }
 
@@ -259,7 +259,6 @@ public class OpData extends Statement {
   }
 }
 
-
 public class OpRl extends Statement {
   private Token regb;
 
@@ -317,7 +316,7 @@ public class OpWh extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     short instr = getZnr();
-    short b = registerAddressFromToken(regb);;
+    short b = registerAddressFromToken(regb);
     instr |= 3 << 4;
     instr |= 0xa << 8;
     instr |= b << 12;
@@ -340,7 +339,7 @@ public class OpWl extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     short instr = getZnr();
-    short b = registerAddressFromToken(regb);;
+    short b = registerAddressFromToken(regb);
     instr |= 3 << 4;
     instr |= 2 << 8;
     instr |= b << 12;
@@ -765,8 +764,12 @@ public class OpLdi extends Statement {
     instr |= 3 << 4;
     instr |= reg << 12;
     toc.write(this, instr);
-    short addr = Statement.parseImm16(imm16);
-    toc.write(null, addr);
+    try {
+      short addr = Statement.parseImm16(imm16);
+      toc.write(this, addr);
+    } catch (Throwable t) {
+      toc.write(this, (short) 0, Toc.LinkType.LDI, imm16.id(), imm16);
+    }
   }
 }
 
@@ -849,11 +852,25 @@ public class Statement {
         i = Integer.decode(tk.id()).intValue();
       }
       if (i < 0 && i < Short.MIN_VALUE)
-        throw new Exception(tk.sourcePos() + ": negative value '"+tk.id()+"' (" + i + ") does not fit in 16 bits. min value is " + Short.MIN_VALUE);
-      if (i > 0 && i > (1<<16)-1)
-        throw new Exception(tk.sourcePos() + ": positive value '"+tk.id()+"' (" + i + ") does not fit in 16 bits. max value is " + ((1<<16) - 1));
+        throw new Exception(
+            tk.sourcePos()
+                + ": negative value '"
+                + tk.id()
+                + "' ("
+                + i
+                + ") does not fit in 16 bits. min value is "
+                + Short.MIN_VALUE);
+      if (i > 0 && i > (1 << 16) - 1)
+        throw new Exception(
+            tk.sourcePos()
+                + ": positive value '"
+                + tk.id()
+                + "' ("
+                + i
+                + ") does not fit in 16 bits. max value is "
+                + ((1 << 16) - 1));
       return (short) i;
-    } catch(NumberFormatException e) {
+    } catch (NumberFormatException e) {
       throw new Exception(tk.sourcePos() + ": cannot parse '" + tk.id() + "' to a number");
     }
   }
@@ -861,7 +878,8 @@ public class Statement {
   public static short parseSignedPosIncImm4(Token tk) throws Throwable {
     int a = Integer.decode(tk.id()).shortValue();
     if (a == 0)
-      throw new Exception(tk.sourcePos() + ": signed immediate 4 bit value in this context is not allowed to be 0");
+      throw new Exception(
+          tk.sourcePos() + ": signed immediate 4 bit value in this context is not allowed to be 0");
 
     if (a > 8 || a < -8) {
       throw new Exception(
@@ -1049,7 +1067,7 @@ public class Tokenizer {
   public String readComment() {
     StringBuilder sb = new StringBuilder();
     while (true) {
-      if (pos != 0 && src.charAt(pos - 1)=='\n') {
+      if (pos != 0 && src.charAt(pos - 1) == '\n') {
         // check if it is an empty comment. example: "ld 0x1234 r1 #\n"
         // without this check the next line would be read as a comment
         return "";
