@@ -13,9 +13,10 @@ module Sys (
     output wire led0_b
 );
 
+localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/rom-tb-zenx.hex";
 localparam CLK_FREQ = 66_000_000;
-// baud rates: 300, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400
 localparam BAUD_RATE = 9600;
+// baud rates: 300, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400
 
 wire clk_locked;
 wire clk;
@@ -28,7 +29,7 @@ Clocking clkg (
 );
 
 Zenx #(
-    "/home/c/w/zen-x/zen-x.srcs/sim_1/new/rom-tb-zenx.hex",
+    ROM_FILE,
     CLK_FREQ,
     BAUD_RATE
 ) zx (
