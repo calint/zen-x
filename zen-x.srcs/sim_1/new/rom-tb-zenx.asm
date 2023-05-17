@@ -16,15 +16,14 @@
     and r4 r6         # r6 == 0
     not r4 r6         # r6 == 0
     cp r1 r6          # r6 == 0x1234
-    shf 1 r6          # r6 == 
+    shf 1 r6          # r6 == 0x0910
     shf -1 r6         # r6 = 0x1234
     ifz ldi 0x0001 r7 # z!=1 => does not execute
     cp r4 r4          # r4 = 0xffff
     ifn ldi 0x0001 r7 # n==1 r7=0x0001
     ifp jmp lbl1      # zn!=00 => does not execute
-    jmp lbl1          
-    ifp add r0 r0     # 0x000 
-    ifp add r0 r0     # 0x000
+    jmp lbl1          # 
+    0 0               # padding 
 
 lbl1:
     call x0030
@@ -37,11 +36,7 @@ lbl1:
     ifn call x0050
     jmp x007
 
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
+    0 0 0 0 0
  
 x0030: func
     addi 1 r8 ret
@@ -61,47 +56,19 @@ echo:
     jmp echo
 
 x0040:
-    ifp add r0 r0
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
 
 x0050: func
     call x0060
     addi 2 r8 ret
 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
+    0 0
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
 
 x0060: func
     ifn addi 2 r8 ret

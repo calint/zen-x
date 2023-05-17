@@ -37,11 +37,7 @@ lbl1:
     ifn call x0050
     jmp x007
 
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
-    ifp add r0 r0 # 0x0000
+    0 0 0 0 0
  
 x0030: func
     addi 1 r8 ret
@@ -61,47 +57,19 @@ echo:
     jmp echo
 
 x0040:
-    ifp add r0 r0
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
 
 x0050: func
     call x0060
     addi 2 r8 ret
 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
-    ifp add r0 r0 
+    0 0
+    0 0 0 0
+    0 0 0 0
+    0 0 0 0
 
 x0060: func
     ifn addi 2 r8 ret

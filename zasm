@@ -74,7 +74,8 @@ public class ReadFileToString {
       } else if (id.isId("rh")) {
         stmts.add(new OpRh(zn, id, tz));
       } else {
-        throw new Exception(id.sourcePos() + ": unknown instruction '" + id.id() + "'");
+          short data = Statement.parseImm16(id);
+          stmts.add(new OpData(id));
       }
     }
 
@@ -163,7 +164,7 @@ public class Toc {
     for (Link lnk : links) {
       Label lbl = labels.get(lnk.to);
       if (lbl == null) {
-        throw new Exception(lnk.tk.sourcePos() + ": cannot find '" + lnk.to + "'");
+        throw new Exception(lnk.tk.sourcePos() + ": label '" + lnk.to + "' not declared");
       }
       short instr = instrs.get(lnk.pc);
       switch (lnk.type) {
@@ -246,6 +247,18 @@ public class Toc {
     return sb.toString();
   }
 }
+
+public class OpData extends Statement {
+
+  public OpData(Token data) {
+    super(null, data);
+  }
+
+  public void compile(Toc toc) throws Throwable {
+    toc.write(this, parseImm16(token()));
+  }
+}
+
 
 public class OpRl extends Statement {
   private Token regb;
@@ -437,7 +450,7 @@ public class OpShf extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     short instr = getZnr();
-    short a = Integer.decode(imm4.id()).shortValue();
+    short a = parseSignedPosIncImm4(imm4);
     short b = registerAddressFromToken(regb);
     if (a > 8 || a < -8) {
       throw new Exception(
@@ -659,7 +672,7 @@ public class OpAddi extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     short instr = getZnr();
-    short a = Integer.decode(imm4.id()).shortValue();
+    short a = parseSignedPosIncImm4(imm4);
     short b = registerAddressFromToken(regb);
     if (a > 8 || a < -8) {
       throw new Exception(
@@ -752,8 +765,7 @@ public class OpLdi extends Statement {
     instr |= 3 << 4;
     instr |= reg << 12;
     toc.write(this, instr);
-    String addrStr = imm16.id();
-    short addr = (short) Integer.decode(addrStr).shortValue();
+    short addr = Statement.parseImm16(imm16);
     toc.write(null, addr);
   }
 }
@@ -808,6 +820,10 @@ public class Statement {
     return tk.id();
   }
 
+  public Token token() {
+    return tk;
+  }
+
   public String sourcePos() {
     return zn == null ? tk.sourcePos() : zn.sourcePos();
   }
@@ -822,6 +838,39 @@ public class Statement {
               + "'. valid registers 'r0' through 'r15'");
     }
     return a;
+  }
+
+  public static short parseImm16(Token tk) throws Throwable {
+    try {
+      int i;
+      if (tk.id().startsWith("0b")) {
+        i = Integer.parseInt(tk.id().substring(2), 2);
+      } else {
+        i = Integer.decode(tk.id()).intValue();
+      }
+      if (i < 0 && i < Short.MIN_VALUE)
+        throw new Exception(tk.sourcePos() + ": negative value '"+tk.id()+"' (" + i + ") does not fit in 16 bits. min value is " + Short.MIN_VALUE);
+      if (i > 0 && i > (1<<16)-1)
+        throw new Exception(tk.sourcePos() + ": positive value '"+tk.id()+"' (" + i + ") does not fit in 16 bits. max value is " + ((1<<16) - 1));
+      return (short) i;
+    } catch(NumberFormatException e) {
+      throw new Exception(tk.sourcePos() + ": cannot parse '" + tk.id() + "' to a number");
+    }
+  }
+
+  public static short parseSignedPosIncImm4(Token tk) throws Throwable {
+    int a = Integer.decode(tk.id()).shortValue();
+    if (a == 0)
+      throw new Exception(tk.sourcePos() + ": signed immediate 4 bit value in this context is not allowed to be 0");
+
+    if (a > 8 || a < -8) {
+      throw new Exception(
+          tk.sourcePos()
+              + ": signed immediate 4 bit value '"
+              + a
+              + "' is not within -8 to 8 (with 0 being invalid).");
+    }
+    return (short) a;
   }
 }
 

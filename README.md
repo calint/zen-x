@@ -42,10 +42,10 @@ pre pipeline
    / . / . / 0 / 1 /    immediate 12 << 4    /  call /
   / . / . / 1 / 1 /   signed immediate 12   /  jmp  /
  /---/---/---/---/---/-------/------/------/-------/
- \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0100 \ .... \ iowl  \
-  \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0101 \ .... \ iowh  \
-   \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0110 \ .... \ iorl  \
-    \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0111 \ .... \ iorh  \
+ \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0100 \ .... \  wl   \
+  \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0101 \ .... \  wh   \
+   \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0110 \ .... \  rl   \
+    \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0111 \ .... \  rh   \
      \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1100 \ .... \       \
       \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1101 \ .... \       \
        \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1110 \ .... \       \
@@ -82,10 +82,10 @@ pre pipeline
 i/o
  |z|n|r|c| op |rega|regb| mnemo | description
  |-+-+-+-+----+----+----+-------+--------------------------------------
- |.|.|.|0|1100|0100|....| iowl  | uart blocking write lower regs[b]
- |.|.|.|0|1100|0101|....| iowh  | uart blocking write higher regs[b]
- |.|.|.|0|1100|0110|....| iorl  | uart blocking read lower regs[b]
- |.|.|.|0|1100|0111|....| iorh  | uart blocking read higher regs[b]
+ |.|.|.|0|1100|0100|....|  wl   | uart blocking write lower regs[b]
+ |.|.|.|0|1100|0101|....|  wh   | uart blocking write higher regs[b]
+ |.|.|.|0|1100|0110|....|  rl   | uart blocking read lower regs[b]
+ |.|.|.|0|1100|0111|....|  rh   | uart blocking read higher regs[b]
  |.|.|.|0|1100|1100|....|       |
  |.|.|.|0|1100|1101|....|       |
  |.|.|.|0|1100|1110|....|       |
