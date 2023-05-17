@@ -1,5 +1,5 @@
 #!/usr/bin/java --source 11
-//   compiler of zen-x assembler to hex file used in Vivado
+//   zen-x assembler
 
 import java.nio.charset.*;
 import java.nio.file.*;
