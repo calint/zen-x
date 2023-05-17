@@ -91,13 +91,13 @@ public class zasm {
     int i = 0;
     final int n = stmts.size();
     while (true) {
-      if (i==n) break;
+      if (i == n) break;
       Statement st = stmts.get(i);
       String src = st.toSource();
       toc.addComment(src);
       srcOut.append(src);
       i++;
-      if (i==n) break;
+      if (i == n) break;
       if (!src.endsWith("\n")) {
         // handle comment on the same line as the statement
         Statement cmnt = stmts.get(i);
@@ -204,15 +204,16 @@ class Toc {
 
   public void addLabel(Statement stmt, String name, boolean isFunc) throws Throwable {
     Label lbl = labels.get(name);
-    if (lbl!=null) {
-      throw new Exception(stmt.sourcePos()+": label '"+name+"' already declared at "+lbl.stmt.sourcePos());
+    if (lbl != null) {
+      throw new Exception(
+          stmt.sourcePos() + ": label '" + name + "' already declared at " + lbl.stmt.sourcePos());
     }
     if (isFunc) { // align at 16 bytes
       if ((pc & 0xf) != 0) {
         int pc_nxt = (pc & 0xfff0) + 0x10;
         // add empty statements in the padding
         for (int i = pc; i < pc_nxt; i++) {
-          instrs.add((short)0);
+          instrs.add((short) 0);
           stmts.add(null);
           comments.add(null);
         }
@@ -289,8 +290,7 @@ class Toc {
 
   private void appendComments(StringBuilder sb, int i) {
     ArrayList<String> cmnts = comments.get(i);
-    if (cmnts == null)
-      return;
+    if (cmnts == null) return;
     boolean lastCommentHadNewline = true;
     for (String s : cmnts) {
       if (s.isEmpty()) // ? find out where an empty comment is inserted
@@ -307,10 +307,10 @@ class Toc {
       }
       sb.append(s1);
     }
-    if (lastCommentHadNewline)
-      return;
+    if (lastCommentHadNewline) return;
     sb.append('\n');
   }
+
   public String toAnnotatedHexString() {
     StringBuilder sb = new StringBuilder();
     int j = 0;
@@ -319,7 +319,7 @@ class Toc {
     // ? messy handling of comments
     ensureCommentsArraySize();
     for (int i = 0; i < n; i++) {
-      appendComments(sb,i); 
+      appendComments(sb, i);
       short instr = instrs.get(i);
       sb.append(String.format("%04X", instr));
       Statement stmt = stmts.get(i);
