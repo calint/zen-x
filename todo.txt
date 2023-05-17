@@ -1,14 +1,14 @@
+[ ] zenx: ldr: load data from rom
+[ ] built-in 4 leds set by 'led' and 'ledi' instructions
+[ ] implement 'ret' on 'ldi' and 'io*'
+      => 'ret' from 'io*' should work
 [o] assembler webapp
 [x]   => one file java executable, happy path implemented
 [x]   => bounds checking on immediate values
 [o]   write hex with source annotations => no comments, no labels, just program counter and source position + trimmed source
 [ ]     => improve source annotations
 [x]   pad hex file to 64K
-[ ] zenx: ldr: load data from rom
 [ ] emulator webapp
-[ ] implement 'ret' on 'ldi' and 'io*'
-      => 'ret' from 'io*' should work
-[ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ]   ldi data can be loaded into register in a single cycle 
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};

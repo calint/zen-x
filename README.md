@@ -90,8 +90,7 @@ i/o
  |.|.|.|0|1100|0111|....|  rh   | uart blocking read higher regs[b]
  |.|.|.|0|1100|1100|imm4| ledi  | sets leds with imm4
  |.|.|.|0|1100|1101|....|  led  | sets leds to value in regb
- |.|.|.|0|1100|1110|....|       |[ ] zenx: ldr: load data from rom
-
+ |.|.|.|0|1100|1110|....|       |
  |.|.|.|0|1100|1111|....|       |
 
 zn flags in instructions are compared with current flags
