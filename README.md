@@ -101,9 +101,9 @@ instruction executes according to:
 instructions with rc=10 return from call
   does not apply on ldi (todo)
 
-use 'zasm' to compile assembler code. see 'rom.zasm' for sample code.
-
 how-to with Vivado v2022.2:
+ * to run test bench edit path to ROM in "zen-x.srcs/sim_1/new/TB_Zenx.v"
+ * to program device edit path to ROM in "zen-x.srcs/sources_1/new/Sys.v"
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
  * find out which tty is on the usb connected to the card (i.e. /dev/ttyUSB1)
@@ -112,6 +112,9 @@ how-to with Vivado v2022.2:
  * after the tests and prompt the program enters a read / write loop (echo)
  * button 0 is reset, click it to restart and display the prompt
  * provided ROM is meant for tests run in the simulator
+
+programming zen-x
+ * use 'zasm' to compile assembler code. see 'rom.zasm' for sample code.
 
 
 ```
