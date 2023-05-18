@@ -7,7 +7,9 @@ loop:
     add r10 r1
     jmp loop
 
-print_hex: func # r1: number clobbers: r2 r3 r4 r5 r6 r7 r8
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+print_hex: func # r1: number   clobbers: r2 r3 r4 r5 r6 r7 r8
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     ldi 0xf000 r2  # used to 'and' the higher bits
     ldi 10 r3      # constant 10 for compare
     ldi 0x30 r4    # bits to 'or' to map number to ascii 0-9
@@ -76,3 +78,4 @@ print_hex: func # r1: number clobbers: r2 r3 r4 r5 r6 r7 r8
     wl r8  ret         # print and return
 
 endfunc
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

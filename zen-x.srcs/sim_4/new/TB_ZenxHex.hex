@@ -23,7 +23,7 @@ FFDF // [9] 8:5
 0000
 0000
 // 
-// print_hex: func # r1: number
+// print_hex: func # r1: number clobbers: r2 r3 r4 r5 r6 r7 r8
 //     ldi 0xf000 r2  # used to 'and' the higher bits
 2033 // [16] 11:5
 F000 // [17] 11:5
@@ -36,8 +36,8 @@ F000 // [17] 11:5
 //     ldi 0x41 r5    # ascii prior to 'A'
 5033 // [22] 14:5
 0041 // [23] 14:5
-//     ldi 0x0f r9    # bit mask
-9033 // [24] 15:5
+//     ldi 0x0f r6    # bit mask
+6033 // [24] 15:5
 000F // [25] 15:5
 // 
 //     # bits 15:12
@@ -73,8 +73,8 @@ F000 // [17] 11:5
 71C3 // [38] 34:5
 //     shf 8 r7           # shift to lower bits. i.e. 0x3abc => 0x003a
 77E3 // [39] 35:5
-//     and r9 r7          # bit mask 0xf
-7983 // [40] 36:5
+//     and r6 r7          # bit mask 0xf
+7683 // [40] 36:5
 //     cp r7 r8           # 
 87C3 // [41] 37:5
 //     sub r3 r8          # compare with 10. i.e. 0xfff9
@@ -101,8 +101,8 @@ F000 // [17] 11:5
 71C3 // [50] 50:5
 //     shf 4 r7           # shift to lower bits. i.e. 0x03ab
 73E3 // [51] 51:5
-//     and r9 r7
-7983 // [52] 52:5
+//     and r6 r7
+7683 // [52] 52:5
 //     cp r7 r8           # 
 87C3 // [53] 53:5
 //     sub r3 r8          # compare with 10. i.e. 0xfff9
@@ -127,8 +127,8 @@ F000 // [17] 11:5
 //     hex1:
 //     cp r1 r7           # i.e. 0x3abc
 71C3 // [62] 66:5
-//     and r9 r7
-7983 // [63] 67:5
+//     and r6 r7
+7683 // [63] 67:5
 //     cp r7 r8           # 
 87C3 // [64] 68:5
 //     sub r3 r8          # compare with 10. i.e. 0xfff9
