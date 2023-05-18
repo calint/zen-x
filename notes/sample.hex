@@ -4,7 +4,7 @@
 FFFE // [1] 2:5
 //     and r2 r3            # r3 &= r2
 3283 // [2] 3:5
-//     ifz jmp done         # ifz jmp loop_end
+//     ifz jmp done         # ifz jmp done
 007D // [3] 4:5
 //     loop:                # loop:
 //         ld r1 r4         #     r4 = [r1]
@@ -19,14 +19,14 @@ FFFE // [1] 2:5
 3F13 // [8] 10:9
 //         ifp jmp loop     #     ifp jmp loop
 FFBC // [9] 11:9
-//     done:                # loop_end:
-//     addi 1 r3        # r3++  // reusing r3 which is now 0
+//     done:                # done:
+//     addi 1 r3            # r3++  // reusing r3 which is now 0
 3013 // [10] 13:5
-//     and r2 r3        # r2 &= r3
+//     and r2 r3            # r2 &= r3
 3283 // [11] 14:5
-//     ifp ld r1 r4     # ifp r4 = [r1]
+//     ifp ld r1 r4         # ifp r4 = [r1]
 4150 // [12] 15:5
-//     ifp wl r4 ret    # ifp wl r4 ret
+//     ifp wl r4 ret        # ifp wl r4 ret
 4234 // [13] 16:5
 0000
 0000
@@ -49,7 +49,7 @@ FF00 // [23] 23:5
 A1C3 // [24] 24:5
 //     xor r9 r9        # r9 = 0
 9963 // [25] 25:5
-//     loop:           # loop:
+//     loop:            # loop:
 //         addi 1 r9    #     r9++
 9013 // [26] 27:9
 //         rl r7        #     rdl r7
@@ -82,7 +82,7 @@ A1C3 // [24] 24:5
 003D // [40] 41:9
 //         addi 1 r9    #     r9++
 9013 // [41] 42:9
-//         jmp loop     # jmp loop
+//         jmp loop     #     jmp loop
 FF0F // [42] 43:9
 //     done:            # done:
 //     cp r9 r2 ret     # r2 = r9 ret
@@ -113,8 +113,8 @@ C2C3 // [54] 53:5
 000B // [56] 56:9
 //         cp r12 r2        #   r2 = r12
 2CC3 // [57] 57:9
-//     jmp loop             # jmp loop
-FFDF // [58] 58:5
+//         jmp loop         #   jmp loop
+FFDF // [58] 58:9
 // endfunc
 // 
 // strbuf: 0 
