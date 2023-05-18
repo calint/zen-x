@@ -214,11 +214,8 @@ class Toc {
     final int n = scopes.size();
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < n; i++) {
-      sb.append(scopes.get(i).name);
-      sb.append('.');
+      sb.append(scopes.get(i).name).append('.');
     }
-    if (sb.length() != 0)
-      sb.setLength(sb.length() - 1);
     return sb.toString();
   }
 
@@ -297,16 +294,16 @@ class Toc {
       short instr = instrs.get(lnk.pc);
       switch (lnk.type) {
         case CALL:{
-          Label lbl = allLabels.get(lnk.name);
-          if (lbl == null) {
+          Label lbl = allLabels.get(lnk.name); // get from function label from global scope
+          if (lbl == null)
             throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
-          }
+          
           assert ((lbl.pc & 0xf) == 0);
           instr |= lbl.pc;
           break;
         }
         case JMP:{
-          Label lbl = allLabels.get(lnk.scopedName);
+          Label lbl = allLabels.get(lnk.scopedName); // get label within the scope of the function
           if (lbl == null) {
             throw new Exception(lnk.token.sourcePos() + ": label '" + lnk.scopedName + "' not found");
           }
@@ -324,10 +321,10 @@ class Toc {
           break;
         }
         case LDI:{
-          Label lbl = allLabels.get(lnk.name);
-          if (lbl == null) {
+          Label lbl = allLabels.get(lnk.name); // get from global scope
+          if (lbl == null)
             throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
-          }
+          
           instr = (short) lbl.pc;
           break;
         }
@@ -361,6 +358,7 @@ class Toc {
     return sb.toString();
   }
 
+  // messy handling of comments
   private void appendComments(StringBuilder sb, int i) {
     ArrayList<String> cmnts = comments.get(i);
     if (cmnts == null) return;

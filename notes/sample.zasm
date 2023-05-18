@@ -52,11 +52,11 @@ main: func
     ldi strlen r11       # r11 = &strlen
     ld r11 r2            # r2 = [r11]
     cp r2 r12            # r12 = r2
-    loop1:               # loop:
+    loop:                # loop:
         call input       #   input()
         call print       #   print()
         cp r12 r2        #   r2 = r12
-    jmp loop1            # jmp loop
+    jmp loop             # jmp loop
 endfunc
 
 strbuf: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

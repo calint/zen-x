@@ -107,14 +107,14 @@ B033 // [51] 52:5
 2B53 // [53] 53:5
 //     cp r2 r12            # r12 = r2
 C2C3 // [54] 54:5
-//     loop1:               # loop:
+//     loop:                # loop:
 //         call input       #   input()
 001B // [55] 56:9
 //         call print       #   print()
 000B // [56] 57:9
 //         cp r12 r2        #   r2 = r12
 2CC3 // [57] 58:9
-//     jmp loop1            # jmp loop
+//     jmp loop             # jmp loop
 FFDF // [58] 59:5
 // endfunc
 // 
