@@ -16,6 +16,9 @@
          right now ROM module does not necessarily have valid data out at 'posedge' before modules that depend on that run
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[-] zasm: assembled code missplaces the "endfunc" when before padded section.
+      => comments are copied to generate better output for function declarations.
+        => no good way of fixing it
 [x] zasm: "endfunc" and labels have context within the function block
       => the source file is getting too big, maybe a project
 [-] consider having more cores sharing the same rom and ram
