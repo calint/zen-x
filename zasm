@@ -118,19 +118,19 @@ public class zasm {
       }
       st.compile(tc);
     }
+
     tc.link();
 
     String src = srcOut.toString();
     if (!src.toString().equals(srcIn)) {
-      Path fileDiff = Paths.get("diff");
-      Files.write(fileDiff, src.getBytes(StandardCharsets.UTF_8));
+      Files.writeString(Paths.get("diff"), src);
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
     // String compiled = toc.toHexString();
     String compiled = tc.toAnnotatedHexString();
 
     String compiledPathStr = srcPathStr.substring(0, srcPathStr.lastIndexOf('.')) + ".hex";
-    Files.write(Paths.get(compiledPathStr), compiled.getBytes(StandardCharsets.UTF_8));
+    Files.writeString(Paths.get(compiledPathStr), compiled);
     System.out.println("    wrote: " + compiledPathStr);
   }
 }

@@ -1,10 +1,10 @@
 [ ] zenx: ? ldr: load data from rom
 [ ] zenx: ? at cpu boot copy a portion of rom to ram
 [ ] zenx: ? txr transfer from rom long instruction
-[ ] remove module Registers and implement the registers in Zenx
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
+[ ] remove module Registers and implement the registers in Zenx
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ] ldi data can be loaded into register in a single cycle 
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
