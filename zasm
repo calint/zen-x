@@ -92,7 +92,7 @@ public class zasm {
       }
     }
 
-    Toc toc = new Toc();
+    Toc tc = new Toc();
     // ? messy handling of comments that are on the same line as the statement
     // example:
     //  cp r1 r1  # comment statement is after the statement that needs compile
@@ -102,7 +102,7 @@ public class zasm {
       if (i == n) break;
       Statement st = stmts.get(i);
       String src = st.toSource();
-      toc.addComment(src);
+      tc.addComment(src);
       srcOut.append(src);
       i++;
       if (i == n) break;
@@ -111,14 +111,14 @@ public class zasm {
         Statement cmnt = stmts.get(i);
         if (cmnt instanceof StmtComment) {
           String s = cmnt.toSource();
-          toc.addComment(s);
+          tc.addComment(s);
           srcOut.append(s);
           i++;
         }
       }
-      st.compile(toc);
+      st.compile(tc);
     }
-    toc.link();
+    tc.link();
 
     String src = srcOut.toString();
     if (!src.toString().equals(srcIn)) {
@@ -127,7 +127,7 @@ public class zasm {
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
     // String compiled = toc.toHexString();
-    String compiled = toc.toAnnotatedHexString();
+    String compiled = tc.toAnnotatedHexString();
 
     String compiledPathStr = srcPathStr.substring(0, srcPathStr.lastIndexOf('.')) + ".hex";
     Files.write(Paths.get(compiledPathStr), compiled.getBytes(StandardCharsets.UTF_8));
@@ -160,18 +160,18 @@ class Toc {
   }
 
   private static class Link {
+    Token token; // source location
     int pc; // location
     String name; // name as used in source
     String scopedName; // name including scope
     LinkType type; // call, jmp, ldi
-    Token tk; // source location
 
-    public Link(int pc, String name, String scopedName, LinkType type, Token tk) {
+    public Link(Token token, int pc, String name, String scopedName, LinkType type) {
+      this.token = token;
       this.pc = pc;
       this.name = name;
       this.scopedName = scopedName;
       this.type = type;
-      this.tk = tk;
     }
   }
 
@@ -252,7 +252,7 @@ class Toc {
   }
 
   public void write(Statement stmt, short instr, LinkType linkType, String label, Token tk) {
-    Link lnk = new Link(pc, label, getScopePrefix()+label, linkType, tk);
+    Link lnk = new Link(tk, pc, label, getScopePrefix()+label, linkType);
     links.add(lnk);
     write(stmt, instr);
   }
@@ -304,7 +304,7 @@ class Toc {
         case CALL:{
           Label lbl = allLabels.get(lnk.name);
           if (lbl == null) {
-            throw new Exception(lnk.tk.sourcePos() + ": function '" + lnk.name + "' not found");
+            throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
           }
           assert ((lbl.pc & 0xf) == 0);
           instr |= lbl.pc;
@@ -313,12 +313,12 @@ class Toc {
         case JMP:{
           Label lbl = allLabels.get(lnk.scopedName);
           if (lbl == null) {
-            throw new Exception(lnk.tk.sourcePos() + ": label '" + lnk.scopedName + "' not found");
+            throw new Exception(lnk.token.sourcePos() + ": label '" + lnk.scopedName + "' not found");
           }
           int dpc = lbl.pc - lnk.pc;
           if (dpc > 2047 || dpc < -2048) {
             throw new Exception(
-                lnk.tk.sourcePos()
+                lnk.token.sourcePos()
                     + ": jmp to '"
                     + lbl.name
                     + "' out-of-range (offset: "
@@ -331,7 +331,7 @@ class Toc {
         case LDI:{
           Label lbl = allLabels.get(lnk.name);
           if (lbl == null) {
-            throw new Exception(lnk.tk.sourcePos() + ": function '" + lnk.name + "' not found");
+            throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
           }
           instr = (short) lbl.pc;
           break;
