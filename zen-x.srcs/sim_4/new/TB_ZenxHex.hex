@@ -23,129 +23,126 @@ FFDF // [9] 8:5
 0000
 0000
 // 
-// print_hex: func # r1: number clobbers: r2 r3 r4 r5 r6 r7 r8
-//     ldi 0xf000 r2  # used to 'and' the higher bits
+// print_hex: func # r1: number   clobbers: r2 r3 r4 r5 r6 r7
+//     ldi 0x0f r2    # bit mask
 2033 // [16] 11:5
-F000 // [17] 11:5
+000F // [17] 11:5
 //     ldi 10 r3      # constant 10 for compare
 3033 // [18] 12:5
 000A // [19] 12:5
 //     ldi 0x30 r4    # bits to 'or' to map number to ascii 0-9
 4033 // [20] 13:5
 0030 // [21] 13:5
-//     ldi 0x41 r5    # ascii prior to 'A'
+//     ldi 0x41 r5    # ascii 'A'
 5033 // [22] 14:5
 0041 // [23] 14:5
-//     ldi 0x0f r6    # bit mask
-6033 // [24] 15:5
-000F // [25] 15:5
 // 
 //     # bits 15:12
-//     cp r1 r7           # i.e. 0x3abc
-71C3 // [26] 18:5
-//     shf 4 r7           # shift to lower bits. i.e. 0x3000 => 0x0300
-73E3 // [27] 19:5
-//     shf 8 r7           # shift to lower bits. i.e. 0x0300 => 0x0003
-77E3 // [28] 20:5
-//     cp r7 r8           # 
-87C3 // [29] 21:5
-//     sub r3 r8          # compare with 10. i.e. 0xfff9
-8323 // [30] 22:5
-//     ifp jmp letter4    # r8 >= 10
-005C // [31] 23:5
-//     ifz jmp letter4    # r8 == 10
-004D // [32] 24:5
-//         or r4 r7       # 0x003 | 0x0030 => 0x0033
-7443 // [33] 25:9
-//         wl r7
-7233 // [34] 26:9
-//         jmp hex3
-003F // [35] 27:9
-//     letter4:           # 
-//     add r5 r8          # 'A' + r5
-8503 // [36] 29:5
-//     wl r8              # print
-8233 // [37] 30:5
+//     cp r1 r7           # don't clobber r1
+71C3 // [24] 17:5
+//     shf 4 r7           # shift to
+73E3 // [25] 18:5
+//     shf 8 r7           #   lowest nibble
+77E3 // [26] 19:5
+//     cp r7 r6           # 
+67C3 // [27] 20:5
+//     sub r3 r6          # compare with 10
+6323 // [28] 21:5
+//     ifp jmp letter4    # if r6 > r3
+005C // [29] 22:5
+//     ifz jmp letter4    # if r6 == r3
+004D // [30] 23:5
+//         or r4 r7       # nibble below 10, 'or' 0x30 to get ascii digit 0-9
+7443 // [31] 24:9
+//         wl r7          # write ascii 0-9
+7233 // [32] 25:9
+//         jmp hex3       # next nibble
+003F // [33] 26:9
+//     letter4:           # nibble 10 or above
+//     add r5 r6          # 'A' + r6
+6503 // [34] 28:5
+//     wl r6              # write ascii a-f
+6233 // [35] 29:5
 // 
 //     # bits 11:8
 //     hex3:
-//     cp r1 r7           # i.e. 0x3abc
-71C3 // [38] 34:5
-//     shf 8 r7           # shift to lower bits. i.e. 0x3abc => 0x003a
-77E3 // [39] 35:5
-//     and r6 r7          # bit mask 0xf
-7683 // [40] 36:5
-//     cp r7 r8           # 
-87C3 // [41] 37:5
-//     sub r3 r8          # compare with 10. i.e. 0xfff9
-8323 // [42] 38:5
-//     ifp jmp letter3    # r8 >= 10
-005C // [43] 39:5
-//     ifz jmp letter3    # r8 == 10
-004D // [44] 40:5
-//         or r4 r7       # 0x003 | 0x0030 => 0x0033
-7443 // [45] 41:9
+//     cp r1 r7           # don't clobber r1
+71C3 // [36] 33:5
+//     shf 8 r7           # shift to lowest nibble
+77E3 // [37] 34:5
+//     and r2 r7          # bit mask lowest nibble
+7283 // [38] 35:5
+//     cp r7 r6           # compare with
+67C3 // [39] 36:5
+//     sub r3 r6          #   10
+6323 // [40] 37:5
+//     ifp jmp letter3    # if greater
+005C // [41] 38:5
+//     ifz jmp letter3    # if equal
+004D // [42] 39:5
+//         or r4 r7       
+7443 // [43] 40:9
 //         wl r7
-7233 // [46] 42:9
+7233 // [44] 41:9
 //         jmp hex2
-003F // [47] 43:9
-//     letter3:           # 
-//     add r5 r8          # 'A' + r5
-8503 // [48] 45:5
-//     wl r8              # print
-8233 // [49] 46:5
+003F // [45] 42:9
+//     letter3:            
+//     add r5 r6          
+6503 // [46] 44:5
+//     wl r6              
+6233 // [47] 45:5
 // 
 //     # bits 7:4
 //     hex2:
-//     cp r1 r7           # i.e. 0x3abc
-71C3 // [50] 50:5
-//     shf 4 r7           # shift to lower bits. i.e. 0x03ab
-73E3 // [51] 51:5
-//     and r6 r7
-7683 // [52] 52:5
-//     cp r7 r8           # 
-87C3 // [53] 53:5
-//     sub r3 r8          # compare with 10. i.e. 0xfff9
-8323 // [54] 54:5
-//     ifp jmp letter2    # r8 >= 10
-005C // [55] 55:5
-//     ifz jmp letter2    # r8 == 10
-004D // [56] 56:5
-//         or r4 r7       # 0x003 | 0x0030 => 0x0033
-7443 // [57] 57:9
+//     cp r1 r7           
+71C3 // [48] 49:5
+//     shf 4 r7           
+73E3 // [49] 50:5
+//     and r2 r7
+7283 // [50] 51:5
+//     cp r7 r6           
+67C3 // [51] 52:5
+//     sub r3 r6          
+6323 // [52] 53:5
+//     ifp jmp letter2    
+005C // [53] 54:5
+//     ifz jmp letter2    
+004D // [54] 55:5
+//         or r4 r7       
+7443 // [55] 56:9
 //         wl r7
-7233 // [58] 58:9
+7233 // [56] 57:9
 //         jmp hex1
-003F // [59] 59:9
-//     letter2:           # 
-//     add r5 r8          # 'A' + r5
-8503 // [60] 61:5
-//     wl r8              # print
-8233 // [61] 62:5
+003F // [57] 58:9
+//     letter2:           
+//     add r5 r6          
+6503 // [58] 60:5
+//     wl r6              
+6233 // [59] 61:5
 // 
 //     # bits 3:0
 //     hex1:
-//     cp r1 r7           # i.e. 0x3abc
-71C3 // [62] 66:5
-//     and r6 r7
-7683 // [63] 67:5
-//     cp r7 r8           # 
-87C3 // [64] 68:5
-//     sub r3 r8          # compare with 10. i.e. 0xfff9
-8323 // [65] 69:5
-//     ifp jmp letter1    # r8 >= 10
-004C // [66] 70:5
-//     ifz jmp letter1    # r8 == 10
-003D // [67] 71:5
-//         or r4 r7       # 0x003 | 0x0030 => 0x0033
-7443 // [68] 72:9
+//     cp r1 r7           
+71C3 // [60] 65:5
+//     and r2 r7
+7283 // [61] 66:5
+//     cp r7 r6           
+67C3 // [62] 67:5
+//     sub r3 r6          
+6323 // [63] 68:5
+//     ifp jmp letter1    
+004C // [64] 69:5
+//     ifz jmp letter1    
+003D // [65] 70:5
+//         or r4 r7       
+7443 // [66] 71:9
 //         wl r7  ret
-7237 // [69] 73:9
-//     letter1:           # 
-//     add r5 r8          # 'A' + r5
-8503 // [70] 75:5
-//     wl r8  ret         # print and return
-8237 // [71] 76:5
+7237 // [67] 72:9
+//     letter1:          
+//     add r5 r6         
+6503 // [68] 74:5
+//     wl r6  ret
+6237 // [69] 75:5
 // 
 // endfunc
 

@@ -132,6 +132,7 @@ public class zasm {
     String compiledPathStr = srcPathStr.substring(0, srcPathStr.lastIndexOf('.')) + ".hex";
     Files.writeString(Paths.get(compiledPathStr), compiled);
     System.out.println("    wrote: " + compiledPathStr);
+    System.out.println("     size: " + tc.getProgramCounter());
   }
 }
 
@@ -199,6 +200,10 @@ class Toc {
     if (scopes.isEmpty()) throw new Exception(tk.sourcePos() + ": not in a function");
 
     scopes.pop();
+  }
+
+  public int getProgramCounter() {
+    return pc;
   }
 
   private Label getLabelInCurrentScope(String label) {
