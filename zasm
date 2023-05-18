@@ -22,11 +22,15 @@ public class zasm {
     while (true) {
       Token zn = tz.nextToken();
       if (zn.id().endsWith(":")) {
-        stmts.add(new Label(zn, tz));
+        stmts.add(new StmtLabel(zn, tz));
         continue;
       }
       if (zn.isId("#")) {
-        stmts.add(new Comment(zn, tz));
+        stmts.add(new StmtComment(zn, tz));
+        continue;
+      }
+      if (zn.isId("@")) {
+        stmts.add(new StmtFwdTo(zn, tz));
         continue;
       }
       Token id = null;
@@ -101,7 +105,7 @@ public class zasm {
       if (!src.endsWith("\n")) {
         // handle comment on the same line as the statement
         Statement cmnt = stmts.get(i);
-        if (cmnt instanceof Comment) {
+        if (cmnt instanceof StmtComment) {
           String s = cmnt.toSource();
           toc.addComment(s);
           srcOut.append(s);
@@ -211,20 +215,28 @@ class Toc {
     if (isFunc) { // align at 16 bytes
       if ((pc & 0xf) != 0) {
         int pc_nxt = (pc & 0xfff0) + 0x10;
-        // add empty statements in the padding
-        for (int i = pc; i < pc_nxt; i++) {
-          instrs.add((short) 0);
-          stmts.add(null);
-          comments.add(null);
-        }
-        // move the current comments to the beginning of the function
-        // one more element in comments for the next instruction
-        comments.add(null);
-        comments.set(pc_nxt, comments.remove(pc));
-        pc = pc_nxt;
+        fwdPcTo(stmt.token(), pc_nxt, true);
       }
     }
     labels.put(name, new Label(stmt, pc, name, isFunc));
+  }
+
+  public void fwdPcTo(Token tk, int addr, boolean moveComments) throws Throwable {
+    if (addr<pc)
+      throw new Exception(tk.sourcePos() + ": cannot move program counter to " + addr + " because it is " + pc);
+    // add empty statements in the padding
+    for (int i = pc; i < addr; i++) {
+      instrs.add((short) 0);
+      stmts.add(null);
+      comments.add(null);
+    }
+    if (moveComments) {
+      // move the current comments to the beginning of the function
+      // one more element in comments for the next instruction
+      comments.add(null);
+      comments.set(addr, comments.remove(pc));
+    }
+    pc = addr;
   }
 
   public void link() throws Throwable {
@@ -343,6 +355,24 @@ class Toc {
   }
 }
 
+class StmtFwdTo extends Statement {
+  private Token addr;
+
+  public StmtFwdTo(Token tk, Tokenizer tz) {
+    super(null, tk);
+    addr = tz.nextToken();
+  }
+
+  public void compile(Toc toc) throws Throwable {
+    int pc_nxt = Statement.parseImm16(addr);
+    toc.fwdPcTo(addr, pc_nxt, false);
+  }
+
+  public String toSource() {
+    return super.toSource()+addr.toSource();
+  }
+}
+
 class OpData extends Statement {
 
   public OpData(Token data) {
@@ -454,10 +484,10 @@ class Eof extends Statement {
   }
 }
 
-class Label extends Statement {
+class StmtLabel extends Statement {
   private Token func;
 
-  public Label(Token nm, Tokenizer tz) {
+  public StmtLabel(Token nm, Tokenizer tz) {
     super(null, nm);
     Token tp = tz.nextToken();
     if (tp.isId("func")) {
@@ -479,11 +509,11 @@ class Label extends Statement {
   }
 }
 
-class Comment extends Statement {
+class StmtComment extends Statement {
   private Token tk;
   private String txt;
 
-  public Comment(Token tk, Tokenizer tz) {
+  public StmtComment(Token tk, Tokenizer tz) {
     super(null, tk);
     txt = tz.readComment();
   }

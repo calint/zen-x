@@ -1,7 +1,6 @@
 [ ] zenx: ? ldr: load data from rom
 [ ] zenx: ? at cpu boot copy a portion of rom to ram
 [ ] zenx: ? txr transfer from rom long instruction
-[ ] zasm: "@ 0x800" puts 'pc' to 0x800
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
@@ -17,6 +16,7 @@
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[x] zasm: "@ 0x800" puts 'pc' to 0x800
 [x] zasm: does not include trailing comments at the end of file
 [x] assembler
 [x]   => one file java executable 'zasm', happy path implemented
