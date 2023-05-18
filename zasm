@@ -147,12 +147,12 @@ class Toc {
   private ArrayList<ArrayList<String>> comments = new ArrayList<>();
   private ArrayList<Link> links = new ArrayList<>();
   private HashMap<String, Label> allLabels = new HashMap<>();
-  private ArrayList<Scope> scopeStack = new ArrayList<>();
+  private ArrayList<Scope> scopes = new ArrayList<>();
   private int pc;
 
   private static class Scope {
     HashMap<String, Label> labels = new HashMap<>(); // labels declared in this scope
-    String name; // unused name of scope
+    String name; // the function name
 
     public Scope(String name) {
       this.name = name;
@@ -162,7 +162,7 @@ class Toc {
   private static class Link {
     int pc; // location
     String name; // name as used in source
-    String scopedName; // name including scope (so it can be found in all labels)
+    String scopedName; // name including scope
     LinkType type; // call, jmp, ldi
     Token tk; // source location
 
@@ -176,47 +176,47 @@ class Toc {
   }
 
   private static class Label {
-    Statement st; // statement that declared the label
+    Token token; // token which declared the label
     int pc; // program counter where it was declared
     String name; // name
     boolean isFunc; // function
 
-    public Label(Statement st, int pc, String name, boolean isFunc) {
-      this.st = st;
+    public Label(Token token, int pc, String name, boolean isFunc) {
+      this.token = token;
       this.pc = pc;
       this.name = name;
       this.isFunc = isFunc;
     }
   }
 
-  public void enterFunc(Statement st, String name) throws Throwable {
-    if (scopeStack.size() != 0)
-      throw new Exception(st.sourcePos()+": cannot declare function within function");
-    scopeStack.add(new Scope(name));
+  public void enterFunc(Token tk, String name) throws Throwable {
+    if (scopes.size() != 0)
+      throw new Exception(tk.sourcePos()+": cannot declare function within function");
+    scopes.add(new Scope(name));
   }
 
   public void exitFunc(Statement st) throws Throwable {
-    if (scopeStack.size() == 0)
+    if (scopes.size() == 0)
       throw new Exception(st.sourcePos()+": not in a function");
     
-    scopeStack.remove(scopeStack.size() - 1);
+    scopes.remove(scopes.size() - 1);
   }
 
   private Label getLabelInCurrentScope(String label) {
-    final int n = scopeStack.size();
+    final int n = scopes.size();
     if (n==0)
       return allLabels.get(label);
 
-    return scopeStack.get(n - 1).labels.get(label);
+    return scopes.get(n - 1).labels.get(label);
   }
 
   private String getScopePrefix() {
-    final int n = scopeStack.size();
+    final int n = scopes.size();
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < n; i++) {
       if (sb.length() > 0)
         sb.append('.');
-      sb.append(scopeStack.get(i).name);
+      sb.append(scopes.get(i).name);
     }
     if (sb.length() > 0)
     sb.append('.');
@@ -257,28 +257,28 @@ class Toc {
     write(stmt, instr);
   }
 
-  public void addLabel(Statement stmt, String name, boolean isFunc) throws Throwable {
+  public void addLabel(Token tk, String name, boolean isFunc) throws Throwable {
     Label lbl = getLabelInCurrentScope(name);
     if (lbl != null) {
       throw new Exception(
-          stmt.sourcePos() + ": label '" + name + "' already declared at " + lbl.st.sourcePos());
+          tk.sourcePos() + ": label '" + name + "' already declared at " + lbl.token.sourcePos());
     }
-    if (isFunc) { // align at 16 bytes
+    if (isFunc) {
+      // align at 16 bytes
       if ((pc & 0xf) != 0) {
         int pc_nxt = (pc & 0xfff0) + 0x10;
-        fwdPcTo(stmt.token(), pc_nxt, true);
+        fwdPcTo(tk, pc_nxt, true);
       }
     }
-    final String scopePrefix = getScopePrefix();
-    Label newLbl = new Label(stmt, pc, name, isFunc);
-    allLabels.put(scopePrefix+name, newLbl);
-    if (scopeStack.size() > 0)
-      scopeStack.get(scopeStack.size() - 1).labels.put(name, newLbl);
+    Label newLbl = new Label(tk, pc, name, isFunc);
+    allLabels.put(getScopePrefix()+name, newLbl);
+    if (scopes.size() > 0)
+      scopes.get(scopes.size() - 1).labels.put(name, newLbl);
     if (isFunc) {
-      enterFunc(stmt, name);
+      enterFunc(tk, name);
     }
   }
-
+  /** Moves the program counter forward and pads the space with 0. */
   public void fwdPcTo(Token tk, int addr, boolean moveComments) throws Throwable {
     if (addr<pc)
       throw new Exception(tk.sourcePos() + ": cannot move program counter to " + addr + " because it is " + pc);
@@ -577,7 +577,7 @@ class StmtLabel extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     final String id = id();
-    toc.addLabel(this, id.substring(0, id.length() - 1), func != null);
+    toc.addLabel(token(), id.substring(0, id.length() - 1), func != null);
   }
 
   public String toSource() {
