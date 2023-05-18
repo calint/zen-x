@@ -191,20 +191,18 @@ class Toc {
 
   public void enterFunc(Token tk, String name) throws Throwable {
     if (!scopes.isEmpty())
-      throw new Exception(tk.sourcePos()+": cannot declare function within function");
+      throw new Exception(tk.sourcePos() + ": cannot declare function within function");
     scopes.push(new Scope(name));
   }
 
   public void exitFunc(Token tk) throws Throwable {
-    if (scopes.isEmpty())
-      throw new Exception(tk.sourcePos()+": not in a function");
-    
+    if (scopes.isEmpty()) throw new Exception(tk.sourcePos() + ": not in a function");
+
     scopes.pop();
   }
 
   private Label getLabelInCurrentScope(String label) {
-    if (scopes.isEmpty())
-      return allLabels.get(label);
+    if (scopes.isEmpty()) return allLabels.get(label);
 
     return scopes.peek().labels.get(label);
   }
@@ -212,7 +210,7 @@ class Toc {
   private String getScopePrefix() {
     final int n = scopes.size();
     StringBuilder sb = new StringBuilder();
-    for(int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
       sb.append(scopes.get(i).name).append('.');
     }
     return sb.toString();
@@ -243,7 +241,7 @@ class Toc {
   }
 
   public void write(Statement stmt, short instr, LinkType linkType, String label, Token tk) {
-    Link lnk = new Link(tk, pc, label, getScopePrefix()+label, linkType);
+    Link lnk = new Link(tk, pc, label, getScopePrefix() + label, linkType);
     links.add(lnk);
     write(stmt, instr);
   }
@@ -262,7 +260,8 @@ class Toc {
       }
     }
     Label newLbl = new Label(tk, pc, name, isFunc);
-    allLabels.put(getScopePrefix()+name, newLbl); // i.e. 'print.done' where 'done' is the label      
+    allLabels.put(
+        getScopePrefix() + name, newLbl); // i.e. 'print.done' where 'done' is the label
     if (isFunc) {
       enterFunc(tk, name);
     } else {
@@ -271,10 +270,12 @@ class Toc {
       }
     }
   }
+
   /** Moves the program counter forward and pads the space with 0. */
   public void fwdPcTo(Token tk, int addr, boolean moveComments) throws Throwable {
-    if (addr<pc)
-      throw new Exception(tk.sourcePos() + ": cannot move program counter to " + addr + " because it is " + pc);
+    if (addr < pc)
+      throw new Exception(
+          tk.sourcePos() + ": cannot move program counter to " + addr + " because it is " + pc);
     // add empty statements in the padding
     for (int i = pc; i < addr; i++) {
       instrs.add((short) 0);
@@ -294,41 +295,47 @@ class Toc {
     for (Link lnk : links) {
       short instr = instrs.get(lnk.pc);
       switch (lnk.type) {
-        case CALL:{
-          Label lbl = allLabels.get(lnk.name); // get function from global scope using 'name'
-          if (lbl == null)
-            throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
-          
-          assert ((lbl.pc & 0xf) == 0);
-          instr |= lbl.pc;
-          break;
-        }
-        case JMP:{
-          Label lbl = allLabels.get(lnk.scopedName); // get label from current scope
-          if (lbl == null)
-            throw new Exception(lnk.token.sourcePos() + ": label '" + lnk.scopedName + "' not found");
+        case CALL:
+          {
+            Label lbl = allLabels.get(lnk.name); // get function from global scope using 'name'
+            if (lbl == null)
+              throw new Exception(
+                  lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
 
-          int dpc = lbl.pc - lnk.pc;
-          if (dpc > 2047 || dpc < -2048) {
-            throw new Exception(
-                lnk.token.sourcePos()
-                    + ": jmp to '"
-                    + lbl.name
-                    + "' out-of-range (offset: "
-                    + dpc
-                    + ")");
+            assert ((lbl.pc & 0xf) == 0);
+            instr |= lbl.pc;
+            break;
           }
-          instr |= (dpc & 0xfff) << 4;
-          break;
-        }
-        case LDI:{
-          Label lbl = allLabels.get(lnk.name); // get from global scope using 'name'
-          if (lbl == null)
-            throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
-          
-          instr = (short) lbl.pc;
-          break;
-        }
+        case JMP:
+          {
+            Label lbl = allLabels.get(lnk.scopedName); // get label from current scope
+            if (lbl == null)
+              throw new Exception(
+                  lnk.token.sourcePos() + ": label '" + lnk.scopedName + "' not found");
+
+            int dpc = lbl.pc - lnk.pc;
+            if (dpc > 2047 || dpc < -2048) {
+              throw new Exception(
+                  lnk.token.sourcePos()
+                      + ": jmp to '"
+                      + lbl.name
+                      + "' out-of-range (offset: "
+                      + dpc
+                      + ")");
+            }
+            instr |= (dpc & 0xfff) << 4;
+            break;
+          }
+        case LDI:
+          {
+            Label lbl = allLabels.get(lnk.name); // get from global scope using 'name'
+            if (lbl == null)
+              throw new Exception(
+                  lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
+
+            instr = (short) lbl.pc;
+            break;
+          }
         default:
           assert (false);
       }
@@ -439,7 +446,7 @@ class StmtFwdTo extends Statement {
   }
 
   public String toSource() {
-    return super.toSource()+addr.toSource();
+    return super.toSource() + addr.toSource();
   }
 }
 
