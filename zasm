@@ -214,35 +214,30 @@ class Toc {
     final int n = scopes.size();
     StringBuilder sb = new StringBuilder();
     for(int i = 0; i < n; i++) {
-      if (sb.length() > 0)
-        sb.append('.');
       sb.append(scopes.get(i).name);
+      sb.append('.');
     }
-    if (sb.length() > 0)
-    sb.append('.');
+    if (sb.length() != 0)
+      sb.setLength(sb.length() - 1);
     return sb.toString();
   }
 
   private void ensureCommentsArraySize() {
     final int n = comments.size();
-    final int m = pc + 1;
+    final int m = pc + 1; // +1 because comments before the statement are added to next pc
     for (int i = n; i < m; i++) {
       comments.add(null);
     }
   }
 
-  private List<String> commentsListForCurrentPc() {
+  public void addComment(String txt) {
     ensureCommentsArraySize();
     ArrayList<String> ls = comments.get(pc);
     if (ls == null) {
       ls = new ArrayList<>();
       comments.set(pc, ls);
     }
-    return ls;
-  }
-
-  public void addComment(String txt) {
-    commentsListForCurrentPc().add(txt);
+    ls.add(txt);
   }
 
   public void write(Statement stmt, short instr) {
