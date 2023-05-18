@@ -29,9 +29,9 @@ reg uart_rx = 1;
 integer i;
 
 Zenx #(
-    ROM_FILE,
-    CLK_FREQ,
-    BAUD_RATE
+    .ROM_FILE(ROM_FILE),
+    .CLK_FREQ(CLK_FREQ),
+    .BAUD_RATE(BAUD_RATE)
 ) zx (
     .rst(rst),
     .clk(clk),

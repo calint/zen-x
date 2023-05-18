@@ -276,9 +276,9 @@ BlockROM rom ( // 32K x 16b
 */
 
 ROM #(
-    ROM_FILE,
-    ROM_ADDR_WIDTH,
-    REGISTERS_WIDTH
+    .DATA_FILE(ROM_FILE),
+    .ADDR_WIDTH(ROM_ADDR_WIDTH),
+    .WIDTH(REGISTERS_WIDTH)
 ) rom ( // 64K x 16b
     .clk(clk),
     .addr(pc),
@@ -286,8 +286,8 @@ ROM #(
 );
 
 Calls #(
-    CALLS_ADDR_WIDTH,
-    ROM_ADDR_WIDTH
+    .ADDR_WIDTH(CALLS_ADDR_WIDTH),
+    .ROM_ADDR_WIDTH(ROM_ADDR_WIDTH)
 ) cs (
     .rst(rst),
     .clk(clk),
@@ -303,8 +303,8 @@ Calls #(
 );
 
 Registers #(
-    REGISTERS_ADDR_WIDTH,
-    REGISTERS_WIDTH
+    .ADDR_WIDTH(REGISTERS_ADDR_WIDTH),
+    .WIDTH(REGISTERS_WIDTH)
 ) regs ( // 16 x 16b
     .clk(clk),
     .ra1(rega), // register address 1
@@ -316,7 +316,7 @@ Registers #(
 );
 
 ALU #(
-    REGISTERS_WIDTH
+    .WIDTH(REGISTERS_WIDTH)
 ) alu (
     .op(alu_op),
     .a(alu_operand_a),
@@ -350,8 +350,8 @@ BlockRAM ram ( // 64K x 16b
 */
 
 RAM #(
-    RAM_ADDR_WIDTH,
-    REGISTERS_WIDTH
+    .ADDR_WIDTH(RAM_ADDR_WIDTH),
+    .WIDTH(REGISTERS_WIDTH)
 ) ram ( // 64K x 16b
     .clk(clk),
     .we(ram_we),
@@ -361,8 +361,8 @@ RAM #(
 );
 
 UartTx #(
-    CLK_FREQ,
-    BAUD_RATE
+    .CLK_FREQ(CLK_FREQ),
+    .BAUD_RATE(BAUD_RATE)
 ) utx (
     .rst(rst),
     .clk(clk),
@@ -373,8 +373,8 @@ UartTx #(
 );
 
 UartRx #(
-    CLK_FREQ,
-    BAUD_RATE
+    .CLK_FREQ(CLK_FREQ),
+    .BAUD_RATE(BAUD_RATE)
 ) urx (
     .rst(rst),
     .clk(clk),
