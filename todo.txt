@@ -1,6 +1,7 @@
 [ ] zenx: ? ldr: load data from rom
 [ ] zenx: ? at cpu boot copy a portion of rom to ram
 [ ] zenx: ? txr transfer from rom long instruction
+[ ] remove module Registers and implement the registers in Zenx
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
