@@ -413,10 +413,10 @@ class Toc {
     for (int i = instrs.size(); i < m; i++) {
       appendComments(sb, i);
     }
-    sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
-    for (int i = n; i < 0x10000; i++) {
-      sb.append("0 ");
-    }
+//    sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
+//    for (int i = n; i < 0x10000; i++) {
+//      sb.append("0 ");
+//    }
     sb.append('\n');
     return sb.toString();
   }
@@ -1078,7 +1078,13 @@ class Statement {
   }
 
   public static short parseSignedPosIncImm4(Token tk) throws Throwable {
-    int a = Integer.decode(tk.id()).shortValue();
+    int a;
+    try {
+      a = Integer.decode(tk.id()).shortValue();
+    } catch (NumberFormatException e) {
+      throw new Exception(
+          tk.sourcePos() + ": cannot parse '"+tk.id()+"' to a number");
+    }
     if (a == 0)
       throw new Exception(
           tk.sourcePos() + ": signed immediate 4 bit value in this context is not allowed to be 0");

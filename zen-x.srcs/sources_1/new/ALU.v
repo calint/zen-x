@@ -26,7 +26,8 @@ always @(*) begin
     3'b100: result = b & a;
     3'b101: result = ~a;
     3'b110: result = a;
-    3'b111: result = a < 0 ? b <<< -a : b >>> a;
+//    3'b111: result = a < 0 ? b <<< -a : b >>> a;
+    3'b111: result = a < 0 ? b << -a : b >> a;
     endcase
     
     zf = (result == 0);

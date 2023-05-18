@@ -1,0 +1,78 @@
+ldi 0x0000 r1
+ldi 0x0001 r10
+ldi 0x20 r11
+loop:
+    call print_hex
+    wl r11
+    add r10 r1
+    jmp loop
+
+print_hex: func # r1: number
+    ldi 0xf000 r2  # used to 'and' the higher bits
+    ldi 10 r3      # constant 10 for compare
+    ldi 0x30 r4    # bits to 'or' to map number to ascii 0-9
+    ldi 0x41 r5    # ascii prior to 'A'
+    ldi 0x0f r9    # bit mask
+
+    # bits 15:12
+    cp r1 r7           # i.e. 0x3abc
+    shf 4 r7           # shift to lower bits. i.e. 0x3000 => 0x0300
+    shf 8 r7           # shift to lower bits. i.e. 0x0300 => 0x0003
+    cp r7 r8           # 
+    sub r3 r8          # compare with 10. i.e. 0xfff9
+    ifp jmp letter4    # r8 >= 10
+    ifz jmp letter4    # r8 == 10
+        or r4 r7       # 0x003 | 0x0030 => 0x0033
+        wl r7
+        jmp hex3
+    letter4:           # 
+    add r5 r8          # 'A' + r5
+    wl r8              # print
+
+    # bits 11:8
+    hex3:
+    cp r1 r7           # i.e. 0x3abc
+    shf 8 r7           # shift to lower bits. i.e. 0x3abc => 0x003a
+    and r9 r7          # bit mask 0xf
+    cp r7 r8           # 
+    sub r3 r8          # compare with 10. i.e. 0xfff9
+    ifp jmp letter3    # r8 >= 10
+    ifz jmp letter3    # r8 == 10
+        or r4 r7       # 0x003 | 0x0030 => 0x0033
+        wl r7
+        jmp hex2
+    letter3:           # 
+    add r5 r8          # 'A' + r5
+    wl r8              # print
+
+    # bits 7:4
+    hex2:
+    cp r1 r7           # i.e. 0x3abc
+    shf 4 r7           # shift to lower bits. i.e. 0x03ab
+    and r9 r7
+    cp r7 r8           # 
+    sub r3 r8          # compare with 10. i.e. 0xfff9
+    ifp jmp letter2    # r8 >= 10
+    ifz jmp letter2    # r8 == 10
+        or r4 r7       # 0x003 | 0x0030 => 0x0033
+        wl r7
+        jmp hex1
+    letter2:           # 
+    add r5 r8          # 'A' + r5
+    wl r8              # print
+
+    # bits 3:0
+    hex1:
+    cp r1 r7           # i.e. 0x3abc
+    and r9 r7
+    cp r7 r8           # 
+    sub r3 r8          # compare with 10. i.e. 0xfff9
+    ifp jmp letter1    # r8 >= 10
+    ifz jmp letter1    # r8 == 10
+        or r4 r7       # 0x003 | 0x0030 => 0x0033
+        wl r7  ret
+    letter1:           # 
+    add r5 r8          # 'A' + r5
+    wl r8  ret         # print and return
+
+endfunc

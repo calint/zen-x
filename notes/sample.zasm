@@ -1,62 +1,27 @@
-print: func # r1: strptr, r2:strlen, r3, r4
-    ldi 0xfffe r3        # r3 = 0xfffe
-    and r2 r3            # r3 &= r2
-    ifz jmp done         # ifz jmp done
-    loop:                # loop:
-        ld r1 r4         #     r4 = [r1]
-        wl r4            #     wrl r4
-        wh r4            #     wrh r4
-        addi 1 r1        #     r1++
-        addi -1 r3       #     r3--
-        ifp jmp loop     #     ifp jmp loop
-    done:                # done:
-    addi 1 r3            # r3++  // reusing r3 which is now 0
-    and r2 r3            # r2 &= r3
-    ifp ld r1 r4         # ifp r4 = [r1]
-    ifp wl r4 ret        # ifp wl r4 ret
-endfunc
+ldi 0x1000 r1
+ldi 0x1000 r9
+loop:
+    call print_hex
+    add r9 r1
+    jmp loop
 
-input: func # r1: bufptr, r2: buflen
-    ldi 0x000a r3    # r3 = 0x000a
-    ldi 0x0a00 r4    # r4 = 0x0a00
-    ldi 0x00ff r5    # r5 = 0x00ff
-    ldi 0xff00 r6    # r6 = 0xff00
-    cp r1 r10        # r10 = r1
-    xor r9 r9        # r9 = 0
-    loop:            # loop:
-        addi 1 r9    #     r9++
-        rl r7        #     rdl r7
-        st r10 r7    #     [r10] = r7
-        cp r7 r8     #     r8 = r7
-        and r5 r8    #     r8 &= r5
-        xor r3 r8    #     r8 ^= r3
-        ifz jmp done #     ifz jmp done
-        rh r7        #     rdh r7
-        st r10 r7    #     [r10] = r7
-        cp r7 r8     #     r8 = r7
-        and r6 r8    #     r8 &= r6
-        xor r4 r8    #     r8 ^= r4
-        ifz jmp done #     ifz jmp done
-        addi -1 r2   #     r2--
-        ifz jmp done #     ifz jmp done
-        addi 1 r9    #     r9++
-        jmp loop     #     jmp loop
-    done:            # done:
-    cp r9 r2 ret     # r2 = r9 ret
-endfunc
+print_hex: func # r1: number
+    ldi 0xf000 r2  # used to 'and' the higher bits
+    ldi 10 r3      # constant 10 for compare
+    ldi 0x30 r4    # bits to 'or' to map number to ascii 0-9
+    ldi 0x41 r5    # ascii prior to 'A'
 
-main: func                
-    ldi strbuf r11       # r11 = &strbuf
-    ld r11 r1            # r1 = [r11]
-    ldi strlen r11       # r11 = &strlen
-    ld r11 r2            # r2 = [r11]
-    cp r2 r12            # r12 = r2
-    loop:                # loop:
-        call input       #   input()
-        call print       #   print()
-        cp r12 r2        #   r2 = r12
-        jmp loop         #   jmp loop
+    # bits 15:12
+    cp r1 r7           # i.e. 0x3abc
+    shf 4 r7           # shift to lower bits. i.e. 0x3000 => 0x0300
+    shf 8 r7           # shift to lower bits. i.e. 0x0300 => 0x0003
+    cp r7 r8           # 
+    sub r3 r8          # compare with 10. i.e. 0xfff9
+    ifp jmp letter     # r8 >= 10
+    ifz jmp letter     # r8 == 10
+        or r4 r7       # 0x003 | 0x0030 => 0x0033
+        wl r7  ret
+    letter:            # 
+    add r5 r8          # 'A' + r5
+    wl r8  ret         # print and return
 endfunc
-
-strbuf: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-strlen: 0

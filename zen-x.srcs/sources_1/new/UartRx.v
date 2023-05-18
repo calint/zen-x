@@ -10,9 +10,7 @@ module UartRx #(
     input wire rx,
     input wire go,
     output reg [7:0] data,
-    output reg dr, // enabled when data is ready
-    output reg [3:0] led,
-    output reg led_g
+    output reg dr // enabled when data is ready
 );
 
 localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
@@ -36,15 +34,9 @@ always @(negedge clk) begin
         bit_count <= 0;
         bit_counter <= 0;
         dr <= 0;
-        led <= 0;
-        led_g <= 0;
     end else begin
         case(state)
         STATE_IDLE: begin
-            led <= 0;
-            if (!rx && !go) begin // check if overrun
-                led[3] <= 1;
-            end
             if (!rx && go) begin // does the cpu wait for data and start bit has started?
                 bit_count <= 0;
                 if (BIT_TIME == 1) begin
@@ -59,14 +51,12 @@ always @(negedge clk) begin
             end
         end
         STATE_START_BIT: begin
-            led <= 1;
             if (bit_counter == 0) begin  // no check if rx==0 because there is no error recovery
                 bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
                 state <= STATE_DATA_BITS;
             end
         end
         STATE_DATA_BITS: begin
-            led <= 2;
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
                 bit_count = bit_count + 1; // ? NBA
@@ -78,7 +68,6 @@ always @(negedge clk) begin
             end
         end
         STATE_STOP_BITS: begin
-            led <= 3;
             if (bit_counter == 0) begin // no check if rx==1 because there is no error recovery
                 data <= data_reg;
                 dr <= 1;
@@ -86,7 +75,6 @@ always @(negedge clk) begin
             end
         end
         STATE_WAIT_GO_LOW: begin
-            led <= 4;            
             if (!go) begin
                 dr <= 0;
                 state <= STATE_IDLE;
