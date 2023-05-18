@@ -147,7 +147,7 @@ class Toc {
   private ArrayList<ArrayList<String>> comments = new ArrayList<>();
   private ArrayList<Link> links = new ArrayList<>();
   private HashMap<String, Label> allLabels = new HashMap<>();
-  private ArrayList<Scope> scopes = new ArrayList<>();
+  private Stack<Scope> scopes = new Stack<>();
   private int pc;
 
   private static class Scope {
@@ -190,24 +190,23 @@ class Toc {
   }
 
   public void enterFunc(Token tk, String name) throws Throwable {
-    if (scopes.size() != 0)
+    if (!scopes.isEmpty())
       throw new Exception(tk.sourcePos()+": cannot declare function within function");
-    scopes.add(new Scope(name));
+    scopes.push(new Scope(name));
   }
 
   public void exitFunc(Token tk) throws Throwable {
-    if (scopes.size() == 0)
+    if (scopes.isEmpty())
       throw new Exception(tk.sourcePos()+": not in a function");
     
-    scopes.remove(scopes.size() - 1);
+    scopes.pop();
   }
 
   private Label getLabelInCurrentScope(String label) {
-    final int n = scopes.size();
-    if (n==0)
+    if (scopes.isEmpty())
       return allLabels.get(label);
 
-    return scopes.get(n - 1).labels.get(label);
+    return scopes.peek().labels.get(label);
   }
 
   private String getScopePrefix() {
@@ -263,11 +262,13 @@ class Toc {
       }
     }
     Label newLbl = new Label(tk, pc, name, isFunc);
-    allLabels.put(getScopePrefix()+name, newLbl);
-    if (scopes.size() > 0)
-      scopes.get(scopes.size() - 1).labels.put(name, newLbl);
+    allLabels.put(getScopePrefix()+name, newLbl); // i.e. 'print.done' where 'done' is the label      
     if (isFunc) {
       enterFunc(tk, name);
+    } else {
+      if (!scopes.isEmpty()) { // if within the scope of a function add the label to current scope
+        scopes.peek().labels.put(name, newLbl);
+      }
     }
   }
   /** Moves the program counter forward and pads the space with 0. */
@@ -294,7 +295,7 @@ class Toc {
       short instr = instrs.get(lnk.pc);
       switch (lnk.type) {
         case CALL:{
-          Label lbl = allLabels.get(lnk.name); // get from function label from global scope
+          Label lbl = allLabels.get(lnk.name); // get function from global scope using 'name'
           if (lbl == null)
             throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
           
@@ -303,10 +304,10 @@ class Toc {
           break;
         }
         case JMP:{
-          Label lbl = allLabels.get(lnk.scopedName); // get label within the scope of the function
-          if (lbl == null) {
+          Label lbl = allLabels.get(lnk.scopedName); // get label from current scope
+          if (lbl == null)
             throw new Exception(lnk.token.sourcePos() + ": label '" + lnk.scopedName + "' not found");
-          }
+
           int dpc = lbl.pc - lnk.pc;
           if (dpc > 2047 || dpc < -2048) {
             throw new Exception(
@@ -321,7 +322,7 @@ class Toc {
           break;
         }
         case LDI:{
-          Label lbl = allLabels.get(lnk.name); // get from global scope
+          Label lbl = allLabels.get(lnk.name); // get from global scope using 'name'
           if (lbl == null)
             throw new Exception(lnk.token.sourcePos() + ": function '" + lnk.name + "' not found");
           
