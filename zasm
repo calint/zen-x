@@ -33,6 +33,10 @@ public class zasm {
         stmts.add(new StmtFwdTo(zn, tz));
         continue;
       }
+      if (zn.isId("endfunc")) {
+        stmts.add(new StmtEndFunc(zn));
+        continue;
+      }
       Token id = null;
       if (zn.isId("ifz") || zn.isId("ifn") || zn.isId("ifp")) {
         id = tz.nextToken();
@@ -142,35 +146,81 @@ class Toc {
   private ArrayList<Statement> stmts = new ArrayList<>();
   private ArrayList<ArrayList<String>> comments = new ArrayList<>();
   private ArrayList<Link> links = new ArrayList<>();
-  private HashMap<String, Label> labels = new HashMap<>();
+  private HashMap<String, Label> allLabels = new HashMap<>();
+  private ArrayList<Scope> scopeStack = new ArrayList<>();
   private int pc;
 
-  private static class Link {
-    int pc;
-    String to;
-    LinkType type;
-    Token tk;
+  private static class Scope {
+    HashMap<String, Label> labels = new HashMap<>(); // labels declared in this scope
+    String name; // unused name of scope
 
-    public Link(int pc, String to, LinkType type, Token tk) {
+    public Scope(String name) {
+      this.name = name;
+    }
+  }
+
+  private static class Link {
+    int pc; // location
+    String name; // name as used in source
+    String scopedName; // name including scope (so it can be found in all labels)
+    LinkType type; // call, jmp, ldi
+    Token tk; // source location
+
+    public Link(int pc, String name, String scopedName, LinkType type, Token tk) {
       this.pc = pc;
-      this.to = to;
+      this.name = name;
+      this.scopedName = scopedName;
       this.type = type;
       this.tk = tk;
     }
   }
 
   private static class Label {
-    Statement stmt;
-    int pc;
-    String name;
-    boolean isFunc;
+    Statement st; // statement that declared the label
+    int pc; // program counter where it was declared
+    String name; // name
+    boolean isFunc; // function
 
-    public Label(Statement stmt, int pc, String name, boolean isFunc) {
-      this.stmt = stmt;
+    public Label(Statement st, int pc, String name, boolean isFunc) {
+      this.st = st;
       this.pc = pc;
       this.name = name;
       this.isFunc = isFunc;
     }
+  }
+
+  public void enterFunc(Statement st, String name) throws Throwable {
+    if (scopeStack.size() != 0)
+      throw new Exception(st.sourcePos()+": cannot declare function within function");
+    scopeStack.add(new Scope(name));
+  }
+
+  public void exitFunc(Statement st) throws Throwable {
+    if (scopeStack.size() == 0)
+      throw new Exception(st.sourcePos()+": not in a function");
+    
+    scopeStack.remove(scopeStack.size() - 1);
+  }
+
+  private Label getLabelInCurrentScope(String label) {
+    final int n = scopeStack.size();
+    if (n==0)
+      return allLabels.get(label);
+
+    return scopeStack.get(n - 1).labels.get(label);
+  }
+
+  private String getScopePrefix() {
+    final int n = scopeStack.size();
+    StringBuilder sb = new StringBuilder();
+    for(int i = 0; i < n; i++) {
+      if (sb.length() > 0)
+        sb.append('.');
+      sb.append(scopeStack.get(i).name);
+    }
+    if (sb.length() > 0)
+    sb.append('.');
+    return sb.toString();
   }
 
   private void ensureCommentsArraySize() {
@@ -202,15 +252,16 @@ class Toc {
   }
 
   public void write(Statement stmt, short instr, LinkType linkType, String label, Token tk) {
-    links.add(new Link(pc, label, linkType, tk));
+    Link lnk = new Link(pc, label, getScopePrefix()+label, linkType, tk);
+    links.add(lnk);
     write(stmt, instr);
   }
 
   public void addLabel(Statement stmt, String name, boolean isFunc) throws Throwable {
-    Label lbl = labels.get(name);
+    Label lbl = getLabelInCurrentScope(name);
     if (lbl != null) {
       throw new Exception(
-          stmt.sourcePos() + ": label '" + name + "' already declared at " + lbl.stmt.sourcePos());
+          stmt.sourcePos() + ": label '" + name + "' already declared at " + lbl.st.sourcePos());
     }
     if (isFunc) { // align at 16 bytes
       if ((pc & 0xf) != 0) {
@@ -218,7 +269,14 @@ class Toc {
         fwdPcTo(stmt.token(), pc_nxt, true);
       }
     }
-    labels.put(name, new Label(stmt, pc, name, isFunc));
+    final String scopePrefix = getScopePrefix();
+    Label newLbl = new Label(stmt, pc, name, isFunc);
+    allLabels.put(scopePrefix+name, newLbl);
+    if (scopeStack.size() > 0)
+      scopeStack.get(scopeStack.size() - 1).labels.put(name, newLbl);
+    if (isFunc) {
+      enterFunc(stmt, name);
+    }
   }
 
   public void fwdPcTo(Token tk, int addr, boolean moveComments) throws Throwable {
@@ -241,18 +299,22 @@ class Toc {
 
   public void link() throws Throwable {
     for (Link lnk : links) {
-      Label lbl = labels.get(lnk.to);
-      if (lbl == null) {
-        throw new Exception(lnk.tk.sourcePos() + ": label '" + lnk.to + "' not declared");
-      }
       short instr = instrs.get(lnk.pc);
       switch (lnk.type) {
-        case CALL:
+        case CALL:{
+          Label lbl = allLabels.get(lnk.name);
+          if (lbl == null) {
+            throw new Exception(lnk.tk.sourcePos() + ": function '" + lnk.name + "' not found");
+          }
           assert ((lbl.pc & 0xf) == 0);
           instr |= lbl.pc;
           break;
-
-        case JMP:
+        }
+        case JMP:{
+          Label lbl = allLabels.get(lnk.scopedName);
+          if (lbl == null) {
+            throw new Exception(lnk.tk.sourcePos() + ": label '" + lnk.scopedName + "' not found");
+          }
           int dpc = lbl.pc - lnk.pc;
           if (dpc > 2047 || dpc < -2048) {
             throw new Exception(
@@ -265,11 +327,15 @@ class Toc {
           }
           instr |= (dpc & 0xfff) << 4;
           break;
-
-        case LDI:
+        }
+        case LDI:{
+          Label lbl = allLabels.get(lnk.name);
+          if (lbl == null) {
+            throw new Exception(lnk.tk.sourcePos() + ": function '" + lnk.name + "' not found");
+          }
           instr = (short) lbl.pc;
           break;
-
+        }
         default:
           assert (false);
       }
@@ -352,6 +418,16 @@ class Toc {
     }
     sb.append('\n');
     return sb.toString();
+  }
+}
+
+class StmtEndFunc extends Statement {
+  public StmtEndFunc(Token tk) {
+    super(null, tk);
+  }
+
+  public void compile(Toc toc) throws Throwable {
+    toc.exitFunc(this);
   }
 }
 

@@ -41,6 +41,8 @@ lbl1:
 
 x0030: func
     addi 1 r8 ret
+endfunc
+
 x007:
     ldi 0x4548 r9
     wl r9
@@ -62,6 +64,7 @@ echo:
 @ 0x0050 x0050: func
     call x0060
     addi 2 r8 ret
+endfunc
 
     0 0
     0 0 0 0
@@ -72,3 +75,4 @@ x0060: func
     ifn addi 2 r8 ret
     ifz addi 2 r8 ret
     ifp addi 2 r8 ret
+endfunc

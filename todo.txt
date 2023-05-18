@@ -5,7 +5,6 @@
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
-[ ] zasm: "endfunc" and labels have context within the function block
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ] ldi data can be loaded into register in a single cycle 
 [ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
@@ -17,6 +16,8 @@
          right now ROM module does not necessarily have valid data out at 'posedge' before modules that depend on that run
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[x] zasm: "endfunc" and labels have context within the function block
+      => the source file is getting too big, maybe a project
 [-] consider having more cores sharing the same rom and ram
       => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
       => beyond the scope of this experiment

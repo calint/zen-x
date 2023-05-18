@@ -14,6 +14,7 @@ print: func # r1: strptr, r2:strlen, r3, r4
         and r2 r3        # r2 &= r3
         ifp ld r1 r4     # ifp r4 = [r1]
         ifp wl r4 ret    # ifp wl r4 ret
+endfunc
 
 input: func # r1: bufptr, r2: buflen
         ldi 0x000a r3    # r3 = 0x000a
@@ -22,27 +23,28 @@ input: func # r1: bufptr, r2: buflen
         ldi 0xff00 r6    # r6 = 0xff00
         cp r1 r10        # r10 = r1
         xor r9 r9        # r9 = 0
-        loop2:           # loop:
+        loop:           # loop:
             addi 1 r9    #     r9++
             rl r7        #     rdl r7
             st r10 r7    #     [r10] = r7
             cp r7 r8     #     r8 = r7
             and r5 r8    #     r8 &= r5
             xor r3 r8    #     r8 ^= r3
-            ifz jmp done1 #     ifz jmp done
+            ifz jmp done #     ifz jmp done
             rh r7        #     rdh r7
             st r10 r7    #     [r10] = r7
             cp r7 r8     #     r8 = r7
             and r6 r8    #     r8 &= r6
             xor r4 r8    #     r8 ^= r4
-            ifz jmp done1 #     ifz jmp done
+            ifz jmp done #     ifz jmp done
             addi -1 r2   #     r2--
-            ifz jmp done1 #     ifz jmp done
+            ifz jmp done #     ifz jmp done
             addi 1 r9    #     r9++
-            jmp loop2    # jmp loop
-        done1:            # done:
+            jmp loop     # jmp loop
+        done:            # done:
         cp r9 r2 ret     # r2 = r9 ret
                          # 
+endfunc
 
 main: func                
     ldi strbuf r11       # r11 = &strbuf
@@ -55,6 +57,7 @@ main: func
         call print       #   print()
         cp r12 r2        #   r2 = r12
     jmp loop1            # jmp loop
+endfunc
 
 strbuf: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 strlen: 0
