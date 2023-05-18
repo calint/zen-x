@@ -88,7 +88,7 @@ public class zasm {
         stmts.add(new OpRh(zn, id, tz));
       } else {
         short data = Statement.parseImm16(id);
-        stmts.add(new OpData(id));
+        stmts.add(new StmtData(id));
       }
     }
 
@@ -195,9 +195,9 @@ class Toc {
     scopes.add(new Scope(name));
   }
 
-  public void exitFunc(Statement st) throws Throwable {
+  public void exitFunc(Token tk) throws Throwable {
     if (scopes.size() == 0)
-      throw new Exception(st.sourcePos()+": not in a function");
+      throw new Exception(tk.sourcePos()+": not in a function");
     
     scopes.remove(scopes.size() - 1);
   }
@@ -427,7 +427,7 @@ class StmtEndFunc extends Statement {
   }
 
   public void compile(Toc toc) throws Throwable {
-    toc.exitFunc(this);
+    toc.exitFunc(token());
   }
 }
 
@@ -449,9 +449,9 @@ class StmtFwdTo extends Statement {
   }
 }
 
-class OpData extends Statement {
+class StmtData extends Statement {
 
-  public OpData(Token data) {
+  public StmtData(Token data) {
     super(null, data);
   }
 
