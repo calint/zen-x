@@ -12,10 +12,13 @@
           during the ~100ps delay of rom data after "posedge clk"
           => changed implementation from IP to inferred block ram, 100ps delay gone
 [ ] zenx: 1 cycle call
-[ ] consider having more cores sharing the same rom and ram
-      => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
+      => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'always' block
+         right now ROM module does not necessarily have valid data out at 'posedge' before modules that depend on that run
 [ ] emulator webapp
 ------------------------------------------------------------------------------
+[-] consider having more cores sharing the same rom and ram
+      => 2 cores can run on same dual port rom/ram: Block Memory Generator v8.4 Product Guide (PG058) page 25
+      => beyond the scope of this experiment
 [x] zasm: "@ 0x800" puts 'pc' to 0x800
 [x] zasm: does not include trailing comments at the end of file
 [x] assembler
