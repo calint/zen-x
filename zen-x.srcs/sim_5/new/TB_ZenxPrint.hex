@@ -1,0 +1,115 @@
+// # store 'HELLO WORLD  ' starting at 0x1000
+// ldi 0x1000 r1
+1033 // [0] 2:1
+1000 // [1] 2:1
+// ldi 0x4548 r2 # 'E' 'H'
+2033 // [2] 3:1
+4548 // [3] 3:1
+// st r1 r2
+2173 // [4] 4:1
+// addi 1 r1
+1013 // [5] 5:1
+// ldi 0x4c4c r2 # 'L' 'L'
+2033 // [6] 6:1
+4C4C // [7] 6:1
+// st r1 r2
+2173 // [8] 7:1
+// addi 1 r1
+1013 // [9] 8:1
+// ldi 0x204f r2 # ' ' 'O'
+2033 // [10] 9:1
+204F // [11] 9:1
+// st r1 r2
+2173 // [12] 10:1
+// addi 1 r1
+1013 // [13] 11:1
+// ldi 0x4f57 r2 # 'O' 'W'
+2033 // [14] 12:1
+4F57 // [15] 12:1
+// st r1 r2
+2173 // [16] 13:1
+// addi 1 r1
+1013 // [17] 14:1
+// ldi 0x4c52 r2 # 'L' 'R'
+2033 // [18] 15:1
+4C52 // [19] 15:1
+// st r1 r2
+2173 // [20] 16:1
+// addi 1 r1
+1013 // [21] 17:1
+// ldi 0x2044 r2 # ' ' 'D'
+2033 // [22] 18:1
+2044 // [23] 18:1
+// st r1 r2
+2173 // [24] 19:1
+// addi 1 r1
+1013 // [25] 20:1
+// ldi 0x0020 r2 # '\0' ' '
+2033 // [26] 21:1
+0020 // [27] 21:1
+// st r1 r2
+2173 // [28] 22:1
+// addi 1 r1
+1013 // [29] 23:1
+// 
+// loop:
+//     ldi 0x1000 r1 # pointer to string
+1033 // [30] 26:5
+1000 // [31] 26:5
+//     ldi 13 r2     # string length
+2033 // [32] 27:5
+000D // [33] 27:5
+//     call print
+003B // [34] 28:5
+//     jmp loop
+FFBF // [35] 29:5
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+// 
+// print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
+//     ldi 0xfffe r3        
+3033 // [48] 32:5
+FFFE // [49] 32:5
+//     and r2 r3            # get number of words containing 2 characters each
+3283 // [50] 33:5
+//     ifz jmp done         # if 0 then just one character
+008D // [51] 34:5
+//     shf 1 r3             # divide even length by 2
+30E3 // [52] 35:5
+//     loop:            
+//         ld r1 r4     
+4153 // [53] 37:9
+//         wl r4        
+4233 // [54] 38:9
+//         wh r4         
+4A33 // [55] 39:9
+//         addi 1 r1     
+1013 // [56] 40:9
+//         addi -1 r3    
+3F13 // [57] 41:9
+//         ifp jmp loop  
+FFBC // [58] 42:9
+//     done:                
+//     addi 1 r3            # reusing r3 which is now 0
+3013 // [59] 44:5
+//     and r2 r3            # find out if there is one more character in next word
+3283 // [60] 45:5
+//     ifz cp r3 r3  ret    # nop and return if no trailing character
+33C5 // [61] 46:5
+//     ld r1 r4         # write the
+4153 // [62] 47:5
+//     wl r4  ret       #   last character
+4237 // [63] 48:5
+// endfunc
+// 
+
