@@ -104,7 +104,6 @@ instructions with rc=10 return from call
   does not apply on ldi (todo)
 
 how-to with Vivado v2022.2:
- * to run test bench edit path to ROM in "zen-x.srcs/sim_1/new/TB_Zenx.v"
  * to program device edit path to ROM in "zen-x.srcs/sources_1/new/Sys.v"
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
