@@ -104,7 +104,7 @@ instructions with rc=10 return from call
   does not apply on ldi (todo)
 
 how-to with Vivado v2022.2:
- * to program device edit path to ROM in "zen-x.srcs/sources_1/new/Sys.v"
+ * to program device edit path to ROM in "zen-x.srcs/sources_1/new/Top.v"
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
  * find out which tty is on the usb connected to the card (i.e. /dev/ttyUSB1)
