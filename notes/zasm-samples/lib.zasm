@@ -28,7 +28,7 @@ input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, 
         ifz jmp done # if zero then buffer full
         jmp loop     # 
     done:            # 
-    cp r9 r2 ret     # 
+    cp r9 r2 ret     # copy number of read characters to r2
 endfunc
 
 print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
