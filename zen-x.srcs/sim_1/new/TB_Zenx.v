@@ -4,7 +4,7 @@
 
 module TB_Zenx;
 
-localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
+localparam ROM_FILE = "TB_Zenx.hex";
 
 localparam CLK_FREQ = 66_000_000;
 localparam BAUD_RATE = CLK_FREQ >> 1; // may be CLK_FREQ
