@@ -32,7 +32,7 @@ input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, 
 endfunc
 
 print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
-    ldi 0xfffe r3        
+    ldi 0xfffe r3        # bit mask
     and r2 r3            # get number of words containing 2 characters each
     ifz jmp done         # if 0 then just one character
     shf 1 r3             # divide even length by 2
@@ -47,8 +47,8 @@ print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
     addi 1 r3            # reusing r3 which is now 0
     and r2 r3            # find out if there is one more character in next word
     ifz cp r3 r3  ret    # nop and return if no trailing character
-    ld r1 r4         # write the
-    wl r4  ret       #   last character
+    ld r1 r4             # write the
+    wl r4  ret           #   last character
 endfunc
 
 print_hex: func # r1: number   clobbers: r2 r3 r4 r5 r6 r7
