@@ -4,15 +4,18 @@
 #        vvp: Icarus Verilog runtime version 11.0 (stable)
 set -e
 
+cd zen-x.srcs/sim_1/new
+SRCPTH=../../sources_1/new/
+
 iverilog -o zen-x \
-    zen-x.srcs/sim_1/new/TB_Zenx.v \
-    zen-x.srcs/sources_1/new/ALU.v \
-    zen-x.srcs/sources_1/new/Calls.v \
-    zen-x.srcs/sources_1/new/RAM.v \
-    zen-x.srcs/sources_1/new/Registers.v \
-    zen-x.srcs/sources_1/new/ROM.v \
-    zen-x.srcs/sources_1/new/UartRx.v \
-    zen-x.srcs/sources_1/new/UartTx.v \
-    zen-x.srcs/sources_1/new/Zenx.v \
-    zen-x.srcs/sources_1/new/Zn.v
+    TB_Zenx.v \
+    $SRCPTH/ALU.v \
+    $SRCPTH/Calls.v \
+    $SRCPTH/RAM.v \
+    $SRCPTH/Registers.v \
+    $SRCPTH/ROM.v \
+    $SRCPTH/UartRx.v \
+    $SRCPTH/UartTx.v \
+    $SRCPTH/Zenx.v \
+    $SRCPTH/Zn.v
 vvp zen-x
