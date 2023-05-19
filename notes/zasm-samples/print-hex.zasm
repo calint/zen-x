@@ -1,10 +1,9 @@
 ldi 0x0000 r1
-ldi 0x0001 r10
 ldi 0x20 r11
 loop:
-    call print_hex
-    wl r11
-    add r10 r1
+    call print_hex   # print hex in r1
+    wl r11           # write new line
+    addi 1 r1        # increment r1
     jmp loop
 
 print_hex: func # r1: number   clobbers: r2 r3 r4 r5 r6 r7

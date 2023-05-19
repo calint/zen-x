@@ -116,7 +116,8 @@ how-to with Vivado v2022.2:
  * provided ROM is meant for tests run in the simulator
 
 programming zen-x
- * use 'zasm' to compile assembler code. see 'rom.zasm' for sample.
+ * use 'zasm' to compile assembler code
+ * see 'notes/zasm-samples/' for examples.
 
 
 ```
