@@ -5,6 +5,7 @@
 set -e
 
 cd zen-x.srcs/sim_1/new
+pwd
 SRCPTH=../../sources_1/new/
 
 iverilog -o zen-x \
