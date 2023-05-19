@@ -2,11 +2,11 @@ loop:
     ldi 0x1000 r1 # buffer address
     ldi 80 r2     # buffer size
     call input
-    ldi 0xa r3
-    wl r3
-    call print
-    ldi 0xa r3
-    wl r3
+    ldi 0xa r3    # new line
+    wl r3         #  send
+    call print    # print buffer, 'buflen' is set by 'input' in r2
+    ldi 0xa r3    # new line
+    wl r3         #  send
     jmp loop
 
 input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r8, r9, r10
