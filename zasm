@@ -127,7 +127,7 @@ public class zasm {
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
     // String compiled = toc.toHexString();
-    String compiled = tc.toAnnotatedHexString();
+    String compiled = tc.toAnnotatedHexString(false); // false: don't pad to 64K
 
     String compiledPathStr = srcPathStr.substring(0, srcPathStr.lastIndexOf('.')) + ".hex";
     Files.writeString(Paths.get(compiledPathStr), compiled);
@@ -395,7 +395,7 @@ class Toc {
     sb.append('\n');
   }
 
-  public String toAnnotatedHexString() {
+  public String toAnnotatedHexString(boolean padTo64K) {
     StringBuilder sb = new StringBuilder();
     int j = 0;
     int k = 0;
@@ -418,10 +418,12 @@ class Toc {
     for (int i = instrs.size(); i < m; i++) {
       appendComments(sb, i);
     }
-//    sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
-//    for (int i = n; i < 0x10000; i++) {
-//      sb.append("0 ");
-//    }
+    if (padTo64K) {
+      sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
+      for (int i = n; i < 0x10000; i++) {
+        sb.append(i).append(' '); // ("0 ");
+      }
+    }
     sb.append('\n');
     return sb.toString();
   }

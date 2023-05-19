@@ -1,10 +1,11 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
-// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex";
-// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
-// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex";
+// ROM files used in simulations
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex";
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex";
 
 module Top #(
     parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex"
