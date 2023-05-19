@@ -1,7 +1,9 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module Sys (
+module Top #(
+    parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex"
+)(
     input wire reset,
     input wire clk_in,
     output wire uart_tx,
@@ -13,10 +15,10 @@ module Sys (
     output wire led0_b
 );
 
-//localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
-//localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex";
-//localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
-localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex";
+// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
+// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex";
+// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
+// ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex";
 
 localparam CLK_FREQ = 66_000_000;
 localparam BAUD_RATE = 9600;
