@@ -1,0 +1,50 @@
+# store 'HELLO WORLD' starting at 0x1000
+ldi 0x1000 r1
+ldi 0x4548 r2 # 'E' 'H'
+st r1 r2
+addi 1 r1
+ldi 0x4c4c r2 # 'L' 'L'
+st r1 r2
+addi 1 r1
+ldi 0x204f r2 # ' ' 'O'
+st r1 r2
+addi 1 r1
+ldi 0x4f57 r2 # 'O' 'W'
+st r1 r2
+addi 1 r1
+ldi 0x4c52 r2 # 'L' 'R'
+st r1 r2
+addi 1 r1
+ldi 0x2044 r2 # ' ' 'D'
+st r1 r2
+addi 1 r1
+ldi 0x0020 r2 # '\0' ' '
+st r1 r2
+addi 1 r1
+
+loop:
+    ldi 0x1000 r1 # pointer to string
+    ldi 13 r2     # string length
+    call print
+    jmp loop
+
+print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
+    ldi 0xfffe r3        
+    and r2 r3            # get number of words containing 2 characters each
+    ifz jmp done         # if 0 then just one character
+    shf 1 r3             # divide even length by 2
+    loop:            
+        ld r1 r4     
+        wl r4        
+        wh r4         
+        addi 1 r1     
+        addi -1 r3    
+        ifp jmp loop  
+    done:                
+    addi 1 r3            # reusing r3 which is now 0
+    and r2 r3            # find out if there is one more character in next word
+    ifz cp r3 r3  ret    # nop and return if no trailing character
+    ld r1 r4         # write the
+    wl r4  ret       #   last character
+endfunc
+

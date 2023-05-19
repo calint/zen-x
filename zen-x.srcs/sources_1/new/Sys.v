@@ -15,7 +15,9 @@ module Sys (
 
 //localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
 //localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex";
-localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
+//localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
+localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex";
+
 localparam CLK_FREQ = 66_000_000;
 localparam BAUD_RATE = 9600;
 // baud rates: 300, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400

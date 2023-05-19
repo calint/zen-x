@@ -1,0 +1,128 @@
+// loop:
+//     ldi 0x1000 r1 # buffer address
+1033 // [0] 2:5
+1000 // [1] 2:5
+//     ldi 80 r2     # buffer size
+2033 // [2] 3:5
+0050 // [3] 3:5
+//     call input
+001B // [4] 4:5
+//     ldi 0xa r3
+3033 // [5] 5:5
+000A // [6] 5:5
+//     wl r3
+3233 // [7] 6:5
+//     call print
+003B // [8] 7:5
+//     ldi 0xa r3
+3033 // [9] 8:5
+000A // [10] 8:5
+//     wl r3
+3233 // [11] 9:5
+//     jmp loop
+FF4F // [12] 10:5
+0000
+0000
+0000
+// 
+// input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, r10
+//     ldi 0x000d r3
+3033 // [16] 13:5
+000D // [17] 13:5
+//     ldi 0x0d00 r4
+4033 // [18] 14:5
+0D00 // [19] 14:5
+//     ldi 0x00ff r5
+5033 // [20] 15:5
+00FF // [21] 15:5
+//     ldi 0xff00 r6
+6033 // [22] 16:5
+FF00 // [23] 16:5
+//     cp r1 r10
+A1C3 // [24] 17:5
+//     xor r9 r9
+9963 // [25] 18:5
+//     loop:
+//         rl r7        # read into lower r7
+7633 // [26] 20:9
+//         wl r7        # echo
+7233 // [27] 21:9
+//         addi 1 r9    # increment length
+9013 // [28] 22:9
+//         st r10 r7    # store r7 to buffer
+7A73 // [29] 23:9
+//         cp r7 r8     # check
+87C3 // [30] 24:9
+//         and r5 r8    #  if
+8583 // [31] 25:9
+//         xor r3 r8    #   carriage return
+8363 // [32] 26:9
+//         ifz jmp done # if true then done
+00DD // [33] 27:9
+//         rh r7        # read into higher r7
+7E33 // [34] 28:9
+//         wh r7        # echo
+7A33 // [35] 29:9
+//         addi 1 r9    # increment length
+9013 // [36] 30:9
+//         st r10 r7    # store r7 to buffer
+7A73 // [37] 31:9
+//         addi 1 r10   # increment buffer pointer
+A013 // [38] 32:9
+//         cp r7 r8     # check
+87C3 // [39] 33:9
+//         and r6 r8    #  if
+8683 // [40] 34:9
+//         xor r4 r8    #   carriage return
+8463 // [41] 35:9
+//         ifz jmp done # if true then done
+004D // [42] 36:9
+//         addi -1 r2   # decrement buflen
+2F13 // [43] 37:9
+//         ifz jmp done # if zero then buffer full
+002D // [44] 38:9
+//         jmp loop     # 
+FEDF // [45] 39:9
+//     done:            # 
+//     cp r9 r2 ret     # 
+29C7 // [46] 41:5
+0000
+// endfunc
+// 
+// print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
+//     ldi 0xfffe r3        
+3033 // [48] 45:5
+FFFE // [49] 45:5
+//     and r2 r3            # get number of words containing 2 characters each
+3283 // [50] 46:5
+//     ifz jmp done         # if 0 then just one character
+008D // [51] 47:5
+//     shf 1 r3             # divide even length by 2
+30E3 // [52] 48:5
+//     loop:            
+//         ld r1 r4     
+4153 // [53] 50:9
+//         wl r4        
+4233 // [54] 51:9
+//         wh r4         
+4A33 // [55] 52:9
+//         addi 1 r1     
+1013 // [56] 53:9
+//         addi -1 r3    
+3F13 // [57] 54:9
+//         ifp jmp loop  
+FFBC // [58] 55:9
+//     done:                
+//     addi 1 r3            # reusing r3 which is now 0
+3013 // [59] 57:5
+//     and r2 r3            # find out if there is one more character in next word
+3283 // [60] 58:5
+//     ifz cp r3 r3  ret    # nop and return if no trailing character
+33C5 // [61] 59:5
+//     ld r1 r4         # write the
+4153 // [62] 60:5
+//     wl r4  ret       #   last character
+4237 // [63] 61:5
+// endfunc
+// 
+
