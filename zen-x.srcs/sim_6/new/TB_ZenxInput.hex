@@ -7,17 +7,17 @@
 0050 // [3] 3:5
 //     call input
 001B // [4] 4:5
-//     ldi 0xa r3
+//     ldi 0xa r3    # new line
 3033 // [5] 5:5
 000A // [6] 5:5
-//     wl r3
+//     wl r3         #  send
 3233 // [7] 6:5
-//     call print
+//     call print    # print buffer, 'buflen' is set by 'input' in r2
 003B // [8] 7:5
-//     ldi 0xa r3
+//     ldi 0xa r3    # new line
 3033 // [9] 8:5
 000A // [10] 8:5
-//     wl r3
+//     wl r3         #  send
 3233 // [11] 9:5
 //     jmp loop
 FF4F // [12] 10:5
@@ -25,7 +25,7 @@ FF4F // [12] 10:5
 0000
 0000
 // 
-// input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, r10
+// input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r8, r9, r10
 //     ldi 0x000d r3
 3033 // [16] 13:5
 000D // [17] 13:5

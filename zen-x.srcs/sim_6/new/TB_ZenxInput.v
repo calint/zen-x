@@ -111,8 +111,8 @@ initial begin
     for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
     uart_rx = 1; // idle
     for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
-    if (zx.urx.data_reg==8'h0a) $display("case 2 passed");
-    else $display("case 2 FAILED. expected 0x0a, got %0h", zx.urx.data_reg);
+    if (zx.urx.data_reg==8'h0d) $display("case 2 passed");
+    else $display("case 2 FAILED. expected 0x0d, got %0h", zx.urx.data_reg);
 
     // wait ...
     for (i = 0; i < 1000; i = i + 1) #clk_tk;

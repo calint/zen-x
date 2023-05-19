@@ -2,7 +2,7 @@
 `default_nettype none
 //`define DBG
 
-module TB_ZenxInput;
+module TB_Sys;
 
 localparam ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_7/new/TB_Sys.hex";
 localparam CLK_FREQ = 66_000_000;
