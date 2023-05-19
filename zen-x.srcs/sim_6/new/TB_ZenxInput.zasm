@@ -9,7 +9,7 @@ loop:
     wl r3
     jmp loop
 
-input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, r10
+input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r8, r9, r10
     ldi 0x000d r3
     ldi 0x0d00 r4
     ldi 0x00ff r5
