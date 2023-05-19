@@ -369,8 +369,6 @@ end
 endmodule
 /*
 // # rom intended for test bench
-// #  compile with 'zasm'
-// #
 //     ldi 0x1234 r1     # r1=0x1234
 1033 // [0] 4:5
 1234 // [1] 4:5
