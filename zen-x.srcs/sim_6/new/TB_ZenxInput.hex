@@ -5,15 +5,15 @@
 //     ldi 80 r2     # buffer size
 2033 // [2] 3:5
 0050 // [3] 3:5
-//     call input
+//     call input    # input (buffer:r1, buflen:r2)
 001B // [4] 4:5
 //     ldi 0xa r3    # new line
 3033 // [5] 5:5
 000A // [6] 5:5
 //     wl r3         #  send
 3233 // [7] 6:5
-//     call print    # print buffer, 'buflen' is set by 'input' in r2
-003B // [8] 7:5
+//     call print    # print (buffer:r1, buflen:r2) 'input' sets buflen 
+004B // [8] 7:5
 //     ldi 0xa r3    # new line
 3033 // [9] 8:5
 000A // [10] 8:5
@@ -43,86 +43,108 @@ A1C3 // [24] 17:5
 //     xor r9 r9
 9963 // [25] 18:5
 //     loop:
+//         # read the low byte
 //         rl r7        # read into lower r7
-7633 // [26] 20:9
+7633 // [26] 21:9
 //         wl r7        # echo
-7233 // [27] 21:9
+7233 // [27] 22:9
 //         addi 1 r9    # increment length
-9013 // [28] 22:9
+9013 // [28] 23:9
 //         st r10 r7    # store r7 to buffer
-7A73 // [29] 23:9
+7A73 // [29] 24:9
 //         cp r7 r8     # check
-87C3 // [30] 24:9
+87C3 // [30] 25:9
 //         and r5 r8    #  if
-8583 // [31] 25:9
+8583 // [31] 26:9
 //         xor r3 r8    #   carriage return
-8363 // [32] 26:9
+8363 // [32] 27:9
 //         ifz jmp done # if true then done
-00DD // [33] 27:9
-//         rh r7        # read into higher r7
-7E33 // [34] 28:9
-//         wh r7        # echo
-7A33 // [35] 29:9
-//         addi 1 r9    # increment length
-9013 // [36] 30:9
-//         st r10 r7    # store r7 to buffer
-7A73 // [37] 31:9
-//         addi 1 r10   # increment buffer pointer
-A013 // [38] 32:9
-//         cp r7 r8     # check
-87C3 // [39] 33:9
-//         and r6 r8    #  if
-8683 // [40] 34:9
-//         xor r4 r8    #   carriage return
-8463 // [41] 35:9
-//         ifz jmp done # if true then done
-004D // [42] 36:9
+00FD // [33] 28:9
 //         addi -1 r2   # decrement buflen
-2F13 // [43] 37:9
+2F13 // [34] 29:9
 //         ifz jmp done # if zero then buffer full
-002D // [44] 38:9
+00DD // [35] 30:9
+// 
+//         # read the high byte
+//         rh r7        # read into higher r7
+7E33 // [36] 33:9
+//         wh r7        # echo
+7A33 // [37] 34:9
+//         addi 1 r9    # increment length
+9013 // [38] 35:9
+//         st r10 r7    # store r7 to buffer
+7A73 // [39] 36:9
+//         cp r7 r8     # check
+87C3 // [40] 37:9
+//         and r6 r8    #  if
+8683 // [41] 38:9
+//         xor r4 r8    #   carriage return
+8463 // [42] 39:9
+//         ifz jmp done # if true then done
+005D // [43] 40:9
+//         addi -1 r2   # decrement buflen
+2F13 // [44] 41:9
+//         ifz jmp done # if zero then buffer full
+003D // [45] 42:9
+// 
+//         addi 1 r10   # increment buffer pointer
+A013 // [46] 44:9
 //         jmp loop     # 
-FEDF // [45] 39:9
+FEBF // [47] 45:9
 //     done:            # 
 //     cp r9 r2 ret     # 
-29C7 // [46] 41:5
+29C7 // [48] 47:5
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
+0000
 0000
 // endfunc
 // 
 // print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
 //     ldi 0xfffe r3        
-3033 // [48] 45:5
-FFFE // [49] 45:5
+3033 // [64] 51:5
+FFFE // [65] 51:5
 //     and r2 r3            # get number of words containing 2 characters each
-3283 // [50] 46:5
+3283 // [66] 52:5
 //     ifz jmp done         # if 0 then just one character
-008D // [51] 47:5
+008D // [67] 53:5
 //     shf 1 r3             # divide even length by 2
-30E3 // [52] 48:5
+30E3 // [68] 54:5
 //     loop:            
 //         ld r1 r4     
-4153 // [53] 50:9
+4153 // [69] 56:9
 //         wl r4        
-4233 // [54] 51:9
+4233 // [70] 57:9
 //         wh r4         
-4A33 // [55] 52:9
+4A33 // [71] 58:9
 //         addi 1 r1     
-1013 // [56] 53:9
+1013 // [72] 59:9
 //         addi -1 r3    
-3F13 // [57] 54:9
+3F13 // [73] 60:9
 //         ifp jmp loop  
-FFBC // [58] 55:9
+FFBC // [74] 61:9
 //     done:                
 //     addi 1 r3            # reusing r3 which is now 0
-3013 // [59] 57:5
+3013 // [75] 63:5
 //     and r2 r3            # find out if there is one more character in next word
-3283 // [60] 58:5
+3283 // [76] 64:5
 //     ifz cp r3 r3  ret    # nop and return if no trailing character
-33C5 // [61] 59:5
+33C5 // [77] 65:5
 //     ld r1 r4         # write the
-4153 // [62] 60:5
+4153 // [78] 66:5
 //     wl r4  ret       #   last character
-4237 // [63] 61:5
+4237 // [79] 67:5
 // endfunc
 // 
 

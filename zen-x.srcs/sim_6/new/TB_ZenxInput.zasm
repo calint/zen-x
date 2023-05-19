@@ -1,10 +1,10 @@
 loop:
     ldi 0x1000 r1 # buffer address
     ldi 80 r2     # buffer size
-    call input
+    call input    # input (buffer:r1, buflen:r2)
     ldi 0xa r3    # new line
     wl r3         #  send
-    call print    # print buffer, 'buflen' is set by 'input' in r2
+    call print    # print (buffer:r1, buflen:r2) 'input' sets buflen 
     ldi 0xa r3    # new line
     wl r3         #  send
     jmp loop
@@ -17,6 +17,7 @@ input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r8, r9, 
     cp r1 r10
     xor r9 r9
     loop:
+        # read the low byte
         rl r7        # read into lower r7
         wl r7        # echo
         addi 1 r9    # increment length
@@ -25,17 +26,22 @@ input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r8, r9, 
         and r5 r8    #  if
         xor r3 r8    #   carriage return
         ifz jmp done # if true then done
+        addi -1 r2   # decrement buflen
+        ifz jmp done # if zero then buffer full
+
+        # read the high byte
         rh r7        # read into higher r7
         wh r7        # echo
         addi 1 r9    # increment length
         st r10 r7    # store r7 to buffer
-        addi 1 r10   # increment buffer pointer
         cp r7 r8     # check
         and r6 r8    #  if
         xor r4 r8    #   carriage return
         ifz jmp done # if true then done
         addi -1 r2   # decrement buflen
         ifz jmp done # if zero then buffer full
+
+        addi 1 r10   # increment buffer pointer
         jmp loop     # 
     done:            # 
     cp r9 r2 ret     # 
@@ -60,4 +66,3 @@ print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
     ld r1 r4         # write the
     wl r4  ret       #   last character
 endfunc
-

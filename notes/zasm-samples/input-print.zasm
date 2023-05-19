@@ -1,15 +1,15 @@
 loop:
     ldi 0x1000 r1 # buffer address
     ldi 80 r2     # buffer size
-    call input
+    call input    # input (buffer:r1, buflen:r2)
     ldi 0xa r3    # new line
     wl r3         #  send
-    call print    # print buffer, r2 is buffer length set by 'input'
+    call print    # print (buffer:r1, buflen:r2) 'input' sets buflen 
     ldi 0xa r3    # new line
-    wl r3         # send
+    wl r3         #  send
     jmp loop
 
-input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, r10
+input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r8, r9, r10
     ldi 0x000d r3
     ldi 0x0d00 r4
     ldi 0x00ff r5
@@ -17,6 +17,7 @@ input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, 
     cp r1 r10
     xor r9 r9
     loop:
+        # read the low byte
         rl r7        # read into lower r7
         wl r7        # echo
         addi 1 r9    # increment length
@@ -25,17 +26,22 @@ input: func # r1: bufptr, r2: buflen  clobbers: r2, r3, r4, r5, r6, r7, r7, r9, 
         and r5 r8    #  if
         xor r3 r8    #   carriage return
         ifz jmp done # if true then done
+        addi -1 r2   # decrement buflen
+        ifz jmp done # if zero then buffer full
+
+        # read the high byte
         rh r7        # read into higher r7
         wh r7        # echo
         addi 1 r9    # increment length
         st r10 r7    # store r7 to buffer
-        addi 1 r10   # increment buffer pointer
         cp r7 r8     # check
         and r6 r8    #  if
         xor r4 r8    #   carriage return
         ifz jmp done # if true then done
         addi -1 r2   # decrement buflen
         ifz jmp done # if zero then buffer full
+
+        addi 1 r10   # increment buffer pointer
         jmp loop     # 
     done:            # 
     cp r9 r2 ret     # 
@@ -59,74 +65,4 @@ print: func # r1: strptr, r2: strlen   clobbers: r1, r3, r4
     ifz cp r3 r3  ret    # nop and return if no trailing character
     ld r1 r4         # write the
     wl r4  ret       #   last character
-endfunc
-
-
-print_hex: func # r1: number   clobbers: r2 r3 r4 r5 r6 r7
-    ldi 0x0f r2    # bit mask
-    ldi 10 r3      # constant 10 for compare
-    ldi 0x30 r4    # bits to 'or' to map number to ascii 0-9
-    ldi 0x41 r5    # ascii 'A'
-
-    # bits 15:12
-    cp r1 r7           # don't clobber r1
-    shf 4 r7           # shift to
-    shf 8 r7           #   lowest nibble
-    cp r7 r6           # 
-    sub r3 r6          # compare with 10
-    ifp jmp letter4    # if r6 > r3
-    ifz jmp letter4    # if r6 == r3
-        or r4 r7       # nibble below 10, 'or' 0x30 to get ascii digit 0-9
-        wl r7          # write ascii 0-9
-        jmp hex3       # next nibble
-    letter4:           # nibble 10 or above
-    add r5 r6          # 'A' + r6
-    wl r6              # write ascii a-f
-
-    # bits 11:8
-    hex3:
-    cp r1 r7           # don't clobber r1
-    shf 8 r7           # shift to lowest nibble
-    and r2 r7          # bit mask lowest nibble
-    cp r7 r6           # compare with
-    sub r3 r6          #   10
-    ifp jmp letter3    # if greater
-    ifz jmp letter3    # if equal
-        or r4 r7       
-        wl r7
-        jmp hex2
-    letter3:            
-    add r5 r6          
-    wl r6              
-
-    # bits 7:4
-    hex2:
-    cp r1 r7           
-    shf 4 r7           
-    and r2 r7
-    cp r7 r6           
-    sub r3 r6          
-    ifp jmp letter2    
-    ifz jmp letter2    
-        or r4 r7       
-        wl r7
-        jmp hex1
-    letter2:           
-    add r5 r6          
-    wl r6              
-
-    # bits 3:0
-    hex1:
-    cp r1 r7           
-    and r2 r7
-    cp r7 r6           
-    sub r3 r6          
-    ifp jmp letter1    
-    ifz jmp letter1    
-        or r4 r7       
-        wl r7  ret
-    letter1:          
-    add r5 r6         
-    wl r6  ret
-
 endfunc
