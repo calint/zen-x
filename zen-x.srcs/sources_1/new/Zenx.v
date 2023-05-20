@@ -263,13 +263,6 @@ always @(posedge clk) begin
         end // stp[x]
     end // else rst
 end
-/*
-BlockROM rom ( // 32K x 16b
-    .clka(clk),
-    .addra(pc),
-    .douta(instr)
-);
-*/
 
 ROM #(
     .DATA_FILE(ROM_FILE),
