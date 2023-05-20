@@ -3,6 +3,8 @@
 
 module TB_ROM;
 
+localparam ROM_FILE = "TB_ROM.hex";
+
 reg clk = 0;
 parameter clk_tk = 10;
 always #(clk_tk/2) clk = ~clk;
@@ -10,7 +12,9 @@ always #(clk_tk/2) clk = ~clk;
 reg [15:0] addr;
 wire [15:0] dout;
 
-ROM rom(
+ROM #(
+    .DATA_FILE(ROM_FILE)
+) rom(
   .clk(clk),
   .addr(addr),
   .dout(dout)
