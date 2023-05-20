@@ -3,7 +3,7 @@
 //`define DBG
 
 module Zenx #(
-    parameter ROM_FILE = "/home/c/w/zen-x/rom.hex",
+    parameter ROM_FILE = "ROM.hex",
     parameter CLK_FREQ = 66_000_000,
     parameter BAUD_RATE = 9600
 )(
@@ -335,15 +335,6 @@ Zn zn (
     .zf(zn_zf),
     .nf(zn_nf)
 );
-/*
-BlockRAM ram ( // 64K x 16b
-    .clka(clk),
-    .wea(ram_we),
-    .addra(regs_dat_a),
-    .dina(regs_dat_b),
-    .douta(ram_dat_out)
-);
-*/
 
 RAM #(
     .ADDR_WIDTH(RAM_ADDR_WIDTH),
