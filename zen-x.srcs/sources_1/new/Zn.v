@@ -26,7 +26,7 @@ end
     
 always @(posedge clk) begin
     `ifdef DBG
-        $display("  clk: Zn");
+        $display("%0t: clk+: Zn (zf,nf)=(%0d,%0d)", $time, zf, nf);
     `endif
 
     if (rst) begin

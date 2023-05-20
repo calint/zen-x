@@ -20,7 +20,7 @@ end
 
 always @(posedge clk) begin
     `ifdef DBG
-        $display("  clk: rom: %d:%h", addr, dout);
+        $display("%0t: clk+: ROM: %0d:%0h", $time, addr, dout);
     `endif
     dout <= mem[addr];
 end

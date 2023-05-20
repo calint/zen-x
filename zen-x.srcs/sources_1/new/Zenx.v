@@ -167,7 +167,7 @@ always @(posedge clk) begin
         urx_go <= 0;
     end else begin
         `ifdef DBG
-            $display("  clk: zenx: %d:%h stp=%0d, doop:%0d, cs_en=%0d, zn=%d%d", pc, instr, stp, is_do_op, cs_en, zn_zf, zn_nf);
+            $display("%0t: clk+: Zenx: %0d:%0h stp=%0d, doop:%0d, cs_en=%0d, zn=%d%d", $time, pc, instr, stp, is_do_op, cs_en, zn_zf, zn_nf);
         `endif
         if(stp[0]) begin
             // got instruction from rom, execute

@@ -29,7 +29,7 @@ end
 
 always @(posedge clk) begin
     `ifdef DBG
-        $display("  clk: Registers");
+        $display("%0t: clk+: Registers (ra1,ra2,rd1,rd2)=(%0h,%0h,%0h,%0h)", $time, ra1, ra2, rd1, rd2);
     `endif
 
     if (we)

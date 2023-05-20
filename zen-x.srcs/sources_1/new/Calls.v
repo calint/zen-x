@@ -43,7 +43,7 @@ end
 
 always @(posedge clk) begin
     `ifdef DBG
-        $display("  clk: Calls: pc=%0d, en=%0d, call=%0d, ret=%0d", pc_in, en, call, ret);
+        $display("%0t: clk+: Calls: pc=%0d, en=%0d, call=%0d, ret=%0d", $time, pc_in, en, call, ret);
     `endif
 
     if (rst) begin
