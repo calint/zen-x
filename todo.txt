@@ -89,7 +89,7 @@
 [x]   Calls vs Zn
 [x]   Calls vs zenx
 [x]   zenx vs Zn
-[x]   zenx: nededge clk uses comb.condition that is modified during the same time
+[x]   zenx: negedge clk uses comb.condition that is modified during the same time
        => does that during the second cycle while the combo is done during first
 [x] call
 [x] ret
