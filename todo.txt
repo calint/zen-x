@@ -3,10 +3,10 @@
 [ ] zenx: ? txr transfer from rom long instruction
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
-[ ] zenx: 1 cycle call, jmp, alu, ldi
-      => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'always' block
+[ ] zenx: 1 cycle call, jmp, alu
+      => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'posedge' block
            when simulating there is a racing condition between Zenx and ROM
-             where if Zenx runs first it changes the 'pc' and ROM will put out wrong data
+             where if Zenx runs first it uses the old instruction because ROM 'posedge' updates the value based on 'pc' 
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] remove module Registers and implement the registers in Zenx
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
