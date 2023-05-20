@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
 
 module Registers #(
     parameter ADDR_WIDTH = 4,
@@ -37,4 +38,5 @@ end
 
 endmodule
 
+`undef DBG
 `default_nettype wire

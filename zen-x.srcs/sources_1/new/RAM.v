@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
 
 module RAM #(
     parameter ADDR_WIDTH = 16,
@@ -32,4 +33,5 @@ end
 
 endmodule
 
+`undef DBG
 `default_nettype wire

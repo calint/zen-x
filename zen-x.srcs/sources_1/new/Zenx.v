@@ -382,4 +382,5 @@ UartRx #(
 
 endmodule
 
+`undef DBG
 `default_nettype wire

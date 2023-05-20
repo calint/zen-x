@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
 
 module UartRx #(
     parameter CLK_FREQ = 66_000_000,
@@ -91,4 +92,5 @@ end
 
 endmodule
 
+`undef DBG
 `default_nettype wire

@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
  
 module ROM #(
     parameter DATA_FILE = "/home/c/w/zen-x/rom.hex",
@@ -18,9 +19,13 @@ initial begin
 end
 
 always @(posedge clk) begin
+    `ifdef DBG
+        $display("  clk: rom: %d:%h", addr, dout);
+    `endif
     dout <= mem[addr];
 end
 
 endmodule 
 
+`undef DBG
 `default_nettype wire

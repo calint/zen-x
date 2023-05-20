@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
 
 module Zn(
     input wire rst,
@@ -46,4 +47,5 @@ end
     
 endmodule
 
+`undef DBG
 `default_nettype wire

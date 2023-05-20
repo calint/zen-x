@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
 
 module ALU #(
     parameter WIDTH = 16
@@ -36,4 +37,5 @@ end
 
 endmodule
 
+`undef DBG
 `default_nettype wire

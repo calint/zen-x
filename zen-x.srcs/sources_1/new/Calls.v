@@ -68,4 +68,5 @@ end
 
 endmodule
 
+`undef DBG
 `default_nettype wire

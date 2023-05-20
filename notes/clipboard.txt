@@ -1,7 +1,11 @@
 -------------------------------------------------------------
 TAG=2023-05-19--1--checkpoint && git tag $TAG && git push origin $TAG
 -------------------------------------------------------------
+`timescale 1ns / 1ps
 `default_nettype none
+//`define DBG
+
+`undef DBG
 `default_nettype wire
 -------------------------------------------------------------
 write_cfgmem -format mcs -size 4 -interface SPIx4 -loadbit {up 0x00000000 "/home/c/w/zen-x/zen-x.runs/impl_1/Sys.bit" } -file "/home/c/w/zen-x/zen-x.runs/impl_1/zenx"
