@@ -3,6 +3,9 @@
 [ ] zenx: ? txr transfer from rom long instruction
 [ ] implement 'ret' on 'ldi' and 'io*'
       => 'ret' from 'io*' should work
+[ ] zenx: 1 cycle call
+      => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'always' block
+         right now ROM module does not necessarily have valid data out at 'posedge' before modules that depend on that run
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] remove module Registers and implement the registers in Zenx
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
@@ -11,9 +14,6 @@
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
           => changed implementation from IP to inferred block ram, 100ps delay gone
-[ ] zenx: 1 cycle call
-      => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'always' block
-         right now ROM module does not necessarily have valid data out at 'posedge' before modules that depend on that run
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [-] zasm: assembled code missplaces the "endfunc" when before padded section.

@@ -3,7 +3,7 @@
 //`define DBG
  
 module ROM #(
-    parameter DATA_FILE = "/home/c/w/zen-x/rom.hex",
+    parameter DATA_FILE = "ROM.hex",
     parameter ADDR_WIDTH = 16,
     parameter WIDTH = 16
 )(
