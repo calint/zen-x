@@ -40,7 +40,6 @@ localparam ALU_CP  = 3'b110; // copy
 localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value where imm4>=0?++imm4:-imm4
 
 reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
-reg [ROM_ADDR_WIDTH-1:0] rom_pc; // program counter
 
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data for 'ldi'
