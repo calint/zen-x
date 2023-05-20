@@ -265,8 +265,7 @@ class Toc {
       }
     }
     Label newLbl = new Label(tk, pc, name, isFunc);
-    allLabels.put(
-        getScopePrefix() + name, newLbl); // i.e. 'print.done' where 'done' is the label
+    allLabels.put(getScopePrefix() + name, newLbl); // i.e. 'print.done' where 'done' is the label
     if (isFunc) {
       enterFunc(tk, name);
     } else {
@@ -1089,8 +1088,7 @@ class Statement {
     try {
       a = Integer.decode(tk.id()).shortValue();
     } catch (NumberFormatException e) {
-      throw new Exception(
-          tk.sourcePos() + ": cannot parse '"+tk.id()+"' to a number");
+      throw new Exception(tk.sourcePos() + ": cannot parse '" + tk.id() + "' to a number");
     }
     if (a == 0)
       throw new Exception(
