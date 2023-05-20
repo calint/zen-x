@@ -5,11 +5,11 @@
       => 'ret' from 'io*' should work
 [ ] zenx: 1 cycle call, jmp, alu
       => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'posedge' block
-           when simulating there is a racing condition between Zenx and ROM
-            where if Zenx runs first the instruction has not yet been updated by ROM
-            ROM should have updated the instruction during the previous cycle (internally) and 
-            put data out, first of all modules, at beginning of the next cycle
-            a full cycle out of 2 is used for this situation to not happen
+         when simulating there is a racing condition between Zenx and ROM
+         where if Zenx runs first the instruction has not yet been updated by ROM
+         ROM should have updated the instruction during the previous cycle (internally) and 
+         put data out, first of all modules, at beginning of the next cycle
+         a full cycle out of 2 is used for this situation to not happen
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [ ] remove module Registers and implement the registers in Zenx
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
