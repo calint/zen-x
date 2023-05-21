@@ -99,7 +99,6 @@ instruction executes according to:
  * zn=01 : negative number
 
 instructions with rc=10 return from call
-  does not apply on ldi (todo)
 
 how-to with Vivado v2022.2:
  * to program device edit path to ROM in "zen-x.srcs/sources_1/new/Top.v"
