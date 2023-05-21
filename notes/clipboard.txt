@@ -8,6 +8,9 @@ TAG=2023-05-19--1--checkpoint && git tag $TAG && git push origin $TAG
 `undef DBG
 `default_nettype wire
 -------------------------------------------------------------
+(* rom_style = "block" *)
+(* ram_style = "block" *)
+-------------------------------------------------------------
 write_cfgmem -format mcs -size 4 -interface SPIx4 -loadbit {up 0x00000000 "/home/c/w/zen-x/zen-x.runs/impl_1/Sys.bit" } -file "/home/c/w/zen-x/zen-x.runs/impl_1/zenx"
 -------------------------------------------------------------
 cat w/zen-x/todo.txt | socat - /dev/ttyUSB1,cs8,b4800,raw

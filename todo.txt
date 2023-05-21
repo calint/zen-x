@@ -1,8 +1,8 @@
 [ ] zenx: ? ldr: load data from rom
 [ ] zenx: ? at cpu boot copy a portion of rom to ram
 [ ] zenx: ? txr transfer from rom long instruction
-[ ] implement 'ret' on 'ldi' and 'io*'
-      => 'ret' from 'io*' should work
+[ ] implement 'ret' on 'ldi' and 'w/r'
+      => 'ret' from 'w/r' should work
 [ ] zenx: 1 cycle call, jmp, alu
       => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'posedge' block
          when simulating there is a racing condition between Zenx and ROM

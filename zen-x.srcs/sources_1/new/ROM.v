@@ -12,7 +12,7 @@ module ROM #(
     output reg [WIDTH-1:0] dout
 );
 
-reg [WIDTH-1:0] mem [0:2**ADDR_WIDTH-1];
+(* rom_style = "block" *) reg [WIDTH-1:0] mem [0:2**ADDR_WIDTH-1];
 
 initial begin
     $readmemh(DATA_FILE, mem);
