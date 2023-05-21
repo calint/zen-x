@@ -13,7 +13,7 @@ module RAM #(
     output reg [WIDTH-1:0] dout
 );
 
-(* ram_style = "block" *) reg [WIDTH-1:0] mem [0:2**ADDR_WIDTH-1];
+reg [WIDTH-1:0] mem [0:2**ADDR_WIDTH-1];
 
 integer i;
 initial begin

@@ -15,6 +15,8 @@ public class zasm {
       System.out.println("source file '" + srcPath + "' not found");
       return;
     }
+    boolean padTo64K = false;
+
     System.out.println("compiling: " + srcPath);
     String srcIn = Files.readString(srcPath);
     Tokenizer tz = new Tokenizer(srcIn);
@@ -127,7 +129,7 @@ public class zasm {
       System.out.println("!!! source and parsed source differ. See file 'diff'");
     }
     // String compiled = toc.toHexString();
-    String compiled = tc.toAnnotatedHexString(false); // false: don't pad to 64K
+    String compiled = tc.toAnnotatedHexString(padTo64K); // false: don't pad to 64K
 
     String compiledPathStr = srcPathStr.substring(0, srcPathStr.lastIndexOf('.')) + ".hex";
     Files.writeString(Paths.get(compiledPathStr), compiled);
@@ -420,7 +422,7 @@ class Toc {
     if (padTo64K) {
       sb.append("\n\n// padding: " + (0x10000 - n) + " words\n");
       for (int i = n; i < 0x10000; i++) {
-        sb.append(i).append(' '); // ("0 ");
+        sb.append(Integer.toHexString(i)).append(' '); // ("0 ");
       }
     }
     sb.append('\n');
