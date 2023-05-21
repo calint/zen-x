@@ -44,7 +44,7 @@ reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data to load
 reg [3:0] ldi_reg; // register to write data to
-reg ldi_ret_do; // enabled if 'ldi' operation had 'ret' (used later in the instruction cycle to set 'ldi_re')
+reg ldi_ret_do; // enabled if 'ldi' operation had 'ret' (used later in the instruction cycle to set 'ldi_ret')
 reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' cycle to trigger 'Calls' to return from current 'call'
 
 // ROM related wiring
@@ -83,7 +83,7 @@ wire is_jmp = instr_c && instr_r;
 wire is_cs_op = ldi_ret || (is_do_op && (instr_c ^ instr_r)); // enabled if instruction operates on 'Calls'
 wire cs_call = !ldi_ret && is_cs_op && instr_c; // enabled if instruction is 'call'
 wire is_ret = is_cs_op && instr_r; // enabled if current instruction has 'ret'
-wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'Calls' should do 'ret'
+wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'Calls' should return from current 'call'
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' before the 'call'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
