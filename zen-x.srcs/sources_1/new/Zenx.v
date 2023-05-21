@@ -61,7 +61,7 @@ wire instr_n = instr[1]; // if enabled execute instruction if n-flag matches 'zn
 // both 'instr_z' and 'instr_n' enabled means execute instruction without considering flags 
 wire instr_r = instr[2]; // if enabled returns from current 'call'
 wire instr_c = instr[3]; // if enabled 'call'
-// note. instr_r && instr_c is 'jmp': 'pc' + signed immediate 12 bits
+wire is_jmp = instr_c && instr_r; // enabled if 'jmp' instruction
 wire [3:0] op = instr[7:4]; // operation
 wire [3:0] rega = instr[11:8]; // address of 'rega'
 wire [3:0] regb =
@@ -75,9 +75,6 @@ wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
 
 // enabled if instruction will execute
 wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf == instr_z && zn_nf == instr_n));
-
-// enabled if c && r which means 'jmp'
-wire is_jmp = instr_c && instr_r;
 
 // Calls related wiring (part 1)
 wire is_cs_op = ldi_ret || (is_do_op && (instr_c ^ instr_r)); // enabled if instruction operates on 'Calls'
