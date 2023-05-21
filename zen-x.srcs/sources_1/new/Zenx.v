@@ -50,7 +50,7 @@ reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' cycle to trigger
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
 
-// uart_rx related (part 1)
+// UartRx related (part 1)
 reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register
 reg [3:0] urx_reg; // destination register of data from read
 reg urx_regb_sel; // enabled if 'urx_reg' is selected for 'regb'
