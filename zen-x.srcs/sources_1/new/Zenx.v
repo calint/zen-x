@@ -183,7 +183,7 @@ always @(posedge clk) begin
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
                     stp <= 1 << 1; // to stp[1]
                 end else begin
-                    if (cs_ret) begin // if instruction har 'ret' flag
+                    if (cs_ret) begin // if instruction had 'ret' flag
                         pc <= cs_pc_out + 1; // get return address from 'Calls'
                     end else begin
                         pc <= pc + 1; // not a return, increment program counter
