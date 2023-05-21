@@ -44,7 +44,7 @@ reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data to load
 reg [3:0] ldi_reg; // register to write data to
-reg ldi_is_ret; // enabled if 'ldi' operation had 'ret' (used later in the instruction cycle to set 'ldi_re')
+reg ldi_is_ret; // enabled if 'ldi' operation had 'ret' (used later in the instruction cycle to set 'ldi_ret')
 reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' cycle to trigger 'Calls' to return from current 'call'
 
 // ROM related wiring
