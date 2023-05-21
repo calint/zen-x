@@ -128,12 +128,12 @@ assign led0_b = 1; // turn off rgb
 assign led0_g = 1;
 assign led0_r = 1;
 
-// uart_tx related wiring
+// UartTx related wiring
 reg [7:0] utx_dat; // data to send
 reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
 wire utx_bsy; // enabled while sending 
 
-// uart_rx related wiring (part 2)
+// UartRx related wiring (part 2)
 wire [7:0] urx_dat; // last read byte
 wire urx_dr; // enabled when data ready
 reg urx_go; // enable to start receiving, disable after data received to acknowledge
