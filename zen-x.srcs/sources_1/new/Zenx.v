@@ -42,17 +42,17 @@ localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value where imm4>=
 reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 
 // OP_LDI related registers
-reg is_ldi; // enabled if current instruction is data for 'ldi'
-reg [3:0] ldi_reg; // register to write when 'ldi'
-reg ldi_ret_do; // enabled if 'ldi' operation had 'ret' to be used later in the instruction cycle
-reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' to return
+reg is_ldi; // enabled if current instruction is data to load
+reg [3:0] ldi_reg; // register to write data to
+reg ldi_ret_do; // enabled if 'ldi' operation had 'ret' (used later in the instruction cycle to set 'ldi_re')
+reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' cycle to trigger 'Calls' to return from current 'call'
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
 
 // uart_rx related (part 1)
 reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register
-reg [3:0] urx_reg; // destination register
+reg [3:0] urx_reg; // destination register of data from read
 reg urx_regb_sel; // enabled if 'urx_reg' is selected for 'regb'
 
 // instruction break down
@@ -81,9 +81,9 @@ wire is_jmp = instr_c && instr_r;
 
 // Calls related wiring (part 1)
 wire is_cs_op = ldi_ret || (is_do_op && (instr_c ^ instr_r)); // enabled if instruction operates on 'Calls'
-wire cs_call = is_cs_op && !ldi_ret && instr_c; // enabled if instruction is 'call'
+wire cs_call = !ldi_ret && is_cs_op && instr_c; // enabled if instruction is 'call'
 wire is_ret = is_cs_op && instr_r; // enabled if current instruction has 'ret'
-wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'ret' should be applied in this cycle
+wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'Calls' should do 'ret'
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' before the 'call'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
