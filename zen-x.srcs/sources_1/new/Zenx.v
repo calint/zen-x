@@ -124,9 +124,9 @@ assign led[0] = pc[btn ? 4 : 0];
 assign led[1] = pc[btn ? 5 : 1];
 assign led[2] = pc[btn ? 6 : 2];
 assign led[3] = pc[btn ? 7 : 3];
-assign led0_b = 0;
-assign led0_g = (pc==62); // pc at finished in hang of rom
-assign led0_r = 0;
+assign led0_b = 1; // turn off rgb
+assign led0_g = 1;
+assign led0_r = 1;
 
 // uart_tx related wiring
 reg [7:0] utx_dat; // data to send
