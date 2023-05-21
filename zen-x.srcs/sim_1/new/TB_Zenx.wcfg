@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="572.750 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,258.251 ns"></ZoomEndTime>
-      <Cursor1Time time="1,144.000 ns"></Cursor1Time>
+      <ZoomStartTime time="1,403.110 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,850.579 ns"></ZoomEndTime>
+      <Cursor1Time time="1,656.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="108"></NameColumnWidth>
+      <NameColumnWidth column_width="100"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="40" />
+   <WVObjectSize size="42" />
    <wvobject type="logic" fp_name="/TB_Zenx/zx/rst">
       <obj_property name="ElementShortName">rst</obj_property>
       <obj_property name="ObjectShortName">rst</obj_property>
@@ -46,6 +46,14 @@
    <wvobject type="logic" fp_name="/TB_Zenx/zx/is_ldi">
       <obj_property name="ElementShortName">is_ldi</obj_property>
       <obj_property name="ObjectShortName">is_ldi</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/ldi_ret">
+      <obj_property name="ElementShortName">ldi_ret</obj_property>
+      <obj_property name="ObjectShortName">ldi_ret</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/TB_Zenx/zx/ldi_ret_do">
+      <obj_property name="ElementShortName">ldi_ret_do</obj_property>
+      <obj_property name="ObjectShortName">ldi_ret_do</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/TB_Zenx/zx/stp">
       <obj_property name="ElementShortName">stp[5:0]</obj_property>

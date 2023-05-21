@@ -44,6 +44,8 @@ reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 // OP_LDI related registers
 reg is_ldi; // enabled if current instruction is data for 'ldi'
 reg [3:0] ldi_reg; // register to write when 'ldi'
+reg ldi_ret_do; // enabled if 'ldi' operation had 'ret' to be used later in the instruction cycle
+reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' to return
 
 // ROM related wiring
 wire [15:0] instr; // current instruction from ROM
@@ -78,9 +80,10 @@ wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf == instr_z && zn_nf =
 wire is_jmp = instr_c && instr_r;
 
 // Calls related wiring (part 1)
-wire is_cs_op = is_do_op && (instr_c ^ instr_r); // enabled if instruction operates on 'Calls'
-wire cs_call = is_cs_op && instr_c; // enabled if instruction is 'call'
-wire cs_ret = is_cs_op && instr_r; // enabled if 'return'
+wire is_cs_op = ldi_ret || (is_do_op && (instr_c ^ instr_r)); // enabled if instruction operates on 'Calls'
+wire cs_call = is_cs_op && !ldi_ret && instr_c; // enabled if instruction is 'call'
+wire is_ret = is_cs_op && instr_r;
+wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'return'
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' before the 'call'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
@@ -157,6 +160,7 @@ always @(posedge clk) begin
         pc <= 0;
         regs_wd_sel = 0;
         is_ldi <= 0;
+        ldi_ret <= 0;
         regs_we <= 0;
         ram_we <= 0;
         utx_dat <= 0;
@@ -179,7 +183,7 @@ always @(posedge clk) begin
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
                     stp <= 1 << 1;
                 end else begin
-                    if (cs_ret) begin // return
+                    if (cs_ret) begin // return if cs_ret and not 'ldi'
                         pc <= cs_pc_out + 1; // get return address from 'Calls'
                     end else begin
                         pc <= pc + 1; // not a return, increment program counter
@@ -208,6 +212,7 @@ always @(posedge clk) begin
                         case(op)
                         OP_LDI: begin
                             ldi_reg <= regb; // save the register to which the next instruction data will be written
+                            ldi_ret_do <= is_ret;
                             stp <= 1 << 2; // to step 2
                         end
                         OP_ST: begin
@@ -231,8 +236,10 @@ always @(posedge clk) begin
             ram_we <= 0; // disable ram write
             regs_we <= 0; // disable register write
             regs_wd_sel <= 0; // select alu result on the write register data
-            is_ldi <= 0; // disable flag that instruction is data for 'ldi'
             urx_regb_sel <= 0; // disable signal that 'regb' is 'urx_reg'
+            is_ldi <= 0; // disable flag that instruction is data for 'ldi'
+            ldi_ret <= 0; // disable the 'ret' from 'ldi'
+            ldi_ret_do <= 0;
             stp <= 1; // done
         end else if(stp[2]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
@@ -240,7 +247,12 @@ always @(posedge clk) begin
         end else if(stp[3]) begin // ldi: load register
             regs_we <= 1; // enable register write
             regs_wd_sel <= 2; // select register write from rom output
-            pc <= pc + 1; // start fetching next instruction
+            ldi_ret <= ldi_ret_do;
+            if (ldi_ret_do) begin
+                pc <= cs_pc_out + 1; // get return address from 'Calls'
+            end else begin
+                pc <= pc + 1; // not a return, increment program counter
+            end
             stp <= 1 << 1;
         end else if(stp[4]) begin // utx: while uart busy wait
             if (!utx_bsy) begin

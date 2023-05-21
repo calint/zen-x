@@ -313,8 +313,25 @@ initial begin
     else $display("case 27.4 FAILED. expected 5, got %0d", zx.regs.mem[8]);
     if (!zx.zn_zf && zx.zn_nf) $display("case 27.5 passed");
     else $display("case 27.5 FAILED. expected 0, 1 got %0d, %0d", zx.zn_zf, zx.zn_nf);
+    if (zx.pc==42) $display("case 27.6 passed");
+    else $display("case 27.6 FAILED. expected 42, got %d", zx.pc);
 
     // pc=42 zn=01
+    #clk_tk // 007B: call x0070
+    #clk_tk
+    
+    // pc=112
+    #clk_tk // 9037: ldi 0xdcba r9  ret
+    #clk_tk
+    #clk_tk // 0xdcba
+    #clk_tk
+    
+    // pc=43
+    if (zx.pc==43) $display("case 27.6 passed");
+    else $display("case 27.6 FAILED. expected 43, got %d", zx.pc);
+    if (zx.regs.mem[9]==16'hdcba) $display("case 27.7 passed");
+    else $display("case 27.7 FAILED. expected 0xdcba, got %0h", zx.regs.mem[9]);
+    
     #clk_tk // 007f: jmp 0x007
     #clk_tk //
     if (zx.pc==49) $display("case 28 passed");

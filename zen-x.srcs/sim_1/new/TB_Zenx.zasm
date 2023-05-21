@@ -37,9 +37,10 @@ lbl1:
     ifp jmp x007
     ifz jmp x007
     ifn call x0050
+    call x0070
     jmp x007
 
-x0030: func
+@ 0x0030 x0030: func
     addi 1 r8 ret
 endfunc
 
@@ -71,8 +72,12 @@ endfunc
     0 0 0 0
     0 0 0 0
 
-x0060: func
+@ 0x0060 x0060: func
     ifn addi 2 r8 ret
     ifz addi 2 r8 ret
     ifp addi 2 r8 ret
+endfunc
+
+@ 0x0070 x0070: func
+    ldi 0xdcba r9  ret
 endfunc
