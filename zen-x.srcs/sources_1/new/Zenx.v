@@ -156,21 +156,21 @@ end
 
 always @(posedge clk) begin
     if (rst) begin
-        stp <= 1 << STP_BIT_NEW_INSTRUCTION;
         pc <= 0;
-        regs_wd_sel <= 0;
         is_ldi <= 0;
         ldi_ret <= 0;
         ldi_is_ret <= 0;
         regs_we <= 0;
+        regs_wd_sel <= 0;
         ram_we <= 0;
         utx_dat <= 0;
         utx_go <= 0;
         urx_reg <= 0;
-        urx_regb_sel <= 0;
         urx_reg_hilo <= 0;
+        urx_regb_sel <= 0;
         urx_go <= 0;
         led <= 0;
+        stp <= 1 << STP_BIT_NEW_INSTRUCTION;
     end else begin
         `ifdef DBG
             $display("%0t: clk+: Zenx: %0d:%0h stp=%0d, doop:%0d, cs_en=%0d, zn=%d%d", $time, pc, instr, stp, is_do_op, cs_en, zn_zf, zn_nf);
