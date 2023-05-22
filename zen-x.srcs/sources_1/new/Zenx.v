@@ -51,8 +51,8 @@ reg ldi_ret; // enabled by 'ldi_ret_do' at the end of the 'ldi' cycle to trigger
 wire [15:0] instr; // current instruction from ROM
 
 // UartRx related (part 1)
-reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register
-reg [3:0] urx_reg; // destination register of data from read
+reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register, the received byte is or'ed into this register
+reg [3:0] urx_reg; // destination register of data from receive
 reg urx_regb_sel; // enabled if 'urx_reg' is selected for 'regb'
 
 // instruction break down
@@ -68,7 +68,7 @@ wire [3:0] regb =
     is_ldi ? ldi_reg : // if loading instruction data into register
     urx_regb_sel ? urx_reg : // if reading from uart
     instr[15:12]; // address of 'regb'
-wire [11:0] imm12 = instr[15:4];
+wire [11:0] imm12 = instr[15:4]; // 12 bit number if it is 'call' or 'jmp'
 
 // Zn related wiring (part 1)
 wire zn_zf, zn_nf; // zero- and negative flags wired to Zn outputs
@@ -114,10 +114,21 @@ wire [REGISTERS_WIDTH-1:0] regs_wd =
     urx_reg_dat;
 
 // Zn related wiring (part 2)
-wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'
-wire zn_sel = cs_ret; // if 'zn_we': if 'return' select flags from from Calls otherwise ALU 
+wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'. note. if return zn-flags from 'Calls' take precedence
+wire zn_sel = cs_ret; // if 'zn_we': if 'ret' select flags from from Calls otherwise ALU 
 wire zn_clr = cs_call; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
 wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
+
+// UartTx related wiring
+reg [7:0] utx_dat; // data to send
+reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
+wire utx_bsy; // enabled while sending, when going low UartTx waits for 'utx_go' to go low as an acknowledge that data has been sent 
+
+// UartRx related wiring (part 2)
+wire [7:0] urx_dat; // last read byte
+wire urx_dr; // enabled when data ready
+reg urx_go; // enable to start receiving, disable after data received to acknowledge
+reg urx_reg_hilo; // read into high or low byte of the register 'urx_reg'
 
 // lights
 assign led[0] = pc[btn ? 4 : 0];
@@ -128,18 +139,14 @@ assign led0_b = 1; // turn off rgb
 assign led0_g = 1;
 assign led0_r = 1;
 
-// UartTx related wiring
-reg [7:0] utx_dat; // data to send
-reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
-wire utx_bsy; // enabled while sending 
-
-// UartRx related wiring (part 2)
-wire [7:0] urx_dat; // last read byte
-wire urx_dr; // enabled when data ready
-reg urx_go; // enable to start receiving, disable after data received to acknowledge
-reg urx_reg_hilo; // read into high or low byte of the register
-
 reg [5:0] stp; // state of instruction execution
+
+localparam STP_BIT_NEW_INSTRUCTION = 0;
+localparam STP_BIT_WAIT_FOR_ROM = 1;
+localparam STP_BIT_LDI_WAIT_FOR_ROM = 2;
+localparam STP_BIT_LDI_LOAD_DATA = 3;
+localparam STP_BIT_UART_SENDING = 4;
+localparam STP_BIT_UART_RECEIVING = 5;
 
 always @(negedge clk) begin
     if (rst) begin
@@ -170,15 +177,15 @@ always @(posedge clk) begin
         `ifdef DBG
             $display("%0t: clk+: Zenx: %0d:%0h stp=%0d, doop:%0d, cs_en=%0d, zn=%d%d", $time, pc, instr, stp, is_do_op, cs_en, zn_zf, zn_nf);
         `endif
-        if(stp[0]) begin
+        if(stp[STP_BIT_NEW_INSTRUCTION]) begin
             // got instruction from rom, execute
             if (is_do_op) begin
                 if (cs_call) begin // call
                     pc <= imm12 << 4; // set 'pc'
-                    stp <= 1 << 1; // to stp[1]
+                    stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                 end else if (is_jmp) begin // jmp
                     pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
-                    stp <= 1 << 1; // to stp[1]
+                    stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                 end else begin
                     if (cs_ret) begin // if instruction had 'ret' flag
                         pc <= cs_pc_out + 1; // get return address from 'Calls'
@@ -192,34 +199,34 @@ always @(posedge clk) begin
                             urx_reg_dat <= regs_dat_b; // save current value of 'regb'
                             urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
                             urx_go <= 1; // signal start read
-                            stp <= 1 << 5; // to step 9
+                            stp <= 1 << STP_BIT_UART_RECEIVING;
                         end
                         3'b010: begin // send blocking
                             utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
                             utx_go <= 1; // signal start of transmission
-                            stp <= 1 << 4; // to step 7
+                            stp <= 1 << STP_BIT_UART_SENDING;
                         end
                         default: $display("!!! unknown IO op");
                         endcase
                     end else if (is_alu_op) begin
                         regs_we <= 1; // enable write back to register
                         regs_wd_sel <= 0; // select alu result for write to 'regb'
-                        stp <= 1 << 1;
+                        stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                     end else begin
                         case(op)
                         OP_LDI: begin
                             ldi_reg <= regb; // save the register to which the next instruction data will be written
                             ldi_is_ret <= is_ret;
-                            stp <= 1 << 2; // to step 2
+                            stp <= 1 << STP_BIT_LDI_WAIT_FOR_ROM;
                         end
                         OP_ST: begin
                             ram_we <= 1; // enable ram write
-                            stp <= 1 << 1;
+                            stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                         end
                         OP_LD: begin
                             regs_we <= 1; // enable register write
                             regs_wd_sel <= 1; // select ram output for write to 'regb'
-                            stp <= 1 << 1; // to step 1
+                            stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                         end
                         default: $display("!!! unknown instruction");
                         endcase
@@ -227,9 +234,9 @@ always @(posedge clk) begin
                 end // io || is_alu 
             end else begin // !is_do_op, instruction will not execute
                 pc <= pc + (!is_jmp && !cs_call && (op == OP_LDI) ? 2 : 1); // skip 2 instructions if it is 'ldi'
-                stp <= 1 << 1;
+                stp <= 1 << STP_BIT_WAIT_FOR_ROM;
             end // is_do_top else
-        end else if(stp[1]) begin // wait one cycle for rom and disable controls
+        end else if(stp[STP_BIT_WAIT_FOR_ROM]) begin // wait one cycle for rom and disable controls
             ram_we <= 0; // disable ram write
             regs_we <= 0; // disable register write
             regs_wd_sel <= 0; // select alu result on the write register data
@@ -237,11 +244,11 @@ always @(posedge clk) begin
             is_ldi <= 0; // disable flag that instruction is data for 'ldi'
             ldi_ret <= 0; // disable the 'ret' from 'ldi'
             ldi_is_ret <= 0;
-            stp <= 1; // done
-        end else if(stp[2]) begin // ldi: wait for rom
+            stp <= 1 << STP_BIT_NEW_INSTRUCTION; // done
+        end else if(stp[STP_BIT_LDI_WAIT_FOR_ROM]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
-            stp <= 1 << 3;
-        end else if(stp[3]) begin // ldi: load register
+            stp <= 1 << STP_BIT_LDI_LOAD_DATA;
+        end else if(stp[STP_BIT_LDI_LOAD_DATA]) begin // ldi: load register
             regs_we <= 1; // enable register write
             regs_wd_sel <= 2; // select register write from rom output
             ldi_ret <= ldi_is_ret;
@@ -250,13 +257,13 @@ always @(posedge clk) begin
             end else begin
                 pc <= pc + 1; // not a return, increment program counter
             end
-            stp <= 1 << 1;
-        end else if(stp[4]) begin // utx: while uart busy wait
+            stp <= 1 << STP_BIT_WAIT_FOR_ROM;
+        end else if(stp[STP_BIT_UART_SENDING]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
                 utx_go <= 0; // acknowledge that transmission is done
-                stp <= 1; // done
+                stp <= 1 << STP_BIT_NEW_INSTRUCTION;
             end
-        end else if(stp[5]) begin // urx: while data is not ready
+        end else if(stp[STP_BIT_UART_RECEIVING]) begin // urx: while data is not ready
             if (urx_dr) begin // if data ready
                 if (urx_reg_hilo) begin
                     urx_reg_dat[15:8] <= urx_dat; // write the high byte
@@ -267,7 +274,7 @@ always @(posedge clk) begin
                 regs_we <= 1; // enable register write
                 regs_wd_sel <= 3; // select data to write to register from 'urx_reg_dat'
                 urx_regb_sel <= 1; // signal that 'regb' is 'urx_reg'
-                stp <= 1 << 1;
+                stp <= 1 << STP_BIT_WAIT_FOR_ROM;
             end // urx_dr
         end // stp[x]
     end // else rst
