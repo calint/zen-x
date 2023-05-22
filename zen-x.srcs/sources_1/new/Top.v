@@ -1,8 +1,6 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-// ROM files used in simulations
-
 module Top #(
    parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex"
 // parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex"
