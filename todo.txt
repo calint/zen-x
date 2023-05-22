@@ -8,9 +8,9 @@
          ROM should have updated the instruction during the previous cycle (internally) and 
          put data out, first of all modules, at beginning of the next cycle
          a full cycle out of 2 is used for this situation to not happen
-[ ] built-in 4 leds set by 'led' and 'ledi' instructions
-[ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ] ldi data can be loaded into register in a single cycle 
+[ ] built-in 4 leds set by 'led' and 'ledi' instructions
+[ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA?
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [-] remove module Registers and implement the registers in Zenx
