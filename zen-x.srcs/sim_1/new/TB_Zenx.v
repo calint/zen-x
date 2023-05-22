@@ -368,7 +368,9 @@ initial begin
     uart_rx = 1; // stop bit
     for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
     uart_rx = 1; // idle
-    for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
+    
+    #clk_tk // wait for register to be written
+    #clk_tk
     if (zx.regs.mem[10]==16'b0101_0101) $display("case 29 passed");
     else $display("case 29 FAILED. expected 0x0055, got %0h", zx.regs.mem[10]);
     
