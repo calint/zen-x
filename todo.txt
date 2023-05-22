@@ -1,8 +1,6 @@
 [ ] zenx: ? ldr: load data from rom
 [ ] zenx: ? at cpu boot copy a portion of rom to ram
 [ ] zenx: ? txr transfer from rom long instruction
-[x] implement 'ret' on 'ldi' and 'w/r'
-      => 'ret' from 'w/r' should work
 [ ] zenx: 1 cycle call, jmp, alu
       => for this to work ROM has to have valid data out at 'posedge' before any modules run the 'posedge' block
          when simulating there is a racing condition between Zenx and ROM
@@ -11,15 +9,18 @@
          put data out, first of all modules, at beginning of the next cycle
          a full cycle out of 2 is used for this situation to not happen
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
-[ ] remove module Registers and implement the registers in Zenx
 [ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA
 [ ] ldi data can be loaded into register in a single cycle 
-[ ] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
+[ ] emulator webapp
+------------------------------------------------------------------------------
+[-] remove module Registers and implement the registers in Zenx
+    => all modules can be implemented in Zenx but it is ok the to split up the concerns
+[x] implement 'ret' on 'ldi' and 'w/r'
+      => 'ret' from 'w/r' should work
+[-] zenx: 1 cycle jmp: always @* if (is_jmp) pc = pc + {{(4){imm12[11]}}, imm12};
           doesn't work because 'is_jmp' is triggered by previous instruction (ldi data)
           during the ~100ps delay of rom data after "posedge clk"
           => changed implementation from IP to inferred block ram, 100ps delay gone
-[ ] emulator webapp
-------------------------------------------------------------------------------
 [-] zasm: assembled code missplaces the "endfunc" when before padded section.
       => comments are copied to generate better output for function declarations.
         => no good way of fixing it
