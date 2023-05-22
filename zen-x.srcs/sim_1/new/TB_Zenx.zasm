@@ -39,6 +39,7 @@ lbl1:
     ifn call x0050
     call x0070
     ledi 0b1010
+    led r9        # r9==0xdcba => led==0xa
     jmp x007
 
 @ 0x0030 x0030: func

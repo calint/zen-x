@@ -48,7 +48,7 @@ pre pipeline
     \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 0111 \ .... \  rh   \
      \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1100 \ .... \       \
       \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1101 \ .... \       \
-       \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1110 \ .... \       \
+       \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1110 \ .... \ led   \
         \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1111 \ imm4 \ ledi  \
  
 
@@ -88,8 +88,8 @@ i/o
  |.|.|.|0|1100|0111|....|  rh   | uart blocking read higher regs[b]
  |.|.|.|0|1100|1100|....|       | 
  |.|.|.|0|1100|1101|....|       | 
- |.|.|.|0|1100|1110|....|       |
- |.|.|.|0|1100|1111|imm4|  ledi | sets the leds to imm4
+ |.|.|.|0|1100|1110|....|  led  | sets leds to lower 4 bits of regs[b]
+ |.|.|.|0|1100|1111|imm4|  ledi | sets leds to imm4
 
 zn flags in instructions are compared with current flags
 instruction executes according to:

@@ -204,8 +204,8 @@ always @(posedge clk) begin
                             utx_go <= 1; // signal start of transmission
                             stp <= 1 << STP_BIT_UART_SENDING;
                         end
-                        3'b111: begin // ledi
-                            led <= regb;
+                        3'b111: begin // led and ledi
+                            led <= rega[3] ? regb : regs_dat_b[3:0];
                             stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                         end
                         default: $display("!!! unknown IO op");
