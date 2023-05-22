@@ -62,7 +62,6 @@ always @(negedge clk) begin
                     bit_count <= 0;
                     tx <= 1; // start sending stop bit
                     state <= STATE_STOP_BIT;
-                end else begin
                 end
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
