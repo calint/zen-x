@@ -336,10 +336,10 @@ initial begin
     
     // pc=49, zn=01
     // transmit "HELLO "  
-    for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
-        #clk_tk;
-    end
     
+    while (zx.pc != 62) // wait for 'rl' instruction at pc=61 to start receiving (pc is then incremented) 
+        #clk_tk;
+        
     // receive 0b0101_0101
     uart_rx = 1; // idle
     for (i = 0; i < UART_TICKS_PER_BIT; i = i + 1) #clk_tk;
@@ -369,15 +369,7 @@ initial begin
     #clk_tk
     if (zx.regs.mem[10]==16'b0101_0101) $display("case 29 passed");
     else $display("case 29 FAILED. expected 0x0055, got %0h", zx.regs.mem[10]);
-    
-    for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
-        #clk_tk;
-    end
 
-    for (i = 0; i < 125 * UART_TICKS_PER_BIT; i = i + 1) begin
-        #clk_tk;
-    end
-    
     $finish;
 end
 
