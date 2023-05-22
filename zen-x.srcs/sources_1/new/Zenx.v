@@ -141,12 +141,12 @@ assign led0_r = 1;
 
 reg [5:0] stp; // state of instruction execution
 
-localparam STP_BIT_NEW_INSTRUCTION = 0;
-localparam STP_BIT_WAIT_FOR_ROM = 1;
+localparam STP_BIT_NEW_INSTRUCTION  = 0;
+localparam STP_BIT_WAIT_FOR_ROM     = 1;
 localparam STP_BIT_LDI_WAIT_FOR_ROM = 2;
-localparam STP_BIT_LDI_LOAD_DATA = 3;
-localparam STP_BIT_UART_SENDING = 4;
-localparam STP_BIT_UART_RECEIVING = 5;
+localparam STP_BIT_LDI_LOAD_DATA    = 3;
+localparam STP_BIT_UART_SENDING     = 4;
+localparam STP_BIT_UART_RECEIVING   = 5;
 
 always @(negedge clk) begin
     if (rst) begin
@@ -162,7 +162,7 @@ always @(posedge clk) begin
     if (rst) begin
         stp <= 1 << STP_BIT_NEW_INSTRUCTION;
         pc <= 0;
-        regs_wd_sel = 0;
+        regs_wd_sel <= 0;
         is_ldi <= 0;
         ldi_ret <= 0;
         ldi_is_ret <= 0;

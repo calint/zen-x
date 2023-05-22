@@ -60,8 +60,8 @@ always @(negedge clk) begin
         STATE_DATA_BITS: begin
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
-                bit_count = bit_count + 1; // ? NBA
                 bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
+                bit_count = bit_count + 1; // ? NBA
                 if (bit_count == 8) begin
                     bit_count <= 0;
                     state <= STATE_STOP_BIT;
