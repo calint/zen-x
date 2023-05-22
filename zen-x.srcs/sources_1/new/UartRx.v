@@ -19,7 +19,7 @@ localparam BIT_TIME = CLK_FREQ / BAUD_RATE;
 localparam STATE_IDLE         = 0;
 localparam STATE_START_BIT    = 1;
 localparam STATE_DATA_BITS    = 2;
-localparam STATE_STOP_BITS    = 3;
+localparam STATE_STOP_BIT     = 3;
 localparam STATE_WAIT_GO_LOW  = 4;
 
 reg [$clog2(5)-1:0] state;
@@ -60,15 +60,15 @@ always @(negedge clk) begin
         STATE_DATA_BITS: begin
             if (bit_counter == 0) begin
                 data_reg[bit_count] <= rx;
+                bit_count = bit_count + 1; // ? NBA
                 bit_counter <= BIT_TIME - 1; // -1 because one of the ticks has been read before switching state
-                bit_count <= bit_count + 1;
-                if (bit_count == 7) begin // 7 not 8 because of bit_count NBA
+                if (bit_count == 8) begin
                     bit_count <= 0;
-                    state <= STATE_STOP_BITS;
+                    state <= STATE_STOP_BIT;
                 end
             end
         end
-        STATE_STOP_BITS: begin
+        STATE_STOP_BIT: begin
             if (bit_counter == 0) begin // no check if rx==1 because there is no error recovery
                 data <= data_reg;
                 dr <= 1;
