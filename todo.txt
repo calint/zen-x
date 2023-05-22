@@ -11,7 +11,7 @@
 [ ] ldi data can be loaded into register in a single cycle 
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
 [o] UartRx and UartTx have blocking assignments of bit_count. can implementation be changed to NBA?
-[ ]   UartRx
+[x]   UartRx
 [ ]   UartTx
 [ ] emulator webapp
 ------------------------------------------------------------------------------
