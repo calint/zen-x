@@ -49,7 +49,7 @@ pre pipeline
      \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1100 \ .... \       \
       \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1101 \ .... \       \
        \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1110 \ .... \       \
-        \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1111 \ .... \       \
+        \ . \ . \ . \ 0 \ 1 \ 1 0 0 \ 1111 \ imm4 \ ledi  \
  
 
   op  :       : cyc |
@@ -89,7 +89,7 @@ i/o
  |.|.|.|0|1100|1100|....|       | 
  |.|.|.|0|1100|1101|....|       | 
  |.|.|.|0|1100|1110|....|       |
- |.|.|.|0|1100|1111|....|       |
+ |.|.|.|0|1100|1111|imm4|  ledi | sets the leds to imm4
 
 zn flags in instructions are compared with current flags
 instruction executes according to:

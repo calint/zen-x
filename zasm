@@ -88,6 +88,8 @@ public class zasm {
         stmts.add(new OpRl(zn, id, tz));
       } else if (id.isId("rh")) {
         stmts.add(new OpRh(zn, id, tz));
+      } else if (id.isId("ledi")) {
+        stmts.add(new OpLedi(zn, id, tz));
       } else {
         short data = Statement.parseImm16(id);
         stmts.add(new StmtData(id));
@@ -466,6 +468,29 @@ class StmtData extends Statement {
 
   public void compile(Toc toc) throws Throwable {
     toc.write(this, parseImm16(token()));
+  }
+}
+
+class OpLedi extends Statement {
+  private Token regb;
+
+  public OpLedi(Token zn, Token tk, Tokenizer tz) {
+    super(zn, tk);
+    regb = tz.nextToken();
+    readOptionalRet(tz);
+  }
+
+  public void compile(Toc toc) throws Throwable {
+    short instr = getZnr();
+    short b = parseImm4(regb);
+    instr |= 3 << 4;
+    instr |= 0xf << 8;
+    instr |= b << 12;
+    toc.write(this, instr);
+  }
+
+  public String toSource() {
+    return super.toSource() + regb.toSource() + toSourceRet();
   }
 }
 
@@ -1085,6 +1110,26 @@ class Statement {
     }
   }
 
+  public static short parseImm4(Token tk) throws Throwable {
+    int i;
+    try {
+      if (tk.id().startsWith("0b")) {
+        i = Integer.parseInt(tk.id().substring(2), 2);
+      } else {
+        i = Integer.decode(tk.id()).intValue();
+      }
+    } catch (NumberFormatException e) {
+      throw new Exception(tk.sourcePos() + ": cannot parse '" + tk.id() + "' to a number");
+    }
+    if (i > 15 || i < 0) {
+      throw new Exception(
+          tk.sourcePos()
+              + ": immediate 4 bit value '"
+              + i
+              + "' is is out of 0 -> 15 range.");
+    }
+    return (short) i;
+  }
   public static short parseSignedPosIncImm4(Token tk) throws Throwable {
     int a;
     try {

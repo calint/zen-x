@@ -38,6 +38,7 @@ lbl1:
     ifz jmp x007
     ifn call x0050
     call x0070
+    ledi 0b1010
     jmp x007
 
 @ 0x0030 x0030: func

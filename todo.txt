@@ -10,7 +10,8 @@
          put data out, first of all modules, at beginning of the next cycle
          a full cycle out of 2 is used for this situation to not happen
 [ ] ldi ? data can be loaded into register in once cycle
-[ ] built-in 4 leds set by 'led' and 'ledi' instructions
+[o] built-in 4 leds set by 'led' and 'ledi' instructions
+[x]   ledi
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [x] UartRx and UartTx have blocking assignments of bit_count. can implementation be changed to NBA?

@@ -10,7 +10,7 @@ module Zenx #(
     input wire rst,
     input wire clk,
     input wire btn,
-    output wire [3:0] led,
+    output reg [3:0] led,
     output wire led0_r,
     output wire led0_g,
     output wire led0_b,
@@ -131,10 +131,6 @@ reg urx_go; // enable to start receiving, disable after data received to acknowl
 reg urx_reg_hilo; // read into high or low byte of the register 'urx_reg'
 
 // lights
-assign led[0] = pc[btn ? 4 : 0];
-assign led[1] = pc[btn ? 5 : 1];
-assign led[2] = pc[btn ? 6 : 2];
-assign led[3] = pc[btn ? 7 : 3];
 assign led0_b = 1; // turn off rgb
 assign led0_g = 1;
 assign led0_r = 1;
@@ -174,6 +170,7 @@ always @(posedge clk) begin
         urx_regb_sel <= 0;
         urx_reg_hilo <= 0;
         urx_go <= 0;
+        led <= 0;
     end else begin
         `ifdef DBG
             $display("%0t: clk+: Zenx: %0d:%0h stp=%0d, doop:%0d, cs_en=%0d, zn=%d%d", $time, pc, instr, stp, is_do_op, cs_en, zn_zf, zn_nf);
@@ -206,6 +203,10 @@ always @(posedge clk) begin
                             utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
                             utx_go <= 1; // signal start of transmission
                             stp <= 1 << STP_BIT_UART_SENDING;
+                        end
+                        3'b111: begin // ledi
+                            led <= regb;
+                            stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                         end
                         default: $display("!!! unknown IO op");
                         endcase
