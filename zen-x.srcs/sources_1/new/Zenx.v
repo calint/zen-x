@@ -24,24 +24,24 @@ localparam CALLS_ADDR_WIDTH = 6; // 2**6 64 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 16 registers (not changable since register address encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
 
-localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value where imm4>=0?++imm4:-imm4
+localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value to 'regb' where imm4>=0?++imm4:-imm4
 localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
-localparam OP_LD   = 4'b0101; // load
-localparam OP_ST   = 4'b0111; // store
-localparam OP_SHF  = 4'b1110; // shift
+localparam OP_LD   = 4'b0101; // load ram address of 'rega' to 'regb'
+localparam OP_ST   = 4'b0111; // store 'regb' to ram address 'rega'
+localparam OP_SHF  = 4'b1110; // shift immediate signed 4 bits value where imm4>=0?++imm4:-imm4
 
-localparam ALU_ADD = 3'b000; // addition
-localparam ALU_SUB = 3'b001; // substraction
-localparam ALU_OR  = 3'b010; // bitwise or
-localparam ALU_XOR = 3'b011; // bitwise xor
-localparam ALU_AND = 3'b100; // bitwise and
-localparam ALU_NOT = 3'b101; // bitwise not
-localparam ALU_CP  = 3'b110; // copy
-localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value where imm4>=0?++imm4:-imm4
+localparam ALU_ADD = 3'b000; // add 'rega' to 'regb'
+localparam ALU_SUB = 3'b001; // substract 'rega' from 'regb'
+localparam ALU_OR  = 3'b010; // bitwise or 'rega' to 'regb'
+localparam ALU_XOR = 3'b011; // bitwise xor 'rega' to 'regb'
+localparam ALU_AND = 3'b100; // bitwise and 'rega' to 'regb'
+localparam ALU_NOT = 3'b101; // bitwise not 'rega' to 'regb'
+localparam ALU_CP  = 3'b110; // copy 'rega' to 'regb'
+localparam ALU_SHF = 3'b111; // shift immediate signed 4 bits value of 'regb' where imm4>=0?++imm4:-imm4
 
 reg [ROM_ADDR_WIDTH-1:0] pc; // program counter
 
-// OP_LDI related registers
+// OP_LDI related registers (loads the next instruction into 'regb')
 reg is_ldi; // enabled if current instruction is data to load
 reg [3:0] ldi_reg; // register to write data to
 reg ldi_is_ret; // enabled if 'ldi' operation had 'ret' (used later in the instruction cycle to set 'ldi_ret')
@@ -53,7 +53,7 @@ wire [15:0] instr; // current instruction from ROM
 // UartRx related (part 1)
 reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register, the received byte is or'ed into this register
 reg [3:0] urx_reg; // destination register of data from receive
-reg urx_regb_sel; // enabled if 'urx_reg' is selected for 'regb'
+reg urx_regb_sel; // enabled to set 'regb' to 'urx_reg' when receiving byte from uart
 
 // instruction break down
 wire instr_z = instr[0]; // if enabled execute instruction if z-flag matches 'zn_zf' (also considering instr_n)
@@ -80,11 +80,11 @@ wire is_do_op = !is_ldi && ((instr_z && instr_n) || (zn_zf == instr_z && zn_nf =
 wire is_cs_op = ldi_ret || (is_do_op && (instr_c ^ instr_r)); // enabled if instruction operates on 'Calls'
 wire cs_call = !ldi_ret && is_cs_op && instr_c; // enabled if instruction is 'call'
 wire is_ret = is_cs_op && instr_r; // enabled if current instruction has 'ret'
-wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'Calls' should do 'ret'
+wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'Calls' will do 'ret' from current 'call'
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' before the 'call'
 wire cs_zf_out; // zero-flag before the 'call'
 wire cs_nf_out; // negative-flag before the 'call'
-reg cs_en; // used to coordinate call / ret and Zn
+reg cs_en; // used to coordinate 'Calls' and 'Zn'
 
 // Registers related wiring (part 1)
 wire [REGISTERS_WIDTH-1:0] regs_dat_a; // regs[a]
@@ -100,12 +100,12 @@ wire [REGISTERS_WIDTH-1:0] alu_operand_a =
     op == OP_SHF || op == OP_ADDI ? (rega[3] ? {{(REGISTERS_WIDTH-4){rega[3]}},rega} : {{(REGISTERS_WIDTH-4){1'b0}},rega} + 1) : 
     regs_dat_a; // otherwise regs[a]
 
-// RAM related wiring and registers
-reg ram_we; // enabled when 'reg_dat_b' is written to ram address 'rega_dat_a'
-wire [REGISTERS_WIDTH-1:0] ram_dat_out; // current data at address 'reg_dat_a'
+// RAM related wiring
+reg ram_we; // enabled when 'regs_dat_b' is written to ram address 'regs_dat_a'
+wire [REGISTERS_WIDTH-1:0] ram_dat_out; // current data at address 'regs_dat_a'
 
 // Registers related wiring (part 2)
-reg regs_we; // write enable
+reg regs_we; // write enable 'regs_dat_b' to addres 'regb'
 reg [1:0] regs_wd_sel; // selector of data to write to register, 0:alu, 1:ram, 2:instr, 3: urx
 wire [REGISTERS_WIDTH-1:0] regs_wd =
     regs_wd_sel == 0 ? alu_result :
@@ -114,14 +114,14 @@ wire [REGISTERS_WIDTH-1:0] regs_wd =
     urx_reg_dat;
 
 // Zn related wiring (part 2)
-wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'. note. if return zn-flags from 'Calls' take precedence
-wire zn_sel = cs_ret; // if 'zn_we': if 'ret' select flags from from Calls otherwise ALU 
+wire zn_we = is_do_op && ((cs_en && is_cs_op) || (is_alu_op && !is_cs_op)); // update flags if alu op, 'call' or 'return'. note. if 'ret' zn-flags from 'Calls' take precedence
+wire zn_sel = cs_ret; // if 'zn_we': if 'ret' select flags from from 'Calls' otherwise 'ALU' 
 wire zn_clr = cs_call; // if 'zn_we': clears the flags if it is a 'call'. has precedence over 'zn_sel'
-wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between Zn, ALU and Calls
+wire cs_zf, cs_nf, alu_zf, alu_nf; // z- and n-flag wires between 'Zn', 'ALU' and 'Calls'
 
 // UartTx related wiring
 reg [7:0] utx_dat; // data to send
-reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' low 
+reg utx_go; // enabled when 'utx_dat' contains data to send and acknowledge 'utx_bsy' going low by disabling it 
 wire utx_bsy; // enabled while sending, when going low UartTx waits for 'utx_go' to go low as an acknowledge that data has been sent 
 
 // UartRx related wiring (part 2)
@@ -179,13 +179,13 @@ always @(posedge clk) begin
             // got instruction from rom, execute
             if (is_do_op) begin
                 if (cs_call) begin // call
-                    pc <= imm12 << 4; // set 'pc'
+                    pc <= imm12 << 4;
                     stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                 end else if (is_jmp) begin // jmp
-                    pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // increment 'pc'
+                    pc <= pc + {{(ROM_ADDR_WIDTH-12){imm12[11]}},imm12}; // add signed immediate 12 bits to 'pc'
                     stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                 end else begin
-                    if (cs_ret) begin // if instruction had 'ret' flag
+                    if (cs_ret) begin // if instruction will trigger 'Calls' to pop call stack
                         pc <= cs_pc_out + 1; // get return address from 'Calls'
                     end else begin
                         pc <= pc + 1; // not a return, increment program counter
@@ -193,15 +193,15 @@ always @(posedge clk) begin
                     if (op == OP_LDI && rega != 0) begin // input / output
                         case(rega[2:0]) // operation encoded in 'rega'
                         3'b110: begin // receive blocking
-                            urx_reg <= regb; // save 'regb' to be used at write
+                            urx_reg <= regb; // save 'regb' to be used at write register
                             urx_reg_dat <= regs_dat_b; // save current value of 'regb'
-                            urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits
-                            urx_go <= 1; // signal start read
+                            urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits of 'urx_reg_dat'
+                            urx_go <= 1; // enable start read
                             stp <= 1 << STP_BIT_UART_RECEIVING;
                         end
                         3'b010: begin // send blocking
                             utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
-                            utx_go <= 1; // signal start of transmission
+                            utx_go <= 1; // enable start of write
                             stp <= 1 << STP_BIT_UART_SENDING;
                         end
                         3'b111: begin // led and ledi
@@ -218,7 +218,7 @@ always @(posedge clk) begin
                         case(op)
                         OP_LDI: begin
                             ldi_reg <= regb; // save the register to which the next instruction data will be written
-                            ldi_is_ret <= is_ret;
+                            ldi_is_ret <= is_ret; // save if instruction is also a 'ret' for later in the instruction cycle
                             stp <= 1 << STP_BIT_LDI_WAIT_FOR_ROM;
                         end
                         OP_ST: begin
@@ -245,7 +245,7 @@ always @(posedge clk) begin
             urx_regb_sel <= 0; // disable signal that 'regb' is 'urx_reg'
             is_ldi <= 0; // disable flag that instruction is data for 'ldi'
             ldi_ret <= 0; // disable the 'ret' from 'ldi'
-            ldi_is_ret <= 0;
+            ldi_is_ret <= 0; // (not necesary but looks better in the chart)
             stp <= 1 << STP_BIT_NEW_INSTRUCTION; // done
         end else if(stp[STP_BIT_LDI_WAIT_FOR_ROM]) begin // ldi: wait for rom
             is_ldi <= 1; // signal that next instruction is data
@@ -253,7 +253,7 @@ always @(posedge clk) begin
         end else if(stp[STP_BIT_LDI_LOAD_DATA]) begin // ldi: load register
             regs_we <= 1; // enable register write
             regs_wd_sel <= 2; // select register write from rom output
-            ldi_ret <= ldi_is_ret;
+            ldi_ret <= ldi_is_ret; // enable 'ret' if instruction had 'ret'
             if (ldi_is_ret) begin // if 'ldi' had 'ret' flag then return from 'call'
                 pc <= cs_pc_out + 1; // get return address from 'Calls'
             end else begin
@@ -262,7 +262,7 @@ always @(posedge clk) begin
             stp <= 1 << STP_BIT_WAIT_FOR_ROM;
         end else if(stp[STP_BIT_UART_SENDING]) begin // utx: while uart busy wait
             if (!utx_bsy) begin
-                utx_go <= 0; // acknowledge that transmission is done
+                utx_go <= 0; // acknowledge that the write is done
                 stp <= 1 << STP_BIT_NEW_INSTRUCTION;
             end
         end else if(stp[STP_BIT_UART_RECEIVING]) begin // urx: while data is not ready
@@ -275,7 +275,7 @@ always @(posedge clk) begin
                 urx_go <= 0; // acknowledge the ready data has been read
                 regs_we <= 1; // enable register write
                 regs_wd_sel <= 3; // select data to write to register from 'urx_reg_dat'
-                urx_regb_sel <= 1; // signal that 'regb' is 'urx_reg'
+                urx_regb_sel <= 1; // enable 'urx_reg' to be 'regb' and the destination of register write
                 stp <= 1 << STP_BIT_WAIT_FOR_ROM;
             end // urx_dr
         end // stp[x]
