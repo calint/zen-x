@@ -160,11 +160,12 @@ end
 
 always @(posedge clk) begin
     if (rst) begin
-        stp <= 1;
+        stp <= 1 << STP_BIT_NEW_INSTRUCTION;
         pc <= 0;
         regs_wd_sel = 0;
         is_ldi <= 0;
         ldi_ret <= 0;
+        ldi_is_ret <= 0;
         regs_we <= 0;
         ram_we <= 0;
         utx_dat <= 0;

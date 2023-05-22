@@ -10,8 +10,8 @@
          a full cycle out of 2 is used for this situation to not happen
 [ ] ldi data can be loaded into register in a single cycle 
 [ ] built-in 4 leds set by 'led' and 'ledi' instructions
-[o] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA?
-[x]   UartRx fixed
+[ ] UartRx and UartTx have blocking assignments of bit_count. can the implementation be changed to NBA?
+[ ]   UartRx fixed => reverted
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [-] remove module Registers and implement the registers in Zenx

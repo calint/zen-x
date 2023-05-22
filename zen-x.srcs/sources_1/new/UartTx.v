@@ -39,7 +39,6 @@ always @(negedge clk) begin
         STATE_IDLE: begin
             if (go) begin
                 bsy <= 1;
-                bit_count <= 0;
                 bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of 'start bit' is being sent in this state
                 tx <= 0; // start sending 'start bit'
                 state <= STATE_START_BIT;
@@ -48,6 +47,7 @@ always @(negedge clk) begin
         STATE_START_BIT: begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of the first bit is being sent in this state
+                bit_count <= 0;
                 tx <= data[0]; // start sending first bit of data
                 state <= STATE_DATA_BITS;
             end else begin
@@ -58,7 +58,7 @@ always @(negedge clk) begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of next bit is sent in this state
                 bit_count = bit_count + 1;
-                if (bit_count == 8) begin
+                if (bit_count == 8) begin // 7 not 8 because of bit_count NBA
                     bit_count <= 0;
                     tx <= 1; // start sending stop bit
                     state <= STATE_STOP_BIT;
