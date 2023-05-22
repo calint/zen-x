@@ -2,13 +2,12 @@
 `default_nettype none
 
 // ROM files used in simulations
-// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex";
-// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex";
-// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex";
-// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex";
 
 module Top #(
-    parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex"
+   parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_1/new/TB_Zenx.hex"
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_4/new/TB_ZenxHex.hex"
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_5/new/TB_ZenxPrint.hex"
+// parameter ROM_FILE = "/home/c/w/zen-x/zen-x.srcs/sim_6/new/TB_ZenxInput.hex"
 )(
     input wire reset,
     input wire clk_in,

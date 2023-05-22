@@ -3,6 +3,9 @@ ldi 0x0001 r10
 ldi 0x20 r11
 loop:
     call print_hex
+    cp r1 r2
+    shf 8 r2
+    led r2
     wl r11
     add r10 r1
     jmp loop
