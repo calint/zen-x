@@ -24,7 +24,6 @@ localparam STATE_WAIT_GO_LOW  = 4;
 
 reg [$clog2(5)-1:0] state;
 reg [$clog2(9)-1:0] bit_count;
-
 reg [(BIT_TIME == 1 ? 1 : $clog2(BIT_TIME))-1:0] bit_time_counter;
 
 always @(negedge clk) begin
