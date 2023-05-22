@@ -47,7 +47,7 @@ always @(negedge clk) begin
             if (bit_time_counter == 0) begin
                 bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of the first bit is being sent in this state
                 tx <= data[0]; // start sending first bit of data
-                bit_count <= 0;
+                bit_count <= 1; // first bit is being sent during this cycle
                 state <= STATE_DATA_BITS;
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
@@ -55,14 +55,14 @@ always @(negedge clk) begin
         end
         STATE_DATA_BITS: begin
             if (bit_time_counter == 0) begin
+                tx <= data[bit_count];
                 bit_time_counter <= BIT_TIME - 1; // -1 because first 'tick' of next bit is sent in this state
-                bit_count = bit_count + 1; // ? NBA
+                bit_count <= bit_count + 1;
                 if (bit_count == 8) begin
                     bit_count <= 0;
                     tx <= 1; // start sending stop bit
                     state <= STATE_STOP_BIT;
                 end else begin
-                    tx <= data[bit_count];
                 end
             end else begin
                 bit_time_counter <= bit_time_counter - 1;
