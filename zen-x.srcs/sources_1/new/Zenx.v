@@ -82,8 +82,6 @@ wire cs_call = !ldi_ret && is_cs_op && instr_c; // enabled if instruction is 'ca
 wire is_ret = is_cs_op && instr_r; // enabled if current instruction has 'ret'
 wire cs_ret = ldi_ret || (is_ret && !(op == OP_LDI && rega == 0)); // enabled if 'Calls' will do 'ret' from current 'call'
 wire [ROM_ADDR_WIDTH-1:0] cs_pc_out; // 'pc' before the 'call'
-wire cs_zf_out; // zero-flag before the 'call'
-wire cs_nf_out; // negative-flag before the 'call'
 reg cs_en; // used to coordinate 'Calls' and 'Zn'
 
 // Registers related wiring (part 1)

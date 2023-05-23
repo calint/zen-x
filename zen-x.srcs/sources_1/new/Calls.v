@@ -48,6 +48,9 @@ always @(posedge clk) begin
 
     if (rst) begin
         idx <= {ADDR_WIDTH{1'b1}};
+        pc_out_nxt <= 0;
+        zf_out_nxt <= 0;
+        nf_out_nxt <= 0;
     end else begin
         if (en) begin
             if (call) begin
