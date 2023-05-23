@@ -10,6 +10,9 @@
          put data out, first of all modules, at beginning of the next cycle
          a full cycle out of 2 is used for this situation to not happen
 [ ] ldi ? data can be loaded into register in once cycle
+[ ] zenx: op wh ? can be removed, use shift and wl
+[-] zenz: op rh ? can be removed, use rl and shift
+          => [ab] [cd] becomes [ba] [dc]
 [ ] emulator webapp
 ------------------------------------------------------------------------------
 [x] built-in 4 leds set by 'led' and 'ledi' instructions
