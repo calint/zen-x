@@ -25,3 +25,6 @@ overwrites current workspace with HEAD
 overwrites HEAD with current workspace
     git push --force origin HEAD
 -------------------------------------------------------------
+vivado install cable drivers:
+    ./Vivado/2022.2/data/xicom/cable_drivers/lin64/install_script/install_drivers/install_drivers
+-------------------------------------------------------------
