@@ -100,7 +100,7 @@ instruction executes according to:
 
 instructions with rc=10 return from call
 
-how-to with Vivado v2022.2:
+how-to with Vivado v2023.1:
  * to program device edit path to ROM in "zen-x.srcs/sources_1/new/Top.v"
  * connect fpga board Cmod S7 from digilent.com
  * run synthesis, run implementation, program device
