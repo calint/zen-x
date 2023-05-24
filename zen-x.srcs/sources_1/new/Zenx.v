@@ -23,6 +23,7 @@ localparam RAM_ADDR_WIDTH = 16; // 2**16 64K data addresses
 localparam CALLS_ADDR_WIDTH = 6; // 2**6 64 stack
 localparam REGISTERS_ADDR_WIDTH = 4; // 2**4 16 registers (not changable since register address is encoded in instruction using 4 bits) 
 localparam REGISTERS_WIDTH = 16; // 16 bit
+localparam INSTRUCTION_WIDTH = 16;
 
 localparam OP_ADDI = 4'b0001; // add immediate signed 4 bits value to 'regb' where imm4>=0?++imm4:-imm4
 localparam OP_LDI  = 4'b0011; // load immediate 16 bits from next instruction
@@ -52,7 +53,7 @@ reg ldi_is_ret; // enabled if 'ldi' operation had 'ret' (used later in the instr
 reg ldi_ret; // enabled by 'ldi_is_ret' in the second half of the 'ldi' instruction to trigger 'Calls' to return from current 'call'
 
 // ROM related wiring
-wire [15:0] instr; // current instruction from ROM
+wire [INSTRUCTION_WIDTH-1:0] instr; // current instruction from ROM
 
 // UartRx related (part 1)
 reg [REGISTERS_WIDTH-1:0] urx_reg_dat; // content of the destination register, the received byte is or'ed into this register
@@ -287,7 +288,7 @@ end
 ROM #(
     .DATA_FILE(ROM_FILE),
     .ADDR_WIDTH(ROM_ADDR_WIDTH),
-    .WIDTH(REGISTERS_WIDTH)
+    .WIDTH(INSTRUCTION_WIDTH)
 ) rom ( // 64K x 16b
     .clk(clk),
     .addr(pc),
