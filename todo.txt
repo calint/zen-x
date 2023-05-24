@@ -11,6 +11,7 @@
          a full cycle out of 2 is used for this situation to not happen
 [ ] ldi ? data can be loaded into register in once cycle
 [ ] op 'rgb' to activate rgb led
+[ ] op 'btn' to read the state of btn[1]
 [ ] zenx: op wh ? can be removed, use shift and wl
 [-] zenz: op rh ? can be removed, use rl and shift
           => [ab] [cd] becomes [ba] [dc]
