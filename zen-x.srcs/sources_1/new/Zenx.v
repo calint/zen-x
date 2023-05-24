@@ -30,6 +30,10 @@ localparam OP_LD   = 4'b0101; // load ram address of 'rega' to 'regb'
 localparam OP_ST   = 4'b0111; // store 'regb' to ram address 'rega'
 localparam OP_SHF  = 4'b1110; // shift immediate signed 4 bits value where imm4>=0?++imm4:-imm4
 
+localparam OP_IO_READ  = 3'b110;
+localparam OP_IO_WRITE = 3'b010;
+localparam OP_IO_LED   = 3'b111;
+
 localparam ALU_ADD = 3'b000; // add 'rega' to 'regb'
 localparam ALU_SUB = 3'b001; // substract 'rega' from 'regb'
 localparam ALU_OR  = 3'b010; // bitwise or 'rega' to 'regb'
@@ -190,19 +194,19 @@ always @(posedge clk) begin
                     end
                     if (op == OP_LDI && rega != 0) begin // input / output
                         case(rega[2:0]) // operation encoded in 'rega'
-                        3'b110: begin // receive blocking
+                        OP_IO_READ: begin // receive blocking
                             urx_reg <= regb; // save 'regb' to be used at write register
                             urx_reg_dat <= regs_dat_b; // save current value of 'regb'
                             urx_reg_hilo <= rega[3]; // save if read is to lower or higher 8 bits of 'urx_reg_dat'
                             urx_go <= 1; // enable start read
                             stp <= 1 << STP_BIT_UART_RECEIVING;
                         end
-                        3'b010: begin // send blocking
+                        OP_IO_WRITE: begin // send blocking
                             utx_dat <= rega[3] ? regs_dat_b[15:8] : regs_dat_b[7:0]; // select the lower or higher bits to send
                             utx_go <= 1; // enable start of write
                             stp <= 1 << STP_BIT_UART_SENDING;
                         end
-                        3'b111: begin // led and ledi
+                        OP_IO_LED: begin // led and ledi
                             led <= rega[3] ? regb : regs_dat_b[3:0];
                             stp <= 1 << STP_BIT_WAIT_FOR_ROM;
                         end
