@@ -5,6 +5,8 @@ experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga
 
 pre pipeline
 
+second try at fpga verilog vivado
+
 development continued in project 'zen-one'
 
 ```
