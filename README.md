@@ -1,4 +1,7 @@
 # zen-x
+
+> :bell: development continued in project [zen-one](https://github.com/calint/zen-one)
+
 experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga Cmod S7 from Digilent
 
 2 cycles / instruction
@@ -6,8 +9,6 @@ experimental retro 16 bit cpu written in verilog xilinx vivado intended for fpga
 pre pipeline
 
 second try at fpga verilog vivado
-
-development continued in project [zen-one](https://github.com/calint/zen-one)
 
 ```
                           
